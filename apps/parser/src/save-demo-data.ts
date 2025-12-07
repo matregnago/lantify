@@ -1,3 +1,4 @@
+import { db } from "@repo/database";
 import * as schema from "@repo/database/schema";
 
 type NewMatch = typeof schema.matches.$inferInsert;
@@ -5,9 +6,6 @@ type NewTeam = typeof schema.teams.$inferInsert;
 type NewPlayer = typeof schema.players.$inferInsert;
 
 export const saveDemoData = async (fileName: string) => {
-  // Importação dinâmica para garantir que o .env já foi carregado
-  const { db } = await import("@repo/database");
-
   const data = await Bun.file(fileName).json();
 
   if (!data) {
