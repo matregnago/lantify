@@ -3,7 +3,7 @@ import * as t from "drizzle-orm/pg-core";
 export const matches = t.pgTable("match", {
   id: t.varchar({ length: 255 }).primaryKey(),
   map: t.varchar({ length: 255 }).notNull(),
-  date: t.date().notNull(),
+  date: t.varchar({ length: 255 }).notNull(),
 });
 
 export const teams = t.pgTable("team", {
