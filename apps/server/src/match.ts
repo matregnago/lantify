@@ -1,6 +1,7 @@
 import { db, desc, eq } from "@repo/database";
 import * as s from "@repo/database/schema";
-import { MatchDTO, TeamDTO } from "@repo/contracts";
+import { MatchDTO, PlayerDTO, TeamDTO } from "@repo/contracts";
+import { SteamApiResponse } from "./constants.js";
 
 export async function getMatchData(request: Bun.BunRequest<"/matches/:id">) {
   const matchId = request.params.id;
@@ -22,6 +23,19 @@ export async function getMatchData(request: Bun.BunRequest<"/matches/:id">) {
     teams: [],
   };
 
+  let steamIds = "";
+
+  for (let i = 0; i < rows.length; i++) {
+    steamIds += rows[i]?.player?.steamId;
+    if (i < rows.length - 1) steamIds += ",";
+  }
+
+  const steamReq = await fetch(
+    `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${process.env.STEAM_API_KEY}&steamids=${steamIds}`
+  );
+
+  const rawSteamData: SteamApiResponse = await steamReq.json();
+
   const teamsMap = new Map<number, TeamDTO>();
 
   for (const row of rows) {
@@ -42,7 +56,17 @@ export async function getMatchData(request: Bun.BunRequest<"/matches/:id">) {
       const alreadyAdded = team.players.some((p) => p.id === row.player!.id);
 
       if (!alreadyAdded) {
-        team.players.push(row.player);
+        const playerDataFromSteam = rawSteamData.response.players.find(
+          (p) => p.steamid === row.player?.steamId
+        );
+        if (playerDataFromSteam) {
+          const player: PlayerDTO = {
+            ...row.player,
+            avatarUrl: playerDataFromSteam.avatarfull,
+            steamNickname: playerDataFromSteam.personaname,
+          };
+          team.players.push(player);
+        }
       }
     }
   }

@@ -1,3 +1,5 @@
+"use client";
+import Image from "next/image";
 import {
   Table,
   TableBody,
@@ -7,15 +9,18 @@ import {
   TableRow,
 } from "../ui/table";
 import { TeamDTO } from "@repo/contracts";
+import { useRouter } from "next/navigation";
 
 export const TeamTable = ({ team }: { team: TeamDTO }) => {
+  const router = useRouter();
+
   if (!team.players) return <></>;
   const players = team.players;
   return (
-    <Table>
+    <Table className="bg-card rounded-sm">
       <TableHeader>
         <TableRow>
-          <TableHead>Player</TableHead>
+          <TableHead className="w-64">Player</TableHead>
           <TableHead>K</TableHead>
           <TableHead>D</TableHead>
           <TableHead>A</TableHead>
@@ -33,14 +38,28 @@ export const TeamTable = ({ team }: { team: TeamDTO }) => {
       <TableBody>
         {players.map((player) => (
           <TableRow key={player.id}>
-            <TableCell>{player.name}</TableCell>
+            <TableCell>
+              <div
+                className="flex flex-row gap-3 items-center cursor-pointer w-fit"
+                onClick={() => router.push(`/profile/${player.steamId}`)}
+              >
+                <Image
+                  src={player.avatarUrl}
+                  width={32}
+                  height={32}
+                  alt={`${player.name} avatar`}
+                  className="rounded-full border border-gray-800"
+                />
+                <p className="font-semibold">{player.name}</p>
+              </div>
+            </TableCell>
             <TableCell>{player.killCount}</TableCell>
             <TableCell>{player.deathCount}</TableCell>
             <TableCell>{player.assistCount}</TableCell>
             <TableCell>{player.averageDamagePerRound.toFixed(1)}</TableCell>
             <TableCell>{player.killDeathRatio.toFixed(2)}</TableCell>
             <TableCell>{player.averageKillPerRound.toFixed(2)}</TableCell>
-            <TableCell>{player.headshotPercent} %</TableCell>
+            <TableCell>{player.headshotPercent}%</TableCell>
             <TableCell>{player.fiveKillCount}</TableCell>
             <TableCell>{player.fourKillCount}</TableCell>
             <TableCell>{player.threeKillCount}</TableCell>

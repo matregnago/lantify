@@ -1,5 +1,10 @@
+"use server";
+import { MatchHeader } from "@/components/match/MatchHeader";
+import { TeamHeader } from "@/components/match/TeamHeader";
 import { TeamTable } from "@/components/match/TeamTable";
 import { MatchDTO } from "@repo/contracts";
+import { ChevronLeft } from "lucide-react";
+import Link from "next/link";
 
 export default async function MatchPage({
   params,
@@ -8,7 +13,9 @@ export default async function MatchPage({
 }) {
   const { id } = await params;
 
-  const matchReq = await fetch(`http://localhost:3333/matches/${id}`);
+  const matchReq = await fetch(`http://localhost:3333/matches/${id}`, {
+    cache: "force-cache",
+  });
   const match: MatchDTO = await matchReq.json();
 
   const teamA = match.teams[0];
@@ -17,12 +24,24 @@ export default async function MatchPage({
   if (!teamA || !teamB || !teamA.players || !teamB.players) return <></>;
 
   return (
-    <div>
-      <div>
-        <TeamTable team={teamA} />
-      </div>
-      <div>
-        <TeamTable team={teamB} />
+    <div className="py-12">
+      <div className="max-w-7xl mx-auto flex flex-col gap-8">
+        <Link
+          href="/"
+          className="flex flex-row gap-2 items-center  text-muted-foreground hover:text-primary cursor-pointer"
+        >
+          <ChevronLeft size={16} />
+          <p className="text-sm">Voltar às partidas</p>
+        </Link>
+        <MatchHeader match={match} />
+        <div className="">
+          <TeamHeader team={teamA} />
+          <TeamTable team={teamA} />
+        </div>
+        <div>
+          <TeamHeader team={teamB} />
+          <TeamTable team={teamB} />
+        </div>
       </div>
     </div>
   );
