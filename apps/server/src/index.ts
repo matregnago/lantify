@@ -1,17 +1,12 @@
 import "./bootstrap";
-import { db } from "@repo/database";
-import * as schema from "@repo/database/schema";
-
-async function listMatches(request: Bun.BunRequest<"/">) {
-  const matches = await db.select().from(schema.matches);
-
-  return Response.json(matches, { status: 200 });
-}
+import { getMatchData, listMatches } from "./match.js";
 
 async function main() {
   const server = Bun.serve({
     routes: {
-      "/": listMatches,
+      "/matches": listMatches,
+      "/matches/:id": getMatchData,
+      "/": () => new Response("API Working!"),
     },
 
     port: 3333,
