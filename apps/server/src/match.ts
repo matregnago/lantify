@@ -1,4 +1,4 @@
-import { db, eq } from "@repo/database";
+import { db, desc, eq } from "@repo/database";
 import * as s from "@repo/database/schema";
 import { MatchDTO, TeamDTO } from "@repo/contracts";
 
@@ -10,7 +10,8 @@ export async function getMatchData(request: Bun.BunRequest<"/matches/:id">) {
     .from(s.matches)
     .leftJoin(s.teams, eq(s.teams.matchId, s.matches.id))
     .leftJoin(s.players, eq(s.players.teamId, s.teams.id))
-    .where(eq(s.matches.id, matchId));
+    .where(eq(s.matches.id, matchId))
+    .orderBy(desc(s.players.killCount));
 
   if (!rows.length || !rows[0]?.match) {
     return Response.json({ error: "Partida não encontrada!" }, { status: 404 });

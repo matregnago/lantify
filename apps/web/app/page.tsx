@@ -2,7 +2,6 @@ import { MatchDTO } from "@repo/contracts";
 
 export default async function Home() {
   const matchesReq = await fetch("http://localhost:3333/matches");
-
   const matches: MatchDTO[] = await matchesReq.json();
 
   return (
