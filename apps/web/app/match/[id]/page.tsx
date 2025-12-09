@@ -28,7 +28,7 @@ export default async function MatchPage({
       <div className="max-w-7xl mx-auto flex flex-col gap-8">
         <Link
           href="/"
-          className="flex flex-row gap-2 items-center  text-muted-foreground hover:text-primary cursor-pointer"
+          className="flex flex-row gap-2 items-center text-muted-foreground hover:text-primary cursor-pointer"
         >
           <ChevronLeft size={16} />
           <p className="text-sm">Voltar às partidas</p>

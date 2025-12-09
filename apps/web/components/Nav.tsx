@@ -6,10 +6,10 @@ export function Nav() {
       label: "Partidas",
       ref: "/",
     },
-    {
-      label: "Ranking",
-      ref: "/ranking",
-    },
+    // {
+    //   label: "Ranking",
+    //   ref: "/ranking",
+    // },
   ];
 
   return (
