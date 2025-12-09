@@ -2,9 +2,11 @@
 import { MatchHeader } from "@/components/match/MatchHeader";
 import { TeamHeader } from "@/components/match/TeamHeader";
 import { TeamTable } from "@/components/match/TeamTable";
+import { getMatchData } from "@/lib/api/match";
 import { MatchDTO } from "@repo/contracts";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 
 export default async function MatchPage({
   params,
@@ -13,10 +15,12 @@ export default async function MatchPage({
 }) {
   const { id } = await params;
 
-  const matchReq = await fetch(`http://localhost:3333/matches/${id}`, {
-    cache: "force-cache",
-  });
-  const match: MatchDTO = await matchReq.json();
+  const match = await getMatchData(id);
+
+  if(!match) {
+        notFound();
+    
+  }
 
   const teamA = match.teams[0];
   const teamB = match.teams[1];

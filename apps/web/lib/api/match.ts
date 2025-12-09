@@ -1,10 +1,9 @@
 import { db, desc, eq } from "@repo/database";
 import * as s from "@repo/database/schema";
 import { MatchDTO, PlayerDTO, TeamDTO } from "@repo/contracts";
-import { SteamApiResponse } from "./constants.js";
+import { SteamApiResponse } from "./steam.js"; 
 
-export async function getMatchData(request: Bun.BunRequest<"/matches/:id">) {
-  const matchId = request.params.id;
+export async function getMatchData(matchId: string) {
 
   const rows = await db
     .select()
@@ -15,7 +14,7 @@ export async function getMatchData(request: Bun.BunRequest<"/matches/:id">) {
     .orderBy(desc(s.players.killCount));
 
   if (!rows.length || !rows[0]?.match) {
-    return Response.json({ error: "Partida não encontrada!" }, { status: 404 });
+    return null;
   }
 
   const match: MatchDTO = {
@@ -31,7 +30,9 @@ export async function getMatchData(request: Bun.BunRequest<"/matches/:id">) {
   }
 
   const steamReq = await fetch(
-    `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${process.env.STEAM_API_KEY}&steamids=${steamIds}`
+    `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${process.env.STEAM_API_KEY}&steamids=${steamIds}`, {
+      cache: "force-cache",
+    }
   );
 
   const rawSteamData: SteamApiResponse = await steamReq.json();
@@ -70,11 +71,10 @@ export async function getMatchData(request: Bun.BunRequest<"/matches/:id">) {
       }
     }
   }
-
-  return Response.json(match, { status: 200 });
+  return match;
 }
 
-export async function listMatches(request: Bun.BunRequest<"/matches">) {
+export async function listMatches() {
   const rows = await db
     .select()
     .from(s.matches)
@@ -106,5 +106,5 @@ export async function listMatches(request: Bun.BunRequest<"/matches">) {
   }
   const matches = Array.from(matchesMap.values());
 
-  return Response.json(matches, { status: 200 });
+  return matches;
 }

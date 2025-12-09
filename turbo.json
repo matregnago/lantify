@@ -1,5 +1,10 @@
 {
   "$schema": "https://turborepo.com/schema.json",
+  "globalEnv": [
+    "NODE_ENV",
+    "DATABASE_URL",
+    "STEAM_API_KEY"
+  ],
   "ui": "tui",
   "tasks": {
     "build": {

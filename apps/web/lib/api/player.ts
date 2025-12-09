@@ -1,23 +1,23 @@
 import { PlayerProfileDTO } from "@repo/contracts";
 import { db, eq } from "@repo/database";
 import * as s from "@repo/database/schema";
-import { SteamApiResponse } from "./constants.js";
-export async function profilePage(request: Bun.BunRequest<"/profile/:id">) {
-  const { id } = request.params;
+import { SteamApiResponse } from "./steam.js";
+export async function getPlayerProfileData(steamId: string) {
 
   const playerData = await db
     .select()
     .from(s.players)
     .leftJoin(s.teams, eq(s.players.teamId, s.teams.id))
     .leftJoin(s.matches, eq(s.teams.matchId, s.matches.id))
-    .where(eq(s.players.steamId, id));
+    .where(eq(s.players.steamId, steamId));
 
   if (!playerData.length) {
-    return Response.json({ error: "Jogador não encontrado!" }, { status: 404 });
+    return null;
   }
 
   const steamReq = await fetch(
-    `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${process.env.STEAM_API_KEY}&steamids=${id}`
+    `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${process.env.STEAM_API_KEY}&steamids=${steamId}`,
+    { cache: "force-cache"}
   );
   const rawSteamData: SteamApiResponse = await steamReq.json();
   const playerInfo = rawSteamData.response.players[0];
@@ -130,5 +130,5 @@ export async function profilePage(request: Bun.BunRequest<"/profile/:id">) {
     averageDeathPerRound: acc.averageDeathPerRound / acc.totalMatches,
   };
 
-  return Response.json(profilePlayerData, { status: 200 });
+  return profilePlayerData;
 }

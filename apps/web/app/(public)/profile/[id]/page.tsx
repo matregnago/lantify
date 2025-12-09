@@ -1,7 +1,9 @@
 "use server";
 
 import { PlayerProfile } from "@/components/player-profile/PlayerProfile";
+import { getPlayerProfileData } from "@/lib/api/player";
 import { PlayerProfileDTO } from "@repo/contracts";
+import { notFound } from "next/navigation";
 
 export default async function ProfilePage({
   params,
@@ -9,10 +11,11 @@ export default async function ProfilePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const profileReq = await fetch(`http://localhost:3333/profile/${id}`, {
-    cache: "force-cache",
-  });
-  const profileData: PlayerProfileDTO = await profileReq.json();
+  const profileData = await getPlayerProfileData(id);
+
+  if(!profileData) {
+    notFound();
+  }
 
   return <PlayerProfile profile={profileData} />;
 }

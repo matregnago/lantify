@@ -1,10 +1,10 @@
 "use server";
 import { MatchPreview } from "@/components/match-list/MatchPreview";
+import { listMatches } from "@/lib/api/match";
 import { MatchDTO } from "@repo/contracts";
 
 export default async function Home() {
-  const matchesReq = await fetch("http://localhost:3333/matches");
-  const matches: MatchDTO[] = await matchesReq.json();
+  const matches: MatchDTO[] = await listMatches();
 
   return (
     <div className="max-w-7xl mx-auto py-12">
