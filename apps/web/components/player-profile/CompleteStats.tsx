@@ -24,7 +24,7 @@ export const CompleteStats = ({ profile }: { profile: PlayerProfileDTO }) => {
       value: profile.averageDeathPerRound.toFixed(2),
     },
     {
-      name: "Dano com utilitários",
+      name: "Dano com utilitários por partida",
       value: profile.utilityDamage.toString(),
     },
   ];

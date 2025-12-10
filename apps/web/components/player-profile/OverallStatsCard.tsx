@@ -3,6 +3,7 @@ import { ProgressStatus } from "./ProgressStatus";
 import { Card } from "../ui/card";
 import { CircularChart } from "./CircularChart";
 import { Field } from "./Field";
+import { colorByMaxValue } from "@/lib/color-by-max-value";
 
 export const OverallStatsCard = ({
   profile,
@@ -35,13 +36,13 @@ export const OverallStatsCard = ({
             statusName="Kills por partida"
             value={profile.killsPerMatch}
             formattedValue={profile.killsPerMatch.toFixed(0)}
-            max={25}
+            max={28}
           />
           <ProgressStatus
             statusName="Kills por round"
             value={profile.killsPerRound}
             formattedValue={profile.killsPerRound.toFixed(2)}
-            max={1}
+            max={1.1}
           />
           <ProgressStatus
             statusName="KAST"
@@ -53,7 +54,7 @@ export const OverallStatsCard = ({
         <div className="flex flex-row items-center justify-evenly w-[50%]">
           <Card>
             <CircularChart
-              color="#4dc49e"
+              color={colorByMaxValue(profile.winRate, 100)}
               value={profile.winRate}
               label="Taxa de vitória"
               max={100}
@@ -62,7 +63,7 @@ export const OverallStatsCard = ({
           </Card>
           <Card>
             <CircularChart
-              color="#4dc49e"
+              color={colorByMaxValue(profile.rating2, 1.5)}
               value={profile.rating2}
               formattedValue={profile.rating2.toFixed(2)}
               label="Rating 2.0"
