@@ -2,7 +2,6 @@
 
 import { PlayerProfile } from "@/components/player-profile/PlayerProfile";
 import { getPlayerProfileData } from "@/lib/api/player";
-import { PlayerProfileDTO } from "@repo/contracts";
 import { notFound } from "next/navigation";
 
 export default async function ProfilePage({
@@ -13,9 +12,13 @@ export default async function ProfilePage({
   const { id } = await params;
   const profileData = await getPlayerProfileData(id);
 
-  if(!profileData) {
+  if (!profileData) {
     notFound();
   }
 
-  return <PlayerProfile profile={profileData} />;
+  return (
+    <div className="py-12">
+      <PlayerProfile profile={profileData} />
+    </div>
+  );
 }

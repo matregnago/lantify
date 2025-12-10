@@ -1,9 +1,8 @@
-import { PlayerProfileDTO } from "@repo/contracts";
+import { PlayerMatchHistoryDTO, PlayerProfileDTO } from "@repo/contracts";
 import { db, eq } from "@repo/database";
 import * as s from "@repo/database/schema";
-import { SteamApiResponse } from "./steam.js";
+import { fetchSteamProfiles } from "./steam";
 export async function getPlayerProfileData(steamId: string) {
-
   const playerData = await db
     .select()
     .from(s.players)
@@ -15,14 +14,11 @@ export async function getPlayerProfileData(steamId: string) {
     return null;
   }
 
-  const steamReq = await fetch(
-    `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${process.env.STEAM_API_KEY}&steamids=${steamId}`,
-    { cache: "force-cache"}
-  );
-  const rawSteamData: SteamApiResponse = await steamReq.json();
-  const playerInfo = rawSteamData.response.players[0];
+  const steamData = await fetchSteamProfiles(steamId);
 
-  let acc: PlayerProfileDTO = {
+  const playerMatchHistory: PlayerMatchHistoryDTO[] = [];
+
+  const acc: PlayerProfileDTO = {
     killDeathRatio: 0,
     headshotPercent: 0,
     killsPerMatch: 0,
@@ -42,7 +38,7 @@ export async function getPlayerProfileData(steamId: string) {
     totalMultiKills: 0,
     totalFirstKills: 0,
     totalFirstDeaths: 0,
-    totalUtilityDamage: 0,
+    utilityDamage: 0,
     kast: 0,
     averageDeathPerRound: 0,
     oneVsOneCount: 0,
@@ -63,7 +59,7 @@ export async function getPlayerProfileData(steamId: string) {
   };
 
   for (const row of playerData) {
-    if (row.match) {
+    if (row.match && row.team && row.player) {
       const teamsFromMatch = await db
         .select()
         .from(s.teams)
@@ -71,6 +67,11 @@ export async function getPlayerProfileData(steamId: string) {
       const roundsPlayed = teamsFromMatch
         .map((t) => t.score)
         .reduce((a, b) => a + b, 0);
+      playerMatchHistory.push({
+        match: row.match,
+        teams: teamsFromMatch,
+        player: row.player,
+      });
       acc.totalRounds += roundsPlayed;
       acc.totalMatches++;
       acc.killDeathRatio += row.player.killDeathRatio;
@@ -93,7 +94,7 @@ export async function getPlayerProfileData(steamId: string) {
         row.player.fiveKillCount;
       acc.totalFirstKills += row.player.firstKillCount;
       acc.totalFirstDeaths += row.player.firstDeathCount;
-      acc.totalUtilityDamage += row.player.utilityDamage;
+      acc.utilityDamage += row.player.utilityDamage;
       acc.kast += row.player.kast;
       acc.averageDeathPerRound += row.player.averageDeathPerRound;
       acc.oneVsOneCount += row.player.oneVsOneCount;
@@ -117,8 +118,8 @@ export async function getPlayerProfileData(steamId: string) {
 
   const profilePlayerData: PlayerProfileDTO = {
     ...acc,
-    avatarUrl: playerInfo?.avatarfull || "",
-    nickName: playerInfo?.personaname || "",
+    avatarUrl: steamData?.response.players[0]?.avatarfull || "",
+    nickName: steamData?.response.players[0]?.personaname || "",
     killDeathRatio: acc.killDeathRatio / acc.totalMatches,
     averageDamagePerRound: acc.averageDamagePerRound / acc.totalMatches,
     headshotPercent: acc.headshotPercent / acc.totalMatches,
@@ -128,6 +129,8 @@ export async function getPlayerProfileData(steamId: string) {
     winRate: acc.totalMatches ? (acc.winRate / acc.totalMatches) * 100 : 0,
     kast: acc.kast / acc.totalMatches,
     averageDeathPerRound: acc.averageDeathPerRound / acc.totalMatches,
+    matchHistory: playerMatchHistory,
+    utilityDamage: acc.utilityDamage / acc.totalMatches,
   };
 
   return profilePlayerData;

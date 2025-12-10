@@ -3,7 +3,6 @@ import { MatchHeader } from "@/components/match/MatchHeader";
 import { TeamHeader } from "@/components/match/TeamHeader";
 import { TeamTable } from "@/components/match/TeamTable";
 import { getMatchData } from "@/lib/api/match";
-import { MatchDTO } from "@repo/contracts";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -17,9 +16,8 @@ export default async function MatchPage({
 
   const match = await getMatchData(id);
 
-  if(!match) {
-        notFound();
-    
+  if (!match) {
+    notFound();
   }
 
   const teamA = match.teams[0];

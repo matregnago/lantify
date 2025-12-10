@@ -1,10 +1,9 @@
 import { db, desc, eq } from "@repo/database";
 import * as s from "@repo/database/schema";
 import { MatchDTO, PlayerDTO, TeamDTO } from "@repo/contracts";
-import { SteamApiResponse } from "./steam.js"; 
+import { fetchSteamProfiles } from "./steam";
 
 export async function getMatchData(matchId: string) {
-
   const rows = await db
     .select()
     .from(s.matches)
@@ -29,13 +28,7 @@ export async function getMatchData(matchId: string) {
     if (i < rows.length - 1) steamIds += ",";
   }
 
-  const steamReq = await fetch(
-    `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${process.env.STEAM_API_KEY}&steamids=${steamIds}`, {
-      cache: "force-cache",
-    }
-  );
-
-  const rawSteamData: SteamApiResponse = await steamReq.json();
+  const steamData = await fetchSteamProfiles(steamIds);
 
   const teamsMap = new Map<number, TeamDTO>();
 
@@ -57,9 +50,11 @@ export async function getMatchData(matchId: string) {
       const alreadyAdded = team.players.some((p) => p.id === row.player!.id);
 
       if (!alreadyAdded) {
-        const playerDataFromSteam = rawSteamData.response.players.find(
-          (p) => p.steamid === row.player?.steamId
-        );
+        const playerDataFromSteam = steamData
+          ? steamData.response.players.find(
+              (p) => p.steamid === row.player?.steamId
+            )
+          : null;
         if (playerDataFromSteam) {
           const player: PlayerDTO = {
             ...row.player,

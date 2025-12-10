@@ -1,8 +1,15 @@
 import * as s from "@repo/database/schema";
 
+export type PlayerMatchHistoryDTO = {
+  match: typeof s.matches.$inferSelect;
+  teams: (typeof s.teams.$inferSelect)[];
+  player: typeof s.players.$inferSelect;
+};
+
 export type PlayerProfileDTO = {
   nickName?: string;
   avatarUrl?: string;
+  matchHistory?: PlayerMatchHistoryDTO[];
   killDeathRatio: number;
   headshotPercent: number;
   killsPerMatch: number;
@@ -21,7 +28,7 @@ export type PlayerProfileDTO = {
   totalMultiKills: number;
   totalFirstKills: number;
   totalFirstDeaths: number;
-  totalUtilityDamage: number;
+  utilityDamage: number;
   kast: number;
   averageDamagePerRound: number;
   averageDeathPerRound: number;
