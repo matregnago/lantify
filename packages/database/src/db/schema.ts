@@ -1,3 +1,4 @@
+import { relations } from "drizzle-orm";
 import * as t from "drizzle-orm/pg-core";
 
 export const matches = t.pgTable("match", {
@@ -74,3 +75,26 @@ export const players = t.pgTable("player", {
   hltvRating: t.doublePrecision().notNull(),
   hltvRating2: t.doublePrecision().notNull(),
 });
+
+export const matchRelations = relations(matches, ({ many }) => ({
+  teams: many(teams),
+}));
+
+export const teamRelations = relations(teams, ({ many, one }) => ({
+  match: one(matches, {
+    fields: [teams.matchId],
+    references: [matches.id],
+  }),
+  players: many(players),
+}));
+
+export const playerRelations = relations(players, ({ one }) => ({
+  match: one(matches, {
+    fields: [players.matchId],
+    references: [matches.id],
+  }),
+  team: one(teams, {
+    fields: [players.teamId],
+    references: [teams.id],
+  }),
+}));
