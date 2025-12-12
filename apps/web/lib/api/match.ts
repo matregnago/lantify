@@ -70,36 +70,11 @@ export async function getMatchData(matchId: string) {
 }
 
 export async function listMatches() {
-  const rows = await db
-    .select()
-    .from(s.matches)
-    .leftJoin(s.teams, eq(s.matches.id, s.teams.matchId));
-
-  const matchesMap = new Map<string, MatchDTO>();
-
-  for (const row of rows) {
-    if (!matchesMap.get(row.match.id)) {
-      matchesMap.set(row.match.id, {
-        id: row.match.id,
-        map: row.match.map,
-        date: row.match.date,
-        teams: [],
-      });
-    }
-    if (row.team) {
-      matchesMap.get(row.match.id)!.teams.push({
-        id: row.team.id,
-        name: row.team.name,
-        matchId: row.team.matchId,
-        isWinner: row.team.isWinner,
-        score: row.team.score,
-        scoreFirstHalf: row.team.scoreFirstHalf,
-        scoreSecondHalf: row.team.scoreSecondHalf,
-        currentSide: row.team.currentSide,
-      });
-    }
-  }
-  const matches = Array.from(matchesMap.values());
-
+  const matches = await db.query.matches.findMany({
+    orderBy: desc(s.matches.date),
+    with: {
+      teams: true,
+    },
+  });
   return matches;
 }
