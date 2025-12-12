@@ -24,7 +24,7 @@ async function main() {
       demoPath,
       outputFolderPath,
       format: ExportFormat.JSON,
-      source: DemoSource.Valve,
+      source: DemoSource.MatchZy,
       analyzePositions: false,
       minify: false,
       onStderr: console.error,
