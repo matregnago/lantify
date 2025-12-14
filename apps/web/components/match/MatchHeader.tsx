@@ -24,13 +24,13 @@ export const MatchHeader = ({ match }: { match: MatchDTO }) => {
         fill
         className="object-cover blur-xs absolute inset-0"
       />
-      <div className="relative flex flex-col gap-4 items-center justify-center h-full">
+      <div className="relative flex flex-col gap-4 items-center justify-center h-full px-2">
         <HeaderCard>
-          <div className="flex flex-row items-center gap-12 w-2xl justify-center">
-            <p className="w-40 text-right text-white font-semibold text-lg">
+          <div className="flex flex-row items-center gap-2 md:gap-12 justify-center">
+            <p className="w-36 md:w-64 text-right text-white font-semibold text-sm sm:text-base md:text-lg truncate">
               {teamA.name}
             </p>
-            <div className="flex flex-row gap-4 text-4xl items-center min-w-32 justify-center font-bold">
+            <div className="flex flex-row gap-2 md:gap-4 text-xl sm:text-2xl md:text-4xl items-center min-w-fit justify-center font-bold">
               <p
                 className={`${teamA.isWinner ? "text-green-400" : "text-red-400"}`}
               >
@@ -43,7 +43,7 @@ export const MatchHeader = ({ match }: { match: MatchDTO }) => {
                 {teamB.score}
               </p>
             </div>
-            <p className="w-40 text-left text-white font-semibold text-lg">
+            <p className="w-36  md:w-64 text-left text-white font-semibold text-sm sm:text-base md:text-lg truncate">
               {teamB.name}
             </p>
           </div>
@@ -57,13 +57,17 @@ export const MatchHeader = ({ match }: { match: MatchDTO }) => {
                 width={36}
                 height={36}
               />
-              <p className="text-lg font-medium">{MapName[match.map]}</p>
+              <p className="text-sm md:text-lg font-medium">
+                {MapName[match.map]}
+              </p>
             </div>
           </HeaderCard>
           <HeaderCard>
             <div className="flex flex-row items-center justify-center h-full gap-3">
               <Calendar size={24} className="text-accent-foreground" />
-              <p className="font-medium">{formatDate(match.date)}</p>
+              <p className="font-medium text-sm md:text-lg ">
+                {formatDate(match.date)}
+              </p>
             </div>
           </HeaderCard>
         </div>

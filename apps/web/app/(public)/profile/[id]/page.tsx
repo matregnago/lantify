@@ -17,7 +17,7 @@ export default async function ProfilePage({
   }
 
   return (
-    <div className="py-12">
+    <div className="py-12 mx-4">
       <PlayerProfile profile={profileData} />
     </div>
   );

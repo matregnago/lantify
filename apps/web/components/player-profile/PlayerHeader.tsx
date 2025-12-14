@@ -8,7 +8,7 @@ interface PlayerHeaderProps {
 export const PlayerHeader = ({ avatarUrl, nickName }: PlayerHeaderProps) => {
   return (
     <div
-      className="border-b shadow-lg rounded-lg mb-8 py-8 px-8 flex flex-row items-center relative overflow-hidden"
+      className="border-b shadow-lg rounded-lg mb-8 py-8 px-8 flex flex-row items-center md:justify-start justify-center relative overflow-hidden"
       style={{
         backgroundImage:
           "linear-gradient(rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.5) 100%), linear-gradient(270deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.25) 28%, rgba(0, 0, 0, 0.7) 100%), url(/profile-header-background.jpg)",

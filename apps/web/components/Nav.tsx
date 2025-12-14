@@ -13,19 +13,21 @@ export function Nav() {
   ];
 
   return (
-    <nav className="flex flex-row items-center gap-8 p-4 border-b">
-      <Link href="/" className="mr-4 text-xl font-bold">
+    <nav className="flex flex-row items-center gap-4 md:gap-8 p-4 border-b ">
+      <Link href="/" className="mr-4  text-xl md:text-2xl font-bold">
         Lantify
       </Link>
-      {buttons.map((b) => (
-        <Link
-          href={b.ref}
-          key={b.ref}
-          className="text-muted-foreground hover:text-primary max-md:hidden"
-        >
-          {b.label}
-        </Link>
-      ))}
+      <div className="flex flex-row items-center gap-2">
+        {buttons.map((b) => (
+          <Link
+            href={b.ref}
+            key={b.ref}
+            className="text-muted-foreground hover:text-primary"
+          >
+            {b.label}
+          </Link>
+        ))}
+      </div>
     </nav>
   );
 }

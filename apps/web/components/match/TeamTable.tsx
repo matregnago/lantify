@@ -48,7 +48,7 @@ export const TeamTable = ({ team }: { team: TeamDTO }) => {
                   width={32}
                   height={32}
                   alt={`${player.name} avatar`}
-                  className="rounded-full border border-gray-800"
+                  className="rounded-full border border-gray-800 shrink-0"
                 />
                 <p className="font-semibold">{player.name}</p>
               </div>

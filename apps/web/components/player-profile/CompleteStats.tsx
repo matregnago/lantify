@@ -31,11 +31,11 @@ export const CompleteStats = ({ profile }: { profile: PlayerProfileDTO }) => {
 
   return (
     <Field title="Estatísticas Completas" useStatsCard={false}>
-      <div className="flex flex-row gap-6">
-        <div className="w-[50%]">
+      <div className="flex flex-col md:flex-row gap-6">
+        <div className="w-full md:w-[50%]">
           <StatsList data={statisticsList1Data} />
         </div>
-        <div className="w-[50%]">
+        <div className="w-full md:w-[50%]">
           <StatsList data={statisticsList2Data} />
         </div>
       </div>

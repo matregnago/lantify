@@ -55,6 +55,7 @@ export const MatchHistoryTable = ({
                   alt={matchHistory.match.map}
                   width={32}
                   height={32}
+                  className="shrink-0"
                 />
                 {MapName[matchHistory.match.map] || matchHistory.match.map}
               </TableCell>

@@ -26,7 +26,7 @@ export default async function MatchPage({
   if (!teamA || !teamB || !teamA.players || !teamB.players) return <></>;
 
   return (
-    <div className="py-12">
+    <div className="py-12 mx-4">
       <div className="max-w-7xl mx-auto flex flex-col gap-8">
         <Link
           href="/"

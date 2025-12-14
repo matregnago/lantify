@@ -12,8 +12,8 @@ export const OverallStatsCard = ({
 }) => {
   return (
     <Field title="Estatísticas Gerais">
-      <div className="flex flex-row gap-6">
-        <div className="flex flex-col gap-6 w-[50%]">
+      <div className="flex flex-col lg:flex-row gap-6">
+        <div className="flex flex-col gap-6 w-full lg:w-[50%]">
           <ProgressStatus
             statusName="K/D"
             value={profile.killDeathRatio}
@@ -51,7 +51,7 @@ export const OverallStatsCard = ({
             max={90}
           />
         </div>
-        <div className="flex flex-row items-center justify-evenly w-[50%]">
+        <div className="flex flex-row items-center gap-4 justify-evenly w-full lg:w-[50%]">
           <Card>
             <CircularChart
               color={colorByMaxValue(profile.winRate, 100)}
