@@ -8,6 +8,20 @@
       "when": 1765067802097,
       "tag": "0000_stormy_moira_mactaggert",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1765685315307,
+      "tag": "0001_freezing_senator_kelly",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1765720351088,
+      "tag": "0002_majestic_absorbing_man",
+      "breakpoints": true
     }
   ]
 }

@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { drizzle } from "drizzle-orm/node-postgres";
-import { eq, asc, desc, avg, sum, sql } from "drizzle-orm";
+import { eq, asc, desc, avg, sum, sql, DrizzleQueryError } from "drizzle-orm";
 import * as schema from "./db/schema";
 
 export const db = drizzle(process.env.DATABASE_URL!, { schema });
-export { eq, asc, desc, avg, sum, sql };
+export { eq, asc, desc, avg, sum, sql, DrizzleQueryError };

@@ -60,7 +60,7 @@ export async function getPlayerProfileData(
     return null;
   }
 
-  const playerMatchHistory: PlayerMatchHistoryDTO[] =
+  let playerMatchHistory: PlayerMatchHistoryDTO[] =
     (await db.query.players.findMany({
       with: {
         team: true,
@@ -72,6 +72,12 @@ export async function getPlayerProfileData(
       },
       where: eq(s.players.steamId, steamId),
     })) || [];
+
+  playerMatchHistory = playerMatchHistory.sort(
+    (a, b) =>
+      new Date(b.match?.date || 0).getTime() -
+      new Date(a.match?.date || 0).getTime()
+  );
 
   const totalMatches = playerMatchHistory.length;
   const winRate =

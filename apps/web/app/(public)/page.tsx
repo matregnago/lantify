@@ -9,6 +9,11 @@ export default async function Home() {
   return (
     <div className="max-w-7xl mx-auto py-12">
       <h1 className="text-4xl font-bold text-center md:text-left">Partidas</h1>
+      {matches.length === 0 && (
+        <p className="text-center md:text-left mt-4 text-muted-foreground">
+          Nenhuma partida encontrada.
+        </p>
+      )}
       <div className="flex flex-col mt-8 md:gap-4 gap-8">
         {matches.map((match) => (
           <div key={match.id} className="">

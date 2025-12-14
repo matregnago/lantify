@@ -9,7 +9,9 @@ export const matches = t.pgTable("match", {
 
 export const teams = t.pgTable("team", {
   id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
-  matchId: t.varchar({ length: 255 }).references(() => matches.id),
+  matchId: t
+    .varchar({ length: 255 })
+    .references(() => matches.id, { onDelete: "cascade" }),
   name: t.varchar({ length: 255 }).notNull(),
   isWinner: t.boolean().notNull(),
   score: t.integer().notNull(),
@@ -23,8 +25,10 @@ export const players = t.pgTable(
   {
     id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
     steamId: t.varchar({ length: 255 }),
-    matchId: t.varchar({ length: 255 }).references(() => matches.id),
-    teamId: t.integer().references(() => teams.id),
+    matchId: t
+      .varchar({ length: 255 })
+      .references(() => matches.id, { onDelete: "cascade" }),
+    teamId: t.integer().references(() => teams.id, { onDelete: "cascade" }),
     name: t.varchar({ length: 255 }).notNull(),
     score: t.integer().notNull(),
     mvpCount: t.integer().notNull(),

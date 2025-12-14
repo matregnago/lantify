@@ -25,7 +25,7 @@ export const CompleteStats = ({ profile }: { profile: PlayerProfileDTO }) => {
     },
     {
       name: "Dano com utilitários por partida",
-      value: profile.utilityDamage.toString(),
+      value: profile.utilityDamage.toFixed(1),
     },
   ];
 

@@ -1,4 +1,4 @@
-import { db } from "@repo/database";
+import { db, DrizzleQueryError } from "@repo/database";
 import * as schema from "@repo/database/schema";
 
 type NewMatch = typeof schema.matches.$inferInsert;
@@ -12,127 +12,140 @@ export const saveDemoData = async (fileName: string) => {
     throw new Error(`Erro ao abrir arquivo ${fileName}`);
   }
 
-  await db.transaction(async (tx) => {
-    const matchData: NewMatch = {
-      id: data.checksum,
-      date: data.date,
-      map: data.mapName,
-    };
+  try {
+    await db.transaction(async (tx) => {
+      const matchData: NewMatch = {
+        id: data.checksum,
+        date: data.date,
+        map: data.mapName,
+      };
 
-    const insertedMatch = await tx
-      .insert(schema.matches)
-      .values(matchData)
-      .returning({ insertedId: schema.matches.id });
-    const matchId = insertedMatch[0]?.insertedId;
+      const insertedMatch = await tx
+        .insert(schema.matches)
+        .values(matchData)
+        .returning({ insertedId: schema.matches.id });
+      const matchId = insertedMatch[0]?.insertedId;
 
-    if (!matchId) {
-      tx.rollback();
-    }
-
-    const teamAData: NewTeam = {
-      matchId,
-      name: data.teamA.name,
-      isWinner: data.winner.letter === data.teamA.letter,
-      score: data.teamA.score,
-      scoreFirstHalf: data.teamA.scoreFirstHalf,
-      scoreSecondHalf: data.teamA.scoreSecondHalf,
-      currentSide: data.teamA.currentSide,
-    };
-
-    const insertedTeamA = await tx
-      .insert(schema.teams)
-      .values(teamAData)
-      .returning({ insertedId: schema.teams.id });
-    const teamAId = insertedTeamA[0]?.insertedId;
-
-    if (!teamAId) {
-      tx.rollback();
-    }
-
-    const teamBData: NewTeam = {
-      matchId,
-      name: data.teamB.name,
-      isWinner: data.winner.letter === data.teamB.letter,
-      score: data.teamB.score,
-      scoreFirstHalf: data.teamB.scoreFirstHalf,
-      scoreSecondHalf: data.teamB.scoreSecondHalf,
-      currentSide: data.teamB.currentSide,
-    };
-
-    const insertedTeamB = await tx
-      .insert(schema.teams)
-      .values(teamBData)
-      .returning({ insertedId: schema.teams.id });
-    const teamBId = insertedTeamB[0]?.insertedId;
-
-    if (!teamBId) {
-      tx.rollback();
-    }
-
-    const players: NewPlayer[] = Object.entries(data.players).map(
-      ([steamId, player]: [string, any]) => {
-        const teamId =
-          player.team.letter === data.teamA.letter ? teamAId : teamBId;
-        const newPlayerData: NewPlayer = {
-          steamId,
-          matchId,
-          teamId,
-          name: player.name,
-          score: player.score,
-          mvpCount: player.mvpCount,
-          winCount: player.winCount,
-          crosshairShareCode: player.crosshairShareCode,
-          color: player.color,
-          killCount: player.killCount,
-          deathCount: player.deathCount,
-          assistCount: player.assistCount,
-          killDeathRatio: player.killDeathRatio,
-          kast: player.kast,
-          bombDefusedCount: player.bombDefusedCount,
-          bombPlantedCount: player.bombPlantedCount,
-          healthDamage: player.healthDamage,
-          armorDamage: player.armorDamage,
-          utilityDamage: player.utilityDamage,
-          headshotCount: player.headshotCount,
-          headshotPercent: player.headshotPercent,
-          oneVsOneCount: player.oneVsOneCount,
-          oneVsOneWonCount: player.oneVsOneWonCount,
-          oneVsOneLostCount: player.oneVsOneLostCount,
-          oneVsTwoCount: player.oneVsTwoCount,
-          oneVsTwoWonCount: player.oneVsTwoWonCount,
-          oneVsTwoLostCount: player.oneVsTwoLostCount,
-          oneVsThreeCount: player.oneVsThreeCount,
-          oneVsThreeWonCount: player.oneVsThreeWonCount,
-          oneVsThreeLostCount: player.oneVsThreeLostCount,
-          oneVsFourCount: player.oneVsFourCount,
-          oneVsFourWonCount: player.oneVsFourWonCount,
-          oneVsFourLostCount: player.oneVsFourLostCount,
-          oneVsFiveCount: player.oneVsFiveCount,
-          oneVsFiveWonCount: player.oneVsFiveWonCount,
-          oneVsFiveLostCount: player.oneVsFiveLostCount,
-          hostageRescuedCount: player.hostageRescuedCount,
-          averageKillPerRound: player.averageKillPerRound,
-          averageDeathPerRound: player.averageDeathPerRound,
-          averageDamagePerRound: player.averageDamagePerRound,
-          utilityDamagePerRound: player.utilityDamagePerRound,
-          firstKillCount: player.firstKillCount,
-          firstDeathCount: player.firstDeathCount,
-          firstTradeDeathCount: player.firstTradeDeathCount,
-          tradeDeathCount: player.tradeDeathCount,
-          tradeKillCount: player.tradeKillCount,
-          firstTradeKillCount: player.firstTradeKillCount,
-          oneKillCount: player.oneKillCount,
-          twoKillCount: player.twoKillCount,
-          threeKillCount: player.threeKillCount,
-          fourKillCount: player.fourKillCount,
-          fiveKillCount: player.fiveKillCount,
-          hltvRating: player.hltvRating,
-          hltvRating2: player.hltvRating2,
-        };
-        return newPlayerData;
+      if (!matchId) {
+        tx.rollback();
       }
-    );
 
-    await tx.insert(schema.players).values(players);
-  });
+      const teamAData: NewTeam = {
+        matchId,
+        name: data.teamA.name,
+        isWinner: data.winner.letter === data.teamA.letter,
+        score: data.teamA.score,
+        scoreFirstHalf: data.teamA.scoreFirstHalf,
+        scoreSecondHalf: data.teamA.scoreSecondHalf,
+        currentSide: data.teamA.currentSide,
+      };
+
+      const insertedTeamA = await tx
+        .insert(schema.teams)
+        .values(teamAData)
+        .returning({ insertedId: schema.teams.id });
+      const teamAId = insertedTeamA[0]?.insertedId;
+
+      if (!teamAId) {
+        tx.rollback();
+      }
+
+      const teamBData: NewTeam = {
+        matchId,
+        name: data.teamB.name,
+        isWinner: data.winner.letter === data.teamB.letter,
+        score: data.teamB.score,
+        scoreFirstHalf: data.teamB.scoreFirstHalf,
+        scoreSecondHalf: data.teamB.scoreSecondHalf,
+        currentSide: data.teamB.currentSide,
+      };
+
+      const insertedTeamB = await tx
+        .insert(schema.teams)
+        .values(teamBData)
+        .returning({ insertedId: schema.teams.id });
+      const teamBId = insertedTeamB[0]?.insertedId;
+
+      if (!teamBId) {
+        tx.rollback();
+      }
+
+      const players: NewPlayer[] = Object.entries(data.players).map(
+        ([steamId, player]: [string, any]) => {
+          const teamId =
+            player.team.letter === data.teamA.letter ? teamAId : teamBId;
+          const newPlayerData: NewPlayer = {
+            steamId,
+            matchId,
+            teamId,
+            name: player.name,
+            score: player.score,
+            mvpCount: player.mvpCount,
+            winCount: player.winCount,
+            crosshairShareCode: player.crosshairShareCode,
+            color: player.color,
+            killCount: player.killCount,
+            deathCount: player.deathCount,
+            assistCount: player.assistCount,
+            killDeathRatio: player.killDeathRatio,
+            kast: player.kast,
+            bombDefusedCount: player.bombDefusedCount,
+            bombPlantedCount: player.bombPlantedCount,
+            healthDamage: player.healthDamage,
+            armorDamage: player.armorDamage,
+            utilityDamage: player.utilityDamage,
+            headshotCount: player.headshotCount,
+            headshotPercent: player.headshotPercent,
+            oneVsOneCount: player.oneVsOneCount,
+            oneVsOneWonCount: player.oneVsOneWonCount,
+            oneVsOneLostCount: player.oneVsOneLostCount,
+            oneVsTwoCount: player.oneVsTwoCount,
+            oneVsTwoWonCount: player.oneVsTwoWonCount,
+            oneVsTwoLostCount: player.oneVsTwoLostCount,
+            oneVsThreeCount: player.oneVsThreeCount,
+            oneVsThreeWonCount: player.oneVsThreeWonCount,
+            oneVsThreeLostCount: player.oneVsThreeLostCount,
+            oneVsFourCount: player.oneVsFourCount,
+            oneVsFourWonCount: player.oneVsFourWonCount,
+            oneVsFourLostCount: player.oneVsFourLostCount,
+            oneVsFiveCount: player.oneVsFiveCount,
+            oneVsFiveWonCount: player.oneVsFiveWonCount,
+            oneVsFiveLostCount: player.oneVsFiveLostCount,
+            hostageRescuedCount: player.hostageRescuedCount,
+            averageKillPerRound: player.averageKillPerRound,
+            averageDeathPerRound: player.averageDeathPerRound,
+            averageDamagePerRound: player.averageDamagePerRound,
+            utilityDamagePerRound: player.utilityDamagePerRound,
+            firstKillCount: player.firstKillCount,
+            firstDeathCount: player.firstDeathCount,
+            firstTradeDeathCount: player.firstTradeDeathCount,
+            tradeDeathCount: player.tradeDeathCount,
+            tradeKillCount: player.tradeKillCount,
+            firstTradeKillCount: player.firstTradeKillCount,
+            oneKillCount: player.oneKillCount,
+            twoKillCount: player.twoKillCount,
+            threeKillCount: player.threeKillCount,
+            fourKillCount: player.fourKillCount,
+            fiveKillCount: player.fiveKillCount,
+            hltvRating: player.hltvRating,
+            hltvRating2: player.hltvRating2,
+          };
+          return newPlayerData;
+        }
+      );
+
+      await tx.insert(schema.players).values(players);
+    });
+    console.log(
+      `Dados da demo ${data.demoFileName} salvos com sucesso no banco.`
+    );
+  } catch (error) {
+    if (error instanceof DrizzleQueryError) {
+      console.log(
+        `Dados já existem no banco para a demo ${data.demoFileName}.`
+      );
+      return;
+    }
+    throw error;
+  }
 };
