@@ -16,7 +16,7 @@ export const PlayerHeader = ({ avatarUrl, nickName }: PlayerHeaderProps) => {
         backgroundPosition: "center",
       }}
     >
-      <div className="flex flex-col items-center gap-4 border w-52 h-72 justify-center rounded-xl bg-card relative z-20">
+      <div className="flex flex-col items-center gap-4 border w-52 h-72 justify-center rounded-xl bg-card relative z-3">
         <Image
           className="rounded-full border-2 border-accent"
           src={avatarUrl || "/default-avatar.png"}
