@@ -1,72 +1,64 @@
 import { db, desc, eq } from "@repo/database";
 import * as s from "@repo/database/schema";
-import { MatchDTO, PlayerDTO, TeamDTO } from "@repo/contracts";
-import { fetchSteamProfiles } from "./steam";
+import { PlayerDTO } from "@repo/contracts";
+import { fetchSteamProfiles, SteamApiResponse } from "./steam";
+
+function mapSteamDataWithPlayer(
+  players: PlayerDTO[],
+  steamData: SteamApiResponse
+): PlayerDTO[] {
+  return players.map((player) => {
+    const playerData = steamData.response.players.find(
+      (data) => data.steamid === player.steamId
+    );
+    return {
+      ...player,
+      avatarUrl: playerData?.avatarfull || "",
+      steamNickname: playerData?.personaname || "",
+    };
+  });
+}
 
 export async function getMatchData(matchId: string) {
-  const rows = await db
-    .select()
-    .from(s.matches)
-    .leftJoin(s.teams, eq(s.teams.matchId, s.matches.id))
-    .leftJoin(s.players, eq(s.players.teamId, s.teams.id))
-    .where(eq(s.matches.id, matchId))
-    .orderBy(desc(s.players.killCount));
+  const match = await db.query.matches.findFirst({
+    where: eq(s.matches.id, matchId),
+    with: {
+      teams: {
+        with: {
+          players: {
+            orderBy: [
+              desc(s.players.killCount),
+              desc(s.players.averageDamagePerRound),
+            ],
+          },
+        },
+      },
+    },
+  });
 
-  if (!rows.length || !rows[0]?.match) {
+  if (!match) {
     return null;
   }
-
-  const match: MatchDTO = {
-    ...rows[0].match,
-    teams: [],
-  };
-
-  let steamIds = "";
-
-  for (let i = 0; i < rows.length; i++) {
-    steamIds += rows[i]?.player?.steamId;
-    if (i < rows.length - 1) steamIds += ",";
-  }
+  const steamIds = match.teams
+    .flatMap((team) => team.players.map((player) => player.steamId))
+    .filter(Boolean)
+    .join(",");
 
   const steamData = await fetchSteamProfiles(steamIds);
 
-  const teamsMap = new Map<number, TeamDTO>();
-
-  for (const row of rows) {
-    if (!row.team) continue;
-
-    let team = teamsMap.get(row.team.id);
-
-    if (!team) {
-      team = {
-        ...row.team,
-        players: [],
+  const completeMatchData = {
+    ...match,
+    teams: match.teams.map((team) => {
+      const players: PlayerDTO[] = team.players.map((p) => {
+        return { ...p, avatarUrl: "", steamNickname: "" };
+      });
+      return {
+        ...team,
+        players: mapSteamDataWithPlayer(players, steamData),
       };
-      teamsMap.set(row.team.id, team);
-      match.teams.push(team);
-    }
-
-    if (row.player && team.players) {
-      const alreadyAdded = team.players.some((p) => p.id === row.player!.id);
-
-      if (!alreadyAdded) {
-        const playerDataFromSteam = steamData
-          ? steamData.response.players.find(
-              (p) => p.steamid === row.player?.steamId
-            )
-          : null;
-        if (playerDataFromSteam) {
-          const player: PlayerDTO = {
-            ...row.player,
-            avatarUrl: playerDataFromSteam.avatarfull,
-            steamNickname: playerDataFromSteam.personaname,
-          };
-          team.players.push(player);
-        }
-      }
-    }
-  }
-  return match;
+    }),
+  };
+  return completeMatchData;
 }
 
 export async function listMatches() {

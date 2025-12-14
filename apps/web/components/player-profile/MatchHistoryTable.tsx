@@ -39,21 +39,12 @@ export const MatchHistoryTable = ({
       </TableHeader>
       <TableBody>
         {playerMatchHistory.map((matchHistory) => {
-          const playerTeam = matchHistory.teams.find(
-            (team) => team.id === matchHistory.player.teamId
-          );
-          const enemyTeam = matchHistory.teams.find(
-            (team) => team.id !== matchHistory.player.teamId
-          );
-          if (!playerTeam || !enemyTeam) {
-            return <></>;
-          }
-
+          if (!matchHistory.match || !matchHistory.team) return <></>;
           return (
             <TableRow
               key={matchHistory.match.id}
               className="cursor-pointer"
-              onClick={() => router.push(`/match/${matchHistory.match.id}`)}
+              onClick={() => router.push(`/match/${matchHistory.match?.id}`)}
             >
               <TableCell className="font-medium">
                 {formatDate(matchHistory.match.date)}
@@ -68,24 +59,29 @@ export const MatchHistoryTable = ({
                 {MapName[matchHistory.match.map] || matchHistory.match.map}
               </TableCell>
               <TableCell
-                className={`${playerTeam.isWinner ? "text-green-500" : "text-red-500"} font-medium`}
+                className={`${matchHistory.team.isWinner ? "text-green-500" : "text-red-500"} font-medium`}
               >
-                {playerTeam.score} : {enemyTeam.score}
+                {matchHistory.team.score} :{" "}
+                {
+                  matchHistory.match.teams.find(
+                    (team) => team.id !== matchHistory.team?.id
+                  )?.score
+                }
               </TableCell>
               <TableCell className="font-medium">
-                {matchHistory.player.hltvRating2.toFixed(2)}
+                {matchHistory.hltvRating2.toFixed(2)}
               </TableCell>
               <TableCell className="font-medium">
-                {matchHistory.player.killCount}
+                {matchHistory.killCount}
               </TableCell>
               <TableCell className="font-medium">
-                {matchHistory.player.deathCount}
+                {matchHistory.deathCount}
               </TableCell>
               <TableCell className="font-medium">
-                {matchHistory.player.killDeathRatio.toFixed(2)}
+                {matchHistory.killDeathRatio.toFixed(2)}
               </TableCell>
               <TableCell className="font-medium">
-                {matchHistory.player.kast.toFixed(1) + "%"}
+                {matchHistory.kast.toFixed(1) + "%"}
               </TableCell>
             </TableRow>
           );

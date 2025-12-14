@@ -1,137 +1,102 @@
 import { PlayerMatchHistoryDTO, PlayerProfileDTO } from "@repo/contracts";
-import { db, eq } from "@repo/database";
+import { db, eq, avg, sum, sql } from "@repo/database";
 import * as s from "@repo/database/schema";
 import { fetchSteamProfiles } from "./steam";
-export async function getPlayerProfileData(steamId: string) {
+export async function getPlayerProfileData(
+  steamId: string
+): Promise<PlayerProfileDTO | null> {
   const playerData = await db
-    .select()
+    .select({
+      killDeathRatio: avg(s.players.killDeathRatio).mapWith(Number),
+      headshotPercent: avg(s.players.headshotPercent).mapWith(Number),
+      killsPerMatch: avg(s.players.killCount).mapWith(Number),
+      killsPerRound: avg(s.players.averageKillPerRound).mapWith(Number),
+      rating2: avg(s.players.hltvRating2).mapWith(Number),
+      totalKills: sum(s.players.killCount).mapWith(Number),
+      totalDeaths: sum(s.players.deathCount).mapWith(Number),
+      totalAssists: sum(s.players.assistCount).mapWith(Number),
+      totalHeadshots: sum(s.players.headshotCount).mapWith(Number),
+      totalMvps: sum(s.players.mvpCount).mapWith(Number),
+      totalBombPlants: sum(s.players.bombPlantedCount).mapWith(Number),
+      totalBombDefuses: sum(s.players.bombDefusedCount).mapWith(Number),
+      totalMultiKills: sql<number>`
+        SUM(
+          ${s.players.twoKillCount} +
+          ${s.players.threeKillCount} +
+          ${s.players.fourKillCount} +
+          ${s.players.fiveKillCount}
+        )
+      `.as("totalMultiKills"),
+      totalFirstKills: sum(s.players.firstKillCount).mapWith(Number),
+      totalFirstDeaths: sum(s.players.firstDeathCount).mapWith(Number),
+      utilityDamage: avg(s.players.utilityDamage).mapWith(Number),
+      kast: avg(s.players.kast).mapWith(Number),
+      averageDamagePerRound: avg(s.players.averageDamagePerRound).mapWith(
+        Number
+      ),
+      averageDeathPerRound: avg(s.players.averageDeathPerRound).mapWith(Number),
+      oneVsOneCount: sum(s.players.oneVsOneCount).mapWith(Number),
+      oneVsOneWonCount: sum(s.players.oneVsOneWonCount).mapWith(Number),
+      oneVsOneLostCount: sum(s.players.oneVsOneLostCount).mapWith(Number),
+      oneVsTwoCount: sum(s.players.oneVsTwoCount).mapWith(Number),
+      oneVsTwoWonCount: sum(s.players.oneVsTwoWonCount).mapWith(Number),
+      oneVsTwoLostCount: sum(s.players.oneVsTwoLostCount).mapWith(Number),
+      oneVsThreeCount: sum(s.players.oneVsThreeCount).mapWith(Number),
+      oneVsThreeWonCount: sum(s.players.oneVsThreeWonCount).mapWith(Number),
+      oneVsThreeLostCount: sum(s.players.oneVsThreeLostCount).mapWith(Number),
+      oneVsFourCount: sum(s.players.oneVsFourCount).mapWith(Number),
+      oneVsFourWonCount: sum(s.players.oneVsFourWonCount).mapWith(Number),
+      oneVsFourLostCount: sum(s.players.oneVsFourLostCount).mapWith(Number),
+      oneVsFiveCount: sum(s.players.oneVsFiveCount).mapWith(Number),
+      oneVsFiveWonCount: sum(s.players.oneVsFiveWonCount).mapWith(Number),
+      oneVsFiveLostCount: sum(s.players.oneVsFiveLostCount).mapWith(Number),
+    })
     .from(s.players)
-    .leftJoin(s.teams, eq(s.players.teamId, s.teams.id))
-    .leftJoin(s.matches, eq(s.teams.matchId, s.matches.id))
     .where(eq(s.players.steamId, steamId));
 
-  if (!playerData.length) {
+  const playerStats = playerData[0];
+
+  if (!playerStats) {
     return null;
   }
 
+  const playerMatchHistory: PlayerMatchHistoryDTO[] =
+    (await db.query.players.findMany({
+      with: {
+        team: true,
+        match: {
+          with: {
+            teams: true,
+          },
+        },
+      },
+      where: eq(s.players.steamId, steamId),
+    })) || [];
+
+  const totalMatches = playerMatchHistory.length;
+  const winRate =
+    (playerMatchHistory.reduce(
+      (acc, playerMatch) => acc + (playerMatch.team?.isWinner ? 1 : 0),
+      0
+    ) /
+      totalMatches) *
+    100;
+
+  const totalRounds = playerMatchHistory
+    .flatMap((p) => p.match?.teams)
+    .reduce((acc, team) => (acc += team?.score || 0), 0);
+
   const steamData = await fetchSteamProfiles(steamId);
 
-  const playerMatchHistory: PlayerMatchHistoryDTO[] = [];
+  const playerSteamData = steamData.response.players[0];
 
-  const acc: PlayerProfileDTO = {
-    killDeathRatio: 0,
-    headshotPercent: 0,
-    killsPerMatch: 0,
-    killsPerRound: 0,
-    averageDamagePerRound: 0,
-    winRate: 0,
-    rating2: 0,
-    totalKills: 0,
-    totalDeaths: 0,
-    totalAssists: 0,
-    totalHeadshots: 0,
-    totalMvps: 0,
-    totalMatches: 0,
-    totalRounds: 0,
-    totalBombPlants: 0,
-    totalBombDefuses: 0,
-    totalMultiKills: 0,
-    totalFirstKills: 0,
-    totalFirstDeaths: 0,
-    utilityDamage: 0,
-    kast: 0,
-    averageDeathPerRound: 0,
-    oneVsOneCount: 0,
-    oneVsOneWonCount: 0,
-    oneVsOneLostCount: 0,
-    oneVsTwoCount: 0,
-    oneVsTwoWonCount: 0,
-    oneVsTwoLostCount: 0,
-    oneVsThreeCount: 0,
-    oneVsThreeWonCount: 0,
-    oneVsThreeLostCount: 0,
-    oneVsFourCount: 0,
-    oneVsFourWonCount: 0,
-    oneVsFourLostCount: 0,
-    oneVsFiveCount: 0,
-    oneVsFiveWonCount: 0,
-    oneVsFiveLostCount: 0,
-  };
-
-  for (const row of playerData) {
-    if (row.match && row.team && row.player) {
-      const teamsFromMatch = await db
-        .select()
-        .from(s.teams)
-        .where(eq(s.teams.matchId, row.match.id));
-      const roundsPlayed = teamsFromMatch
-        .map((t) => t.score)
-        .reduce((a, b) => a + b, 0);
-      playerMatchHistory.push({
-        match: row.match,
-        teams: teamsFromMatch,
-        player: row.player,
-      });
-      acc.totalRounds += roundsPlayed;
-      acc.totalMatches++;
-      acc.killDeathRatio += row.player.killDeathRatio;
-      acc.averageDamagePerRound += row.player.averageDamagePerRound;
-      acc.headshotPercent += row.player.headshotPercent;
-      acc.killsPerMatch += row.player.killCount;
-      acc.killsPerRound += row.player.averageKillPerRound;
-      acc.rating2 += row.player.hltvRating2;
-      acc.totalKills += row.player.killCount;
-      acc.totalDeaths += row.player.deathCount;
-      acc.totalAssists += row.player.assistCount;
-      acc.totalHeadshots += row.player.headshotCount;
-      acc.totalMvps += row.player.mvpCount;
-      acc.totalBombPlants += row.player.bombPlantedCount;
-      acc.totalBombDefuses += row.player.bombDefusedCount;
-      acc.totalMultiKills +=
-        row.player.twoKillCount +
-        row.player.threeKillCount +
-        row.player.fourKillCount +
-        row.player.fiveKillCount;
-      acc.totalFirstKills += row.player.firstKillCount;
-      acc.totalFirstDeaths += row.player.firstDeathCount;
-      acc.utilityDamage += row.player.utilityDamage;
-      acc.kast += row.player.kast;
-      acc.averageDeathPerRound += row.player.averageDeathPerRound;
-      acc.oneVsOneCount += row.player.oneVsOneCount;
-      acc.oneVsOneWonCount += row.player.oneVsOneWonCount;
-      acc.oneVsOneLostCount += row.player.oneVsOneLostCount;
-      acc.oneVsTwoCount += row.player.oneVsTwoCount;
-      acc.oneVsTwoWonCount += row.player.oneVsTwoWonCount;
-      acc.oneVsTwoLostCount += row.player.oneVsTwoLostCount;
-      acc.oneVsThreeCount += row.player.oneVsThreeCount;
-      acc.oneVsThreeWonCount += row.player.oneVsThreeWonCount;
-      acc.oneVsThreeLostCount += row.player.oneVsThreeLostCount;
-      acc.oneVsFourCount += row.player.oneVsFourCount;
-      acc.oneVsFourWonCount += row.player.oneVsFourWonCount;
-      acc.oneVsFourLostCount += row.player.oneVsFourLostCount;
-      acc.oneVsFiveCount += row.player.oneVsFiveCount;
-      acc.oneVsFiveWonCount += row.player.oneVsFiveWonCount;
-      acc.oneVsFiveLostCount += row.player.oneVsFiveLostCount;
-      acc.winRate = row.team?.isWinner ? acc.winRate + 1 : acc.winRate;
-    }
-  }
-
-  const profilePlayerData: PlayerProfileDTO = {
-    ...acc,
-    avatarUrl: steamData?.response.players[0]?.avatarfull || "",
-    nickName: steamData?.response.players[0]?.personaname || "",
-    killDeathRatio: acc.killDeathRatio / acc.totalMatches,
-    averageDamagePerRound: acc.averageDamagePerRound / acc.totalMatches,
-    headshotPercent: acc.headshotPercent / acc.totalMatches,
-    killsPerMatch: acc.killsPerMatch / acc.totalMatches,
-    killsPerRound: acc.killsPerRound / acc.totalMatches,
-    rating2: acc.rating2 / acc.totalMatches,
-    winRate: acc.totalMatches ? (acc.winRate / acc.totalMatches) * 100 : 0,
-    kast: acc.kast / acc.totalMatches,
-    averageDeathPerRound: acc.averageDeathPerRound / acc.totalMatches,
+  return {
+    ...playerStats,
     matchHistory: playerMatchHistory,
-    utilityDamage: acc.utilityDamage / acc.totalMatches,
+    nickName: playerSteamData?.personaname || "",
+    avatarUrl: playerSteamData?.avatarfull || "",
+    winRate,
+    totalMatches,
+    totalRounds,
   };
-
-  return profilePlayerData;
 }
