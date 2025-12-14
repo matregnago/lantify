@@ -6,6 +6,22 @@ import { MatchDTO } from "@repo/contracts";
 export default async function Home() {
   const matches: MatchDTO[] = await listMatches();
 
+  const matchMapByMonth = new Map<string, MatchDTO[]>();
+
+  matches.forEach((match) => {
+    const month = new Date(match.date).toLocaleString("en-GB", {
+      month: "short",
+      year: "numeric",
+    });
+
+    if (!matchMapByMonth.get(month)) {
+      matchMapByMonth.set(month, [match]);
+    } else {
+      const currentMatchList = matchMapByMonth.get(month) as MatchDTO[];
+      matchMapByMonth.set(month, [...currentMatchList, match]);
+    }
+  });
+  const matchMapEntries = Array.from(matchMapByMonth.entries());
   return (
     <div className="max-w-7xl mx-auto py-12">
       <h1 className="text-4xl font-bold text-center md:text-left">Partidas</h1>
@@ -14,10 +30,15 @@ export default async function Home() {
           Nenhuma partida encontrada.
         </p>
       )}
-      <div className="flex flex-col mt-8 md:gap-4 gap-8">
-        {matches.map((match) => (
-          <div key={match.id} className="">
-            <MatchPreview match={match} />
+      <div className="flex flex-col gap-12">
+        {matchMapEntries.map(([month, matchList]) => (
+          <div className="flex flex-col mt-8 md:gap-4 gap-8" key={month}>
+            <p className="capitalize text-2xl border-b pb-2 mb-2">{month}</p>
+            {matchList.map((match) => (
+              <div key={match.id} className="">
+                <MatchPreview match={match} />
+              </div>
+            ))}
           </div>
         ))}
       </div>
