@@ -64,7 +64,7 @@ export const MatchPreview = ({ match }: { match: MatchDTO }) => {
       >
         <div className="flex flex-col gap-4 justify-between items-center py-2">
           <div className="flex flex-row items-center gap-4 truncate">
-            <p className="flex-1 truncate text-right">{teamA.name}</p>
+            <p className="flex-1 w-36 truncate text-right">{teamA.name}</p>
             <div className="flex flex-row gap-1 text-2xl items-center justify-center">
               <p
                 className={`${teamA.isWinner ? "text-green-500" : " text-red-700"}`}
@@ -78,7 +78,7 @@ export const MatchPreview = ({ match }: { match: MatchDTO }) => {
                 {teamB.score}
               </p>
             </div>
-            <p className="flex-1 truncate text-left">{teamB.name}</p>
+            <p className="flex-1 truncate text-left w-36">{teamB.name}</p>
           </div>
 
           <div className="flex flex-row gap-12 text-muted-foreground text-sm">

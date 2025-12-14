@@ -33,9 +33,11 @@ export default async function Home() {
       <div className="flex flex-col gap-12">
         {matchMapEntries.map(([month, matchList]) => (
           <div className="flex flex-col mt-8 md:gap-4 gap-8" key={month}>
-            <p className="capitalize text-2xl border-b pb-2 mb-2">{month}</p>
+            <p className="capitalize text-2xl border-b pb-2 mb-2 mx-4 md:px-0 px-5">
+              {month}
+            </p>
             {matchList.map((match) => (
-              <div key={match.id} className="">
+              <div key={match.id}>
                 <MatchPreview match={match} />
               </div>
             ))}
