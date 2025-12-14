@@ -13,8 +13,8 @@ function mapSteamDataWithPlayer(
     );
     return {
       ...player,
-      avatarUrl: playerData?.avatarfull || "",
-      steamNickname: playerData?.personaname || "",
+      avatarUrl: playerData?.avatarfull,
+      steamNickname: playerData?.personaname,
     };
   });
 }
@@ -44,7 +44,9 @@ export async function getMatchData(matchId: string) {
     .filter(Boolean)
     .join(",");
 
-  const steamData = await fetchSteamProfiles(steamIds);
+  const steamData = (await fetchSteamProfiles(steamIds)) || {
+    response: { players: [] },
+  };
 
   const completeMatchData = {
     ...match,

@@ -88,13 +88,17 @@ export async function getPlayerProfileData(
 
   const steamData = await fetchSteamProfiles(steamId);
 
-  const playerSteamData = steamData.response.players[0];
+  const playerSteamData = steamData?.response.players[0] || {
+    avatarfull: null,
+    personaname: playerMatchHistory[0]?.name || "Unknown Player",
+    steamid: null,
+  };
 
   return {
     ...playerStats,
     matchHistory: playerMatchHistory,
-    nickName: playerSteamData?.personaname || "",
-    avatarUrl: playerSteamData?.avatarfull || "",
+    nickName: playerSteamData.personaname,
+    avatarUrl: playerSteamData.avatarfull,
     winRate,
     totalMatches,
     totalRounds,

@@ -1,8 +1,8 @@
 import Image from "next/image";
 
 interface PlayerHeaderProps {
-  avatarUrl: string;
-  nickName: string;
+  avatarUrl?: string | null;
+  nickName?: string | null;
 }
 
 export const PlayerHeader = ({ avatarUrl, nickName }: PlayerHeaderProps) => {
@@ -19,7 +19,7 @@ export const PlayerHeader = ({ avatarUrl, nickName }: PlayerHeaderProps) => {
       <div className="flex flex-col items-center gap-4 border w-52 h-72 justify-center rounded-xl bg-card relative z-20">
         <Image
           className="rounded-full border-2 border-accent"
-          src={avatarUrl}
+          src={avatarUrl || "/default-avatar.png"}
           width={140}
           height={140}
           alt={`${nickName} avatar pfp`}

@@ -44,7 +44,7 @@ export const TeamTable = ({ team }: { team: TeamDTO }) => {
                 onClick={() => router.push(`/profile/${player.steamId}`)}
               >
                 <Image
-                  src={player.avatarUrl}
+                  src={player.avatarUrl || "/default-avatar.png"}
                   width={32}
                   height={32}
                   alt={`${player.name} avatar`}

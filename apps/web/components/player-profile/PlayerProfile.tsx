@@ -8,10 +8,7 @@ import { MatchHistoryStats } from "./MatchHistoryStats";
 export const PlayerProfile = ({ profile }: { profile: PlayerProfileDTO }) => {
   return (
     <div className="max-w-[1480px] mx-auto">
-      <PlayerHeader
-        avatarUrl={profile.avatarUrl || ""}
-        nickName={profile.nickName || ""}
-      />
+      <PlayerHeader avatarUrl={profile.avatarUrl} nickName={profile.nickName} />
       <div className="flex flex-col gap-8">
         <OverallStatsCard profile={profile} />
         <CompleteStats profile={profile} />

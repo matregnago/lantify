@@ -16,7 +16,7 @@ export async function fetchSteamProfiles(steamIds: string) {
   const response = await fetch(url);
 
   if (response.status !== 200) {
-    return { response: { players: [] } };
+    return null;
   }
 
   const data: SteamApiResponse = await response.json();

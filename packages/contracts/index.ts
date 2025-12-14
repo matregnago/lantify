@@ -10,8 +10,8 @@ export type PlayerMatchHistoryDTO = typeof s.players.$inferInsert & {
 };
 
 export type PlayerProfileDTO = {
-  nickName?: string;
-  avatarUrl?: string;
+  nickName?: string | null;
+  avatarUrl?: string | null;
   matchHistory: PlayerMatchHistoryDTO[];
   killDeathRatio: number;
   headshotPercent: number;
@@ -53,8 +53,8 @@ export type PlayerProfileDTO = {
 };
 
 export type PlayerDTO = typeof s.players.$inferSelect & {
-  avatarUrl: string;
-  steamNickname: string;
+  avatarUrl?: string | null;
+  steamNickname?: string | null;
 };
 
 export type TeamDTO = typeof s.teams.$inferSelect & {
