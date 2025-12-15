@@ -36,3 +36,6 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 #  Demos
 demos/**
 output/**
+
+!output/train-dez24.json
+!output/nuke-jan25.json
