@@ -7,7 +7,6 @@ export async function getPlayerProfileData(
 ): Promise<PlayerProfileDTO | null> {
   const playerData = await db
     .select({
-      killDeathRatio: avg(s.players.killDeathRatio).mapWith(Number),
       headshotPercent: avg(s.players.headshotPercent).mapWith(Number),
       killsPerMatch: avg(s.players.killCount).mapWith(Number),
       killsPerRound: avg(s.players.averageKillPerRound).mapWith(Number),
@@ -92,6 +91,9 @@ export async function getPlayerProfileData(
     .flatMap((p) => p.match?.teams)
     .reduce((acc, team) => (acc += team?.score || 0), 0);
 
+  const killDeathRatio = playerStats.totalKills / playerStats.totalDeaths;
+
+  const headshotPercent = playerStats.totalHeadshots / playerStats.totalKills * 100
   const steamData = await fetchSteamProfiles(steamId);
 
   const playerSteamData = steamData?.response.players[0] || {
@@ -102,6 +104,8 @@ export async function getPlayerProfileData(
 
   return {
     ...playerStats,
+    killDeathRatio,
+    headshotPercent,
     matchHistory: playerMatchHistory,
     nickName: playerSteamData.personaname,
     avatarUrl: playerSteamData.avatarfull,
