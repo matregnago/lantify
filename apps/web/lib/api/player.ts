@@ -1,9 +1,9 @@
 import { PlayerMatchHistoryDTO, PlayerProfileDTO } from "@repo/contracts";
-import { db, eq, avg, sum, sql } from "@repo/database";
+import { db, eq, avg, sum, sql, desc } from "@repo/database";
 import * as s from "@repo/database/schema";
 import { fetchSteamProfiles } from "./steam";
 export async function getPlayerProfileData(
-  steamId: string
+  steamId: string,
 ): Promise<PlayerProfileDTO | null> {
   const playerData = await db
     .select({
@@ -31,7 +31,7 @@ export async function getPlayerProfileData(
       utilityDamage: avg(s.players.utilityDamage).mapWith(Number),
       kast: avg(s.players.kast).mapWith(Number),
       averageDamagePerRound: avg(s.players.averageDamagePerRound).mapWith(
-        Number
+        Number,
       ),
       averageDeathPerRound: avg(s.players.averageDeathPerRound).mapWith(Number),
       oneVsOneCount: sum(s.players.oneVsOneCount).mapWith(Number),
@@ -75,14 +75,14 @@ export async function getPlayerProfileData(
   playerMatchHistory = playerMatchHistory.sort(
     (a, b) =>
       new Date(b.match?.date || 0).getTime() -
-      new Date(a.match?.date || 0).getTime()
+      new Date(a.match?.date || 0).getTime(),
   );
 
   const totalMatches = playerMatchHistory.length;
   const winRate =
     (playerMatchHistory.reduce(
       (acc, playerMatch) => acc + (playerMatch.team?.isWinner ? 1 : 0),
-      0
+      0,
     ) /
       totalMatches) *
     100;
@@ -93,7 +93,8 @@ export async function getPlayerProfileData(
 
   const killDeathRatio = playerStats.totalKills / playerStats.totalDeaths;
 
-  const headshotPercent = playerStats.totalHeadshots / playerStats.totalKills * 100
+  const headshotPercent =
+    (playerStats.totalHeadshots / playerStats.totalKills) * 100;
   const steamData = await fetchSteamProfiles(steamId);
 
   const playerSteamData = steamData?.response.players[0] || {
@@ -114,3 +115,34 @@ export async function getPlayerProfileData(
     totalRounds,
   };
 }
+
+export const getPlayersRanking = async () => {
+  const players = await db
+    .select({
+      steamId: s.players.steamId,
+      rating2: avg(s.players.hltvRating2),
+    })
+    .from(s.players)
+    .groupBy(s.players.steamId)
+    .orderBy(desc(avg(s.players.hltvRating2)));
+
+  const steamIds = players
+    .map((player) => player.steamId)
+    .filter(Boolean)
+    .join(",");
+
+  const steamData = (await fetchSteamProfiles(steamIds)) || {
+    response: { players: [] },
+  };
+
+  return players.map((player) => {
+    const playerData = steamData.response.players.find(
+      (data) => data.steamid === player.steamId,
+    );
+    return {
+      ...player,
+      avatarUrl: playerData?.avatarfull,
+      steamNickname: playerData?.personaname,
+    };
+  });
+};
