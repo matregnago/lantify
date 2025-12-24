@@ -1,5 +1,5 @@
 import { PlayerMatchHistoryDTO, PlayerProfileDTO } from "@repo/contracts";
-import { db, eq, avg, sum, sql, desc } from "@repo/database";
+import { db, eq, avg, sum, sql, desc, count } from "@repo/database";
 import * as s from "@repo/database/schema";
 import { fetchSteamProfiles } from "./steam";
 export async function getPlayerProfileData(
@@ -121,6 +121,15 @@ export const getPlayersRanking = async () => {
     .select({
       steamId: s.players.steamId,
       rating2: avg(s.players.hltvRating2),
+      partidas: count(s.players.matchId),
+      adr: avg(s.players.averageDamagePerRound),
+      kd: sql<number>`
+        ROUND(
+          SUM(${s.players.killCount})::numeric
+          / NULLIF(SUM(${s.players.deathCount}), 0),
+          2
+        )
+      `,
     })
     .from(s.players)
     .groupBy(s.players.steamId)
@@ -140,9 +149,13 @@ export const getPlayersRanking = async () => {
       (data) => data.steamid === player.steamId,
     );
     return {
-      ...player,
+      steamId: player.steamId,
+      rating: Number(player.rating2).toFixed(2),
       avatarUrl: playerData?.avatarfull,
       steamNickname: playerData?.personaname,
+      partidas: player.partidas,
+      kd: player.kd,
+      adr: Number(player.adr).toFixed(1),
     };
   });
 };

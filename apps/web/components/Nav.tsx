@@ -7,10 +7,10 @@ export function Nav() {
       label: "Partidas",
       ref: "/",
     },
-    // {
-    //   label: "Ranking",
-    //   ref: "/ranking",
-    // },
+    {
+      label: "Ranking",
+      ref: "/ranking",
+    },
   ];
 
   return (
@@ -27,7 +27,7 @@ export function Nav() {
         />
         Lantify
       </Link>
-      <div className="flex flex-row items-center gap-2">
+      <div className="flex flex-row items-center gap-8">
         {buttons.map((b) => (
           <Link
             href={b.ref}
