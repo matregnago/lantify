@@ -52,7 +52,9 @@ export const PlayersRankingTable = ({
               className="cursor-pointer"
               onClick={() => router.push(`/profile/${player.steamId}`)}
             >
-              <TableCell>{idx + 1}</TableCell>
+              <TableCell className="text-center tabular-nums">
+                {idx + 1}
+              </TableCell>
               <TableCell>
                 <div className="flex flex-row gap-5 items-center w-fit py-2">
                   <Image
