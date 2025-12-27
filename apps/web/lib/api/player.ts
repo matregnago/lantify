@@ -3,7 +3,7 @@ import { db, eq, avg, sum, sql } from "@repo/database";
 import * as s from "@repo/database/schema";
 import { fetchSteamProfiles } from "./steam";
 export async function getPlayerProfileData(
-  steamId: string
+  steamId: string,
 ): Promise<PlayerProfileDTO | null> {
   const playerData = await db
     .select({
@@ -32,7 +32,7 @@ export async function getPlayerProfileData(
       utilityDamage: avg(s.players.utilityDamage).mapWith(Number),
       kast: avg(s.players.kast).mapWith(Number),
       averageDamagePerRound: avg(s.players.averageDamagePerRound).mapWith(
-        Number
+        Number,
       ),
       averageDeathPerRound: avg(s.players.averageDeathPerRound).mapWith(Number),
       oneVsOneCount: sum(s.players.oneVsOneCount).mapWith(Number),
@@ -76,14 +76,14 @@ export async function getPlayerProfileData(
   playerMatchHistory = playerMatchHistory.sort(
     (a, b) =>
       new Date(b.match?.date || 0).getTime() -
-      new Date(a.match?.date || 0).getTime()
+      new Date(a.match?.date || 0).getTime(),
   );
 
   const totalMatches = playerMatchHistory.length;
   const winRate =
     (playerMatchHistory.reduce(
       (acc, playerMatch) => acc + (playerMatch.team?.isWinner ? 1 : 0),
-      0
+      0,
     ) /
       totalMatches) *
     100;
@@ -92,9 +92,9 @@ export async function getPlayerProfileData(
     .flatMap((p) => p.match?.teams)
     .reduce((acc, team) => (acc += team?.score || 0), 0);
 
-  const steamData = await fetchSteamProfiles(steamId);
+  const steamData = await fetchSteamProfiles([steamId]);
 
-  const playerSteamData = steamData?.response.players[0] || {
+  const playerSteamData = steamData[0] || {
     avatarfull: null,
     personaname: playerMatchHistory[0]?.name || "Unknown Player",
     steamid: null,

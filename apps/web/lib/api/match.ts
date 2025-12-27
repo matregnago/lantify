@@ -1,15 +1,15 @@
 import { db, desc, eq } from "@repo/database";
 import * as s from "@repo/database/schema";
 import { PlayerDTO } from "@repo/contracts";
-import { fetchSteamProfiles, SteamApiResponse } from "./steam";
+import { fetchSteamProfiles, SteamPlayer } from "./steam";
 
 function mapSteamDataWithPlayer(
   players: PlayerDTO[],
-  steamData: SteamApiResponse
+  steamApiResponse: SteamPlayer[],
 ): PlayerDTO[] {
   return players.map((player) => {
-    const playerData = steamData.response.players.find(
-      (data) => data.steamid === player.steamId
+    const playerData = steamApiResponse.find(
+      (data) => data.steamid === player.steamId,
     );
     return {
       ...player,
@@ -41,8 +41,7 @@ export async function getMatchData(matchId: string) {
   }
   const steamIds = match.teams
     .flatMap((team) => team.players.map((player) => player.steamId))
-    .filter(Boolean)
-    .join(",");
+    .filter((id) => id != null);
 
   const steamData = (await fetchSteamProfiles(steamIds)) || {
     response: { players: [] },
