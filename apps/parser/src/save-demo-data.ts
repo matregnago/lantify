@@ -1,5 +1,6 @@
 import { db, DrizzleQueryError } from "@repo/database";
 import * as schema from "@repo/database/schema";
+import JSONbig from "json-bigint";
 
 type NewMatch = typeof schema.matches.$inferInsert;
 type NewTeam = typeof schema.teams.$inferInsert;
@@ -7,7 +8,11 @@ type NewPlayer = typeof schema.players.$inferInsert;
 type NewDuel = typeof schema.playerDuels.$inferInsert;
 
 export const saveDemoData = async (fileName: string) => {
-  const data = await Bun.file(fileName).json();
+  const raw = await Bun.file(fileName).text();
+
+  const data = JSONbig({
+    storeAsString: true,
+  }).parse(raw);
 
   if (!data) {
     throw new Error(`Erro ao abrir arquivo ${fileName}`);
@@ -167,9 +172,29 @@ export const saveDemoData = async (fileName: string) => {
         return duel;
       };
 
+      const playerIds = Object.keys(data.players).map(String);
+
+      for (const playerA of playerIds) {
+        const map = new Map<string, NewDuel>();
+
+        for (const playerB of playerIds) {
+          if (playerA === playerB) continue;
+
+          map.set(playerB, {
+            playerA_steamId: playerA,
+            playerB_steamId: playerB,
+            kills: 0,
+            deaths: 0,
+            matchId,
+          });
+        }
+
+        duelsMap.set(playerA, map);
+      }
+
       for (const kill of data.kills) {
-        const killerId = String(kill.killerSteamId);
-        const victimId = String(kill.victimSteamId);
+        const killerId = kill.killerSteamId;
+        const victimId = kill.victimSteamId;
 
         const killerDuels = getOrCreateDuelMap(killerId);
         const victimDuels = getOrCreateDuelMap(victimId);

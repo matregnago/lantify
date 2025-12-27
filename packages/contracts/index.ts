@@ -64,3 +64,5 @@ export type TeamDTO = typeof s.teams.$inferSelect & {
 export type MatchDTO = typeof s.matches.$inferSelect & {
   teams: TeamDTO[];
 };
+
+export type DuelDTO = typeof s.playerDuels.$inferSelect;

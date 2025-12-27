@@ -5,11 +5,11 @@ import { fetchSteamProfiles, SteamApiResponse } from "./steam";
 
 function mapSteamDataWithPlayer(
   players: PlayerDTO[],
-  steamData: SteamApiResponse
+  steamData: SteamApiResponse,
 ): PlayerDTO[] {
   return players.map((player) => {
     const playerData = steamData.response.players.find(
-      (data) => data.steamid === player.steamId
+      (data) => data.steamid === player.steamId,
     );
     return {
       ...player,
@@ -33,6 +33,7 @@ export async function getMatchData(matchId: string) {
           },
         },
       },
+      duels: true,
     },
   });
 
