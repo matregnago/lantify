@@ -1,12 +1,18 @@
 import { db, DrizzleQueryError } from "@repo/database";
 import * as schema from "@repo/database/schema";
+import JSONbig from "json-bigint";
 
 type NewMatch = typeof schema.matches.$inferInsert;
 type NewTeam = typeof schema.teams.$inferInsert;
 type NewPlayer = typeof schema.players.$inferInsert;
+type NewDuel = typeof schema.playerDuels.$inferInsert;
 
 export const saveDemoData = async (fileName: string) => {
-  const data = await Bun.file(fileName).json();
+  const raw = await Bun.file(fileName).text();
+
+  const data = JSONbig({
+    storeAsString: true,
+  }).parse(raw);
 
   if (!data) {
     throw new Error(`Erro ao abrir arquivo ${fileName}`);
@@ -131,18 +137,89 @@ export const saveDemoData = async (fileName: string) => {
             hltvRating2: player.hltvRating2,
           };
           return newPlayerData;
-        }
+        },
       );
 
       await tx.insert(schema.players).values(players);
+
+      const duelsMap = new Map<string, Map<string, NewDuel>>();
+
+      const getOrCreateDuelMap = (playerId: string) => {
+        let duels = duelsMap.get(playerId);
+        if (!duels) {
+          duels = new Map<string, NewDuel>();
+          duelsMap.set(playerId, duels);
+        }
+        return duels;
+      };
+
+      const getOrCreateDuel = (
+        duels: Map<string, NewDuel>,
+        playerA: string,
+        playerB: string,
+      ): NewDuel => {
+        let duel = duels.get(playerB);
+        if (!duel) {
+          duel = {
+            playerA_steamId: playerA,
+            playerB_steamId: playerB,
+            kills: 0,
+            deaths: 0,
+            matchId,
+          };
+          duels.set(playerB, duel);
+        }
+        return duel;
+      };
+
+      const playerIds = Object.keys(data.players).map(String);
+
+      for (const playerA of playerIds) {
+        const map = new Map<string, NewDuel>();
+
+        for (const playerB of playerIds) {
+          if (playerA === playerB) continue;
+
+          map.set(playerB, {
+            playerA_steamId: playerA,
+            playerB_steamId: playerB,
+            kills: 0,
+            deaths: 0,
+            matchId,
+          });
+        }
+
+        duelsMap.set(playerA, map);
+      }
+
+      for (const kill of data.kills) {
+        const killerId = kill.killerSteamId;
+        const victimId = kill.victimSteamId;
+
+        const killerDuels = getOrCreateDuelMap(killerId);
+        const victimDuels = getOrCreateDuelMap(victimId);
+
+        const killerDuel = getOrCreateDuel(killerDuels, killerId, victimId);
+
+        const victimDuel = getOrCreateDuel(victimDuels, victimId, killerId);
+
+        killerDuel.kills += 1;
+        victimDuel.deaths += 1;
+      }
+
+      const duels = Array.from(duelsMap.values()).flatMap((duel) =>
+        Array.from(duel.values()),
+      );
+      await tx.insert(schema.playerDuels).values(duels);
     });
     console.log(
-      `Dados da demo ${data.demoFileName} salvos com sucesso no banco.`
+      `Dados da demo ${data.demoFileName} salvos com sucesso no banco.`,
     );
   } catch (error) {
     if (error instanceof DrizzleQueryError) {
+      console.log("Erro detalhado:", error);
       console.log(
-        `Dados já existem no banco para a demo ${data.demoFileName}.`
+        `Dados já existem no banco para a demo ${data.demoFileName}.`,
       );
       return;
     }

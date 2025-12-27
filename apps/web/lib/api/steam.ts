@@ -26,7 +26,6 @@ export async function fetchSteamProfiles(steamIds: string[]) {
   );
 
   if (notCachedProfiles.length == 0) {
-    console.log("all cached data");
     return cachedProfiles;
   }
   const steamIdsToFetch = notCachedProfiles.filter(Boolean).join(",");
@@ -34,7 +33,6 @@ export async function fetchSteamProfiles(steamIds: string[]) {
   const apiKey = process.env.STEAM_API_KEY;
   const url = `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${apiKey}&steamids=${steamIdsToFetch}`;
   const response = await fetch(url);
-  console.log("fetching steam api");
   if (!response.ok || response.status !== 200) {
     return cachedProfiles;
   }

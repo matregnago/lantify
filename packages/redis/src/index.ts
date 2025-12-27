@@ -1,3 +1,4 @@
-import { redis } from "bun";
+import Redis from "ioredis";
 
-export { redis };
+
+export const redis = new Redis()

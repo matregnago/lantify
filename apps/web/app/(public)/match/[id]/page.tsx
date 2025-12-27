@@ -1,4 +1,5 @@
 "use server";
+import { DuelsTable } from "@/components/match/DuelsTable";
 import { MatchHeader } from "@/components/match/MatchHeader";
 import { TeamHeader } from "@/components/match/TeamHeader";
 import { TeamTable } from "@/components/match/TeamTable";
@@ -6,6 +7,8 @@ import { getMatchData } from "@/lib/api/match";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default async function MatchPage({
   params,
@@ -36,14 +39,25 @@ export default async function MatchPage({
           <p className="text-sm">Voltar às partidas</p>
         </Link>
         <MatchHeader match={match} />
-        <div className="">
-          <TeamHeader team={teamA} />
-          <TeamTable team={teamA} />
-        </div>
-        <div>
-          <TeamHeader team={teamB} />
-          <TeamTable team={teamB} />
-        </div>
+        <Tabs defaultValue="summary">
+          <TabsList>
+            <TabsTrigger value="summary">Geral</TabsTrigger>
+            <TabsTrigger value="duels">Duelos</TabsTrigger>
+          </TabsList>
+          <TabsContent value="summary">
+            <div className="">
+              <TeamHeader team={teamA} />
+              <TeamTable team={teamA} />
+            </div>
+            <div>
+              <TeamHeader team={teamB} />
+              <TeamTable team={teamB} />
+            </div>
+          </TabsContent>
+          <TabsContent value="duels">
+            <DuelsTable duels={match.duels} teamA={teamA} teamB={teamB} />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

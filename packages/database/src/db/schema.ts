@@ -80,12 +80,38 @@ export const players = t.pgTable(
     fiveKillCount: t.integer().notNull(),
     hltvRating: t.doublePrecision().notNull(),
     hltvRating2: t.doublePrecision().notNull(),
+    // totalFlashes: t.integer().notNull(),
+    // totalSmokes: t.integer().notNull(),
+    // totalMolotovs: t.integer().notNull(),
+    // totalHes: t.integer().notNull(),
+    // flashAssists: t.integer().notNull(),
+    // enemiesFlashed: t.integer().notNull(),
+    // friendsFlashed: t.integer().notNull(),
+    // blindTime: t.integer().notNull(),
+    // heDamage: t.integer().notNull(),
+    // heTeamDamage: t.integer().notNull(),
+    // most_killed_player_name: t.varchar({ length: 255 }).notNull(),
+    // most_killed_by_player_name: t.varchar({ length: 255 }).notNull(),
+    // most_used_weapon: t.varchar({ length: 255 }).notNull(),
+    // death_by_weapon: t.varchar({ length: 255 }).notNull(),
   },
-  (table) => [t.index("steamId_idx").on(table.steamId)]
+  (table) => [t.index("steamId_idx").on(table.steamId)],
 );
+
+export const playerDuels = t.pgTable("player_duels", {
+  id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
+  matchId: t
+    .varchar({ length: 255 })
+    .references(() => matches.id, { onDelete: "cascade" }),
+  playerA_steamId: t.varchar({ length: 255 }).notNull(),
+  playerB_steamId: t.varchar({ length: 255 }).notNull(),
+  kills: t.integer().notNull(),
+  deaths: t.integer().notNull(),
+});
 
 export const matchRelations = relations(matches, ({ many }) => ({
   teams: many(teams),
+  duels: many(playerDuels),
 }));
 
 export const teamRelations = relations(teams, ({ many, one }) => ({
@@ -96,7 +122,7 @@ export const teamRelations = relations(teams, ({ many, one }) => ({
   players: many(players),
 }));
 
-export const playerRelations = relations(players, ({ one }) => ({
+export const playerRelations = relations(players, ({ one, many }) => ({
   match: one(matches, {
     fields: [players.matchId],
     references: [matches.id],
@@ -104,5 +130,12 @@ export const playerRelations = relations(players, ({ one }) => ({
   team: one(teams, {
     fields: [players.teamId],
     references: [teams.id],
+  }),
+}));
+
+export const playerDuelsRelations = relations(playerDuels, ({ one, many }) => ({
+  match: one(matches, {
+    fields: [playerDuels.matchId],
+    references: [matches.id],
   }),
 }));

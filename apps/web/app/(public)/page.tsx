@@ -2,8 +2,11 @@
 import { MatchPreview } from "@/components/match-list/MatchPreview";
 import { listMatches } from "@/lib/api/match";
 import { MatchDTO } from "@repo/contracts";
+import { unstable_noStore } from "next/cache";
 
 export default async function Home() {
+  unstable_noStore()
+
   const matches: MatchDTO[] = await listMatches();
 
   const matchMapByMonth = new Map<string, MatchDTO[]>();

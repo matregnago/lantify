@@ -33,6 +33,7 @@ export async function getMatchData(matchId: string) {
           },
         },
       },
+      duels: true,
     },
   });
 
