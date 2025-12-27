@@ -4,6 +4,7 @@ import * as schema from "@repo/database/schema";
 type NewMatch = typeof schema.matches.$inferInsert;
 type NewTeam = typeof schema.teams.$inferInsert;
 type NewPlayer = typeof schema.players.$inferInsert;
+type NewDuel = typeof schema.playerDuels.$inferInsert;
 
 export const saveDemoData = async (fileName: string) => {
   const data = await Bun.file(fileName).json();
@@ -131,18 +132,68 @@ export const saveDemoData = async (fileName: string) => {
             hltvRating2: player.hltvRating2,
           };
           return newPlayerData;
-        }
+        },
       );
 
       await tx.insert(schema.players).values(players);
+
+      const duelsMap = new Map<string, Map<string, NewDuel>>();
+
+      const getOrCreateDuelMap = (playerId: string) => {
+        let duels = duelsMap.get(playerId);
+        if (!duels) {
+          duels = new Map<string, NewDuel>();
+          duelsMap.set(playerId, duels);
+        }
+        return duels;
+      };
+
+      const getOrCreateDuel = (
+        duels: Map<string, NewDuel>,
+        playerA: string,
+        playerB: string,
+      ): NewDuel => {
+        let duel = duels.get(playerB);
+        if (!duel) {
+          duel = {
+            playerA_steamId: playerA,
+            playerB_steamId: playerB,
+            kills: 0,
+            deaths: 0,
+            matchId,
+          };
+          duels.set(playerB, duel);
+        }
+        return duel;
+      };
+
+      for (const kill of data.kills) {
+        const killerId = String(kill.killerSteamId);
+        const victimId = String(kill.victimSteamId);
+
+        const killerDuels = getOrCreateDuelMap(killerId);
+        const victimDuels = getOrCreateDuelMap(victimId);
+
+        const killerDuel = getOrCreateDuel(killerDuels, killerId, victimId);
+
+        const victimDuel = getOrCreateDuel(victimDuels, victimId, killerId);
+
+        killerDuel.kills += 1;
+        victimDuel.deaths += 1;
+      }
+
+      const duels = Array.from(duelsMap.values()).flatMap((duel) =>
+        Array.from(duel.values()),
+      );
+      await tx.insert(schema.playerDuels).values(duels);
     });
     console.log(
-      `Dados da demo ${data.demoFileName} salvos com sucesso no banco.`
+      `Dados da demo ${data.demoFileName} salvos com sucesso no banco.`,
     );
   } catch (error) {
     if (error instanceof DrizzleQueryError) {
       console.log(
-        `Dados já existem no banco para a demo ${data.demoFileName}.`
+        `Dados já existem no banco para a demo ${data.demoFileName}.`,
       );
       return;
     }
