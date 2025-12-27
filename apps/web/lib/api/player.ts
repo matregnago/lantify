@@ -91,13 +91,13 @@ export async function getPlayerProfileData(
     .flatMap((p) => p.match?.teams)
     .reduce((acc, team) => (acc += team?.score || 0), 0);
 
+  const steamData = await fetchSteamProfiles([steamId]);
   const killDeathRatio = playerStats.totalKills / playerStats.totalDeaths;
 
   const headshotPercent =
     (playerStats.totalHeadshots / playerStats.totalKills) * 100;
-  const steamData = await fetchSteamProfiles(steamId);
 
-  const playerSteamData = steamData?.response.players[0] || {
+  const playerSteamData = steamData[0] || {
     avatarfull: null,
     personaname: playerMatchHistory[0]?.name || "Unknown Player",
     steamid: null,
@@ -137,15 +137,14 @@ export const getPlayersRanking = async () => {
 
   const steamIds = players
     .map((player) => player.steamId)
-    .filter(Boolean)
-    .join(",");
+    .filter((p) => p != null);
 
   const steamData = (await fetchSteamProfiles(steamIds)) || {
     response: { players: [] },
   };
 
   return players.map((player) => {
-    const playerData = steamData.response.players.find(
+    const playerData = steamData.find(
       (data) => data.steamid === player.steamId,
     );
     return {
