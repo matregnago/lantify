@@ -1,6 +1,5 @@
 "use client";
 import Image from "next/image";
-import { Card } from "../ui/card";
 import {
   Table,
   TableBody,

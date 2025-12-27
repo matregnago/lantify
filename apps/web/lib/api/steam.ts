@@ -1,24 +1,52 @@
-type SteamPlayer = {
+import { redis } from "@repo/redis";
+
+export type SteamPlayer = {
   personaname: string;
   avatarfull: string;
   steamid: string;
 };
 
-export type SteamApiResponse = {
+type SteamApiResponse = {
   response: {
     players: SteamPlayer[];
   };
 };
 
-export async function fetchSteamProfiles(steamIds: string) {
-  const apiKey = process.env.STEAM_API_KEY;
-  const url = `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${apiKey}&steamids=${steamIds}`;
-  const response = await fetch(url);
+export async function fetchSteamProfiles(steamIds: string[]) {
+  const cachedData = await redis.mget(...steamIds);
 
-  if (response.status !== 200) {
-    return null;
+  const cachedProfiles: SteamPlayer[] = await Promise.all(
+    cachedData
+      .filter((profile) => profile != null)
+      .map((profile) => JSON.parse(profile)),
+  );
+
+  const notCachedProfiles = steamIds.filter(
+    (id) => !cachedProfiles.some((a) => a.steamid === id),
+  );
+
+  if (notCachedProfiles.length == 0) {
+    return cachedProfiles;
+  }
+  const steamIdsToFetch = notCachedProfiles.filter(Boolean).join(",");
+
+  const apiKey = process.env.STEAM_API_KEY;
+  const url = `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${apiKey}&steamids=${steamIdsToFetch}`;
+  const response = await fetch(url);
+  if (!response.ok || response.status !== 200) {
+    return cachedProfiles;
   }
 
   const data: SteamApiResponse = await response.json();
-  return data;
+
+  const profilesKeyValuePairs = data.response.players
+    .map((profile) => [profile.steamid, JSON.stringify(profile)])
+    .flatMap((p) => p);
+
+  await redis.mset(...profilesKeyValuePairs);
+  const expirePromises = notCachedProfiles.map((key) =>
+    redis.expire(key, 43200),
+  ); // 12h
+  await Promise.all(expirePromises);
+  return [...cachedProfiles, ...data.response.players];
 }

@@ -217,6 +217,7 @@ export const saveDemoData = async (fileName: string) => {
     );
   } catch (error) {
     if (error instanceof DrizzleQueryError) {
+      console.log("Erro detalhado:", error);
       console.log(
         `Dados já existem no banco para a demo ${data.demoFileName}.`,
       );
