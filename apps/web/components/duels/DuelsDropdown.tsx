@@ -20,6 +20,8 @@ import {
 } from "../ui/select";
 import { getPlayerDuelsByMonth } from "@/lib/api/player";
 import { useRouter } from "next/navigation";
+import { diffColor } from "@/lib/diff-color";
+import { colorByMaxValue } from "@/lib/color-by-max-value";
 
 interface DuelsDropdownProps {
   matchMapByMonth: Map<string, MatchDTO[]>;
@@ -53,8 +55,13 @@ export const DuelsDropdown = ({ matchMapByMonth }: DuelsDropdownProps) => {
     const players = Array.from(playersMap.values());
 
     setPlayersInMonth(players);
-    setSelectedPlayer(players[0]?.steamId || null);
-  }, [matchMapByMonth, selectedMatchMonth]);
+    if (
+      selectedPlayer == null ||
+      !players.some((p) => p.steamId === selectedPlayer)
+    ) {
+      setSelectedPlayer(players[0]?.steamId || null);
+    }
+  }, [matchMapByMonth, selectedMatchMonth, selectedPlayer]);
 
   useEffect(() => {
     const fetchDuels = async () => {
@@ -67,7 +74,6 @@ export const DuelsDropdown = ({ matchMapByMonth }: DuelsDropdownProps) => {
     };
     fetchDuels();
   }, [selectedPlayer, selectedMatchMonth]);
-
   const playerDuelTotal = useMemo(() => {
     return playerDuels.reduce(
       (total, duel) => total + duel.kills - duel.deaths,
@@ -86,7 +92,7 @@ export const DuelsDropdown = ({ matchMapByMonth }: DuelsDropdownProps) => {
   const kdTotal = useMemo(() => {
     const kills = killTotal;
     const deaths = deathTotal;
-    return deaths === 0 ? kills : (kills / deaths).toFixed(2);
+    return deaths === 0 ? kills.toFixed(2) : (kills / deaths).toFixed(2);
   }, [killTotal, deathTotal]);
 
   const months = useMemo(() => {
@@ -113,13 +119,12 @@ export const DuelsDropdown = ({ matchMapByMonth }: DuelsDropdownProps) => {
       <div className="flex items-center gap-4">
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-            Data da LAN
+            LAN
           </label>
           <Select
             value={selectedMatchMonth}
             onValueChange={(v) => {
               setSelectedMatchMonth(v);
-              setSelectedPlayer(null);
             }}
           >
             <SelectTrigger className="w-45">
@@ -137,115 +142,138 @@ export const DuelsDropdown = ({ matchMapByMonth }: DuelsDropdownProps) => {
         </div>
       </div>
       <div>
-        <Table className="bg-card rounded border">
-          <TableHeader>
-            <TableRow className="hover:bg-card">
-              <TableHead className="w-64 border-r">
-                <Select
-                  value={selectedPlayer ?? ""}
-                  onValueChange={(v) => setSelectedPlayer(v)}
-                  disabled={!selectedMatchMonth}
+        <div className="relative w-full overflow-x-auto">
+          <Table className="bg-card border">
+            <TableHeader>
+              <TableRow className="hover:bg-card">
+                <TableHead className="w-64 border-r p-0 align-middle">
+                  <Select
+                    value={selectedPlayer ?? ""}
+                    onValueChange={(v) => setSelectedPlayer(v)}
+                    disabled={!selectedMatchMonth}
+                  >
+                    <SelectTrigger className="w-full h-full min-h-full border-0 rounded-none px-3 flex items-center">
+                      <SelectValue placeholder="Select a player" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {playersInMonth.map((p) => (
+                        <SelectItem key={p.steamId} value={p.steamId as string}>
+                          <div className="flex items-center gap-2.5">
+                            <Image
+                              src={p.avatarUrl || "/default-avatar.png"}
+                              width={32}
+                              height={32}
+                              alt={`${p.name}'s avatar`}
+                              className="rounded-full border border-gray-800 shrink-0"
+                            />
+                            <p>{p.name}</p>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </TableHead>
+
+                <TableHead
+                  className={`text-center w-max bg-muted/60 transition border-r ${diffColor(playerDuelTotal)}`}
                 >
-                  <SelectTrigger className="w-45">
-                    <SelectValue placeholder="Select a player" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {playersInMonth.map((p) => (
-                      <SelectItem key={p.steamId} value={p.steamId as string}>
+                  {playerDuelTotal}
+                </TableHead>
+
+                <TableHead
+                  className="text-center w-max bg-muted/60 transition border-r"
+                  style={{ color: colorByMaxValue(Number(kdTotal), 1.5) }}
+                >
+                  {kdTotal}
+                </TableHead>
+
+                <TableHead className="text-center w-52 bg-muted/60 transition">
+                  {killTotal}
+                </TableHead>
+                <TableHead className="text-center w-52 bg-muted/60 transition ">
+                  {deathTotal}
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow className="bg-card hover:bg-card font-medium">
+                <TableCell className="border-r text-center">
+                  VS Opponents
+                </TableCell>
+                <TableCell className="text-center border-r">Diff</TableCell>
+                <TableCell className="text-center border-r">KD</TableCell>
+                <TableCell className="text-center">Kills</TableCell>
+                <TableCell className="text-center border-r">Mortes</TableCell>
+              </TableRow>
+              {playersInMonth.map((enemy, index) => {
+                if (selectedPlayer && enemy.steamId === selectedPlayer) {
+                  return null;
+                }
+                if (!enemy.steamId) {
+                  return null;
+                }
+                const duel = duels.get(enemy.steamId);
+                if (
+                  !duel ||
+                  (!duel.kills && !duel.deaths) ||
+                  (duel.kills === 0 && duel.deaths === 0)
+                ) {
+                  return null;
+                }
+
+                return (
+                  <TableRow key={index} className="hover:bg-card">
+                    <TableCell className="border-r hover:bg-muted/50">
+                      <div
+                        className="flex flex-row gap-3 items-center cursor-pointer w-fit"
+                        onClick={() => router.push(`/profile/${enemy.steamId}`)}
+                      >
                         <div className="flex items-center gap-2.5">
                           <Image
-                            src={p.avatarUrl || "/default-avatar.png"}
+                            src={enemy.avatarUrl || "/default-avatar.png"}
                             width={32}
                             height={32}
-                            alt={`${p.name}'s avatar`}
+                            alt={`${enemy.name}'s avatar`}
                             className="rounded-full border border-gray-800 shrink-0"
                           />
-                          <p>{p.name}</p>
+                          <p>{enemy.name}</p>
                         </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </TableHead>
-
-              <TableHead className="text-center w-max hover:bg-muted/60 transition border-r">
-                {playerDuelTotal}
-              </TableHead>
-              <TableHead className="text-center w-max hover:bg-muted/60 transition border-r">
-                {kdTotal}
-              </TableHead>
-              <TableHead className="text-center w-max hover:bg-muted/60 transition border-r">
-                {killTotal}
-              </TableHead>
-              <TableHead className="text-center w-max hover:bg-muted/60 transition border-r">
-                {deathTotal}
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            <TableRow>
-              <TableCell className="border-r hover:bg-muted/50">
-                VS Opponents
-              </TableCell>
-              <TableCell className="text-center border-r">Diff</TableCell>
-              <TableCell className="text-center border-r">KD</TableCell>
-              <TableCell className="text-center">Kills</TableCell>
-              <TableCell className="text-center border-r">Mortes</TableCell>
-            </TableRow>
-            {playersInMonth.map((enemy, index) => {
-              if (selectedPlayer && enemy.steamId === selectedPlayer) {
-                return null;
-              }
-              if (!enemy.steamId) {
-                console.log("Enemy without steamId:", enemy);
-                return null;
-              }
-              const duel = duels.get(enemy.steamId);
-              if (
-                !duel ||
-                (!duel.kills && !duel.deaths) ||
-                (duel.kills === 0 && duel.deaths === 0)
-              ) {
-                console.log("No duels found for enemy:", enemy);
-                return null;
-              }
-
-              return (
-                <TableRow key={index} className="hover:bg-card">
-                  <TableCell className="border-r hover:bg-muted/50">
-                    <div
-                      className="flex flex-row gap-3 items-center cursor-pointer w-fit"
-                      onClick={() => router.push(`/profile/${enemy.steamId}`)}
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <Image
-                          src={enemy.avatarUrl || "/default-avatar.png"}
-                          width={32}
-                          height={32}
-                          alt={`${enemy.name}'s avatar`}
-                          className="rounded-full border border-gray-800 shrink-0"
-                        />
-                        <p>{enemy.name}</p>
                       </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-center bg-background">
-                    {duel.kills - duel.deaths}
-                  </TableCell>
-                  <TableCell className="text-center bg-background">
-                    {((duel.kills * 1.0) / duel.deaths).toFixed(2)}
-                  </TableCell>
-                  <TableCell className="text-center bg-background">
-                    {duel.kills}
-                  </TableCell>
-                  <TableCell className="text-center bg-background">
-                    {duel.deaths}
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
+                    </TableCell>
+                    <TableCell
+                      className={`text-center bg-background border-r ${diffColor(duel.kills - duel.deaths)}`}
+                    >
+                      {duel.kills - duel.deaths}
+                    </TableCell>
+                    <TableCell
+                      style={{
+                        color: colorByMaxValue(
+                          Number(
+                            duel.deaths === 0
+                              ? duel.kills
+                              : (duel.kills / duel.deaths).toFixed(2),
+                          ),
+                          1.7,
+                        ),
+                      }}
+                      className="text-center bg-background border-r"
+                    >
+                      {duel.deaths === 0
+                        ? duel.kills.toFixed(2)
+                        : (duel.kills / duel.deaths).toFixed(2)}
+                    </TableCell>
+                    <TableCell className="text-center bg-background">
+                      {duel.kills}
+                    </TableCell>
+                    <TableCell className="text-center bg-background">
+                      {duel.deaths}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </div>
       </div>
     </div>
   );

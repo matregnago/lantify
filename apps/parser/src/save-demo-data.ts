@@ -168,10 +168,14 @@ export const saveDemoData = async (fileName: string) => {
       }
 
       for (const kill of data.kills) {
-        if (kill.killerSide !== kill.victimSide) {
-          const killerId = kill.killerSteamId;
-          const victimId = kill.victimSteamId;
+        const killerId = kill.killerSteamId;
+        const victimId = kill.victimSteamId;
 
+        if (
+          kill.killerSide !== kill.victimSide &&
+          kill.killerSteamId !== 0 &&
+          kill.victimSteamId !== 0
+        ) {
           const killerDuels = getOrCreateDuelMap(killerId);
           const victimDuels = getOrCreateDuelMap(victimId);
 
