@@ -66,3 +66,71 @@ export type MatchDTO = typeof s.matches.$inferSelect & {
 };
 
 export type DuelDTO = typeof s.playerDuels.$inferSelect;
+
+// Credits to: https://github.com/akiver/cs-demo-manager
+
+export declare const WeaponType: {
+  readonly Unknown: "unknown";
+  readonly Pistol: "pistol";
+  readonly SMG: "smg";
+  readonly Shotgun: "shotgun";
+  readonly Rifle: "rifle";
+  readonly Sniper: "sniper";
+  readonly MachineGun: "machine_gun";
+  readonly Grenade: "grenade";
+  readonly Equipment: "equipment";
+  readonly Melee: "melee";
+  readonly World: "world";
+};
+export type WeaponType = (typeof WeaponType)[keyof typeof WeaponType];
+export declare const WeaponName: {
+  readonly AK47: "AK-47";
+  readonly AUG: "AUG";
+  readonly AWP: "AWP";
+  readonly Bomb: "C4";
+  readonly CZ75: "CZ75 Auto";
+  readonly Decoy: "Decoy Grenade";
+  readonly Deagle: "Desert Eagle";
+  readonly DefuseKit: "Defuse Kit";
+  readonly DualBerettas: "Dual Berettas";
+  readonly Famas: "FAMAS";
+  readonly FiveSeven: "Five-SeveN";
+  readonly Flashbang: "Flashbang";
+  readonly G3SG1: "G3SG1";
+  readonly GalilAR: "Galil AR";
+  readonly Glock: "Glock-18";
+  readonly HEGrenade: "HE Grenade";
+  readonly Helmet: "Kevlar + Helmet";
+  readonly Kevlar: "Kevlar Vest";
+  readonly Incendiary: "Incendiary Grenade";
+  readonly Knife: "Knife";
+  readonly M249: "M249";
+  readonly M4A1: "M4A1";
+  readonly M4A4: "M4A4";
+  readonly Mac10: "MAC-10";
+  readonly MAG7: "MAG-7";
+  readonly Molotov: "Molotov";
+  readonly MP5: "MP5-SD";
+  readonly MP7: "MP7";
+  readonly MP9: "MP9";
+  readonly Negev: "Negev";
+  readonly Nova: "Nova";
+  readonly P2000: "P2000";
+  readonly P250: "P250";
+  readonly P90: "P90";
+  readonly PPBizon: "PP-Bizon";
+  readonly Revolver: "R8 Revolver";
+  readonly SawedOff: "Sawed-Off";
+  readonly Scar20: "SCAR-20";
+  readonly Scout: "SSG 08";
+  readonly SG553: "SG 553";
+  readonly Smoke: "Smoke Grenade";
+  readonly Tec9: "Tec-9";
+  readonly UMP45: "UMP-45";
+  readonly Unknown: "Unknown";
+  readonly USP: "USP-S";
+  readonly World: "World";
+  readonly XM1014: "XM1014";
+  readonly Zeus: "Zeus x27";
+};
+export type WeaponName = (typeof WeaponName)[keyof typeof WeaponName];
