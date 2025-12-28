@@ -168,21 +168,23 @@ export const saveDemoData = async (fileName: string) => {
       }
 
       for (const kill of data.kills) {
-        const killerId = kill.killerSteamId;
-        const victimId = kill.victimSteamId;
+        if (kill.killerSide !== kill.victimSide) {
+          const killerId = kill.killerSteamId;
+          const victimId = kill.victimSteamId;
 
-        const killerDuels = getOrCreateDuelMap(killerId);
-        const victimDuels = getOrCreateDuelMap(victimId);
+          const killerDuels = getOrCreateDuelMap(killerId);
+          const victimDuels = getOrCreateDuelMap(victimId);
 
-        const killerDuel = getOrCreateDuel(killerDuels, killerId, victimId);
+          const killerDuel = getOrCreateDuel(killerDuels, killerId, victimId);
 
-        const victimDuel = getOrCreateDuel(victimDuels, victimId, killerId);
+          const victimDuel = getOrCreateDuel(victimDuels, victimId, killerId);
 
-        killerDuel.kills += 1;
-        victimDuel.deaths += 1;
-        if (kill.isAssistedFlash) {
-          const assistedStats = getOrCreatePlayerStats(kill.assisterSteamId);
-          assistedStats.flashAssists++;
+          killerDuel.kills += 1;
+          victimDuel.deaths += 1;
+          if (kill.isAssistedFlash) {
+            const assistedStats = getOrCreatePlayerStats(kill.assisterSteamId);
+            assistedStats.flashAssists++;
+          }
         }
       }
 
