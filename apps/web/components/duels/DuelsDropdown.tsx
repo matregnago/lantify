@@ -56,6 +56,12 @@ export const DuelsDropdown = ({ matchMapByMonth }: DuelsDropdownProps) => {
         return playerDuels.reduce((total, duel) => total + duel.deaths, 0);
     }, [playerDuels]);
 
+    const kdTotal = useMemo(() => {
+        const kills = killTotal;
+        const deaths = deathTotal;
+        return deaths === 0 ? kills : (kills / deaths).toFixed(2);
+    }, [killTotal, deathTotal]);
+
     const months = useMemo(() => {
         return Array.from(matchMapByMonth.keys()).sort((a, b) => {
             const da = new Date(a);
@@ -159,6 +165,9 @@ export const DuelsDropdown = ({ matchMapByMonth }: DuelsDropdownProps) => {
                                 {playerDuelTotal}
                             </TableHead>
                             <TableHead className="text-center w-max hover:bg-muted/60 transition border-r">
+                                {kdTotal}
+                            </TableHead>
+                            <TableHead className="text-center w-max hover:bg-muted/60 transition border-r">
                                 {killTotal}
                             </TableHead>
                             <TableHead className="text-center w-max hover:bg-muted/60 transition border-r">
@@ -173,6 +182,9 @@ export const DuelsDropdown = ({ matchMapByMonth }: DuelsDropdownProps) => {
                             </TableCell>
                             <TableCell className="text-center border-r">
                                 Diff
+                            </TableCell>
+                            <TableCell className="text-center border-r">
+                                KD
                             </TableCell>
                             <TableCell className="text-center">
                                 Kills
@@ -214,6 +226,7 @@ export const DuelsDropdown = ({ matchMapByMonth }: DuelsDropdownProps) => {
                                         </div>
                                     </TableCell>
                                     <TableCell className="text-center bg-background">{duel.kills - duel.deaths}</TableCell>
+                                    <TableCell className="text-center bg-background">{(duel.kills * 1.0 / duel.deaths).toFixed(2)}</TableCell>
                                     <TableCell className="text-center bg-background">{duel.kills}</TableCell>
                                     <TableCell className="text-center bg-background">{duel.deaths}</TableCell>
                                 </TableRow>
