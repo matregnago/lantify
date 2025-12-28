@@ -29,6 +29,20 @@
       "when": 1766800298986,
       "tag": "0003_lonely_captain_marvel",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1766881423866,
+      "tag": "0004_friendly_the_hood",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1766882753745,
+      "tag": "0005_bright_maginty",
+      "breakpoints": true
     }
   ]
 }
