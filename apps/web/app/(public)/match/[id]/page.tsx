@@ -9,6 +9,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FlashesTable } from "@/components/match/FlashesTable";
+import { UtilityTable } from "@/components/match/UtilityTable";
 
 export default async function MatchPage({
   params,
@@ -42,17 +44,27 @@ export default async function MatchPage({
         <Tabs defaultValue="summary">
           <TabsList>
             <TabsTrigger value="summary">Geral</TabsTrigger>
+            <TabsTrigger value="utility">Utilitarios</TabsTrigger>
+            <TabsTrigger value="flashes">Flashes</TabsTrigger>
             <TabsTrigger value="duels">Duelos</TabsTrigger>
           </TabsList>
           <TabsContent value="summary">
-            <div className="">
-              <TeamHeader team={teamA} />
-              <TeamTable team={teamA} />
-            </div>
-            <div>
-              <TeamHeader team={teamB} />
-              <TeamTable team={teamB} />
-            </div>
+            <TeamHeader team={teamA} />
+            <TeamTable team={teamA} />
+            <TeamHeader team={teamB} />
+            <TeamTable team={teamB} />
+          </TabsContent>
+          <TabsContent value="utility">
+            <TeamHeader team={teamA} />
+            <UtilityTable team={teamA} />
+            <TeamHeader team={teamB} />
+            <UtilityTable team={teamB} />
+          </TabsContent>
+          <TabsContent value="flashes">
+            <TeamHeader team={teamA} />
+            <FlashesTable team={teamA} />
+            <TeamHeader team={teamB} />
+            <FlashesTable team={teamB} />
           </TabsContent>
           <TabsContent value="duels">
             <DuelsTable duels={match.duels} teamA={teamA} teamB={teamB} />
