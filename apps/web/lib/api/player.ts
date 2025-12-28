@@ -140,9 +140,7 @@ export const getPlayersRanking = async () => {
     .map((player) => player.steamId)
     .filter((p) => p != null);
 
-  const steamData = (await fetchSteamProfiles(steamIds)) || {
-    response: { players: [] },
-  };
+  const steamData = (await fetchSteamProfiles(steamIds)) || [];
 
   return players.map((player) => {
     const playerData = steamData.find(
