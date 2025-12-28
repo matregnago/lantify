@@ -20,7 +20,7 @@ export const FlashesTable = ({ team }: { team: TeamDTO }) => {
     <Table className="bg-card rounded-sm">
       <TableHeader>
         <TableRow>
-          <TableHead className="w-64">Jogador</TableHead>
+          <TableHead className="w-64">Player</TableHead>
           <TableHead>Flashes</TableHead>
           <TableHead>Assist. de Flash</TableHead>
           <TableHead>Inimigos Cegados</TableHead>
