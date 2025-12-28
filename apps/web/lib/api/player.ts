@@ -1,3 +1,4 @@
+"use server";
 import { PlayerMatchHistoryDTO, PlayerProfileDTO } from "@repo/contracts";
 import { db, eq, avg, sum, sql, desc, count } from "@repo/database";
 import * as s from "@repo/database/schema";
@@ -158,4 +159,18 @@ export const getPlayersRanking = async () => {
       adr: Number(player.adr).toFixed(1),
     };
   });
+};
+
+export const getPlayerDuelsByMonth = async (steamId: string, month: string) => {
+  const duels = await db
+    .select()
+    .from(s.playerDuels)
+    .leftJoin(s.matches, eq(s.playerDuels.matchId, s.matches.id))
+    .where(
+      sql`
+        ${s.playerDuels.playerA_steamId} = ${steamId}
+      AND to_char(${s.matches.date}::timestamp, 'Mon YYYY') = ${month}`,
+    );
+
+  return duels;
 };
