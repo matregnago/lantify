@@ -72,3 +72,44 @@ export async function listMatches() {
   });
   return matches;
 }
+
+export async function listMatchesWithPlayers() {
+  const matches = await db.query.matches.findMany({
+    orderBy: desc(s.matches.date),
+    with: {
+      teams: {
+        with: {
+          players: true,
+        },
+      },
+    },
+  });
+
+  const steamIds = matches
+    .flatMap((match) =>
+      match.teams.flatMap((team) =>
+        team.players.map((player) => player.steamId),
+      ),
+    )
+    .filter((m) => m != null);
+
+  const steamData = (await fetchSteamProfiles(steamIds)) || {
+    response: { players: [] },
+  };
+
+  const matchesData = matches.map((match) => {
+    return {
+      ...match,
+      teams: match.teams.map((team) => {
+        const players: PlayerDTO[] = team.players.map((p) => {
+          return { ...p, avatarUrl: "", steamNickname: "" };
+        });
+        return {
+          ...team,
+          players: mapSteamDataWithPlayer(players, steamData),
+        };
+      }),
+    };
+  });
+  return matchesData;
+}
