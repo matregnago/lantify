@@ -162,15 +162,21 @@ export const getPlayersRanking = async () => {
 };
 
 export const getPlayerDuelsByMonth = async (steamId: string, month: string) => {
-  const duels = await db
-    .select()
-    .from(s.playerDuels)
-    .leftJoin(s.matches, eq(s.playerDuels.matchId, s.matches.id))
-    .where(
-      sql`
+  if (month === "all") {
+    return await db
+      .select()
+      .from(s.playerDuels)
+      .leftJoin(s.matches, eq(s.playerDuels.matchId, s.matches.id))
+      .where(eq(s.playerDuels.playerA_steamId, steamId));
+  } else {
+    return await db
+      .select()
+      .from(s.playerDuels)
+      .leftJoin(s.matches, eq(s.playerDuels.matchId, s.matches.id))
+      .where(
+        sql`
         ${s.playerDuels.playerA_steamId} = ${steamId}
       AND to_char(${s.matches.date}::timestamp, 'Mon YYYY') = ${month}`,
-    );
-
-  return duels;
+      );
+  }
 };
