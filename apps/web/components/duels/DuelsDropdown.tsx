@@ -22,6 +22,7 @@ import { getPlayerDuelsByMonth } from "@/lib/api/player";
 import { useRouter } from "next/navigation";
 import { diffColor } from "@/lib/diff-color";
 import { colorByMaxValue } from "@/lib/color-by-max-value";
+import { SelectLan } from "./SelectLan";
 
 interface DuelsDropdownProps {
   matchMapByMonth: Map<string, MatchDTO[]>;
@@ -35,33 +36,13 @@ export const DuelsDropdown = ({ matchMapByMonth }: DuelsDropdownProps) => {
   const [playersInMonth, setPlayersInMonth] = useState<PlayerDTO[]>([]);
 
   useEffect(() => {
-    let allMatches: MatchDTO[] = [];
-    if (selectedMatchMonth === "all") {
-      allMatches = Array.from(matchMapByMonth.values()).flatMap((d) => d);
-    } else {
-      allMatches = matchMapByMonth.get(selectedMatchMonth) || [];
-    }
-
-    const playersMap = new Map<string, PlayerDTO>();
-
-    allMatches.forEach((m) =>
-      m.teams.forEach((t) =>
-        t.players?.forEach((p) => {
-          if (p?.steamId && !playersMap.has(p.steamId))
-            playersMap.set(p.steamId, p as PlayerDTO);
-        }),
-      ),
-    );
-    const players = Array.from(playersMap.values());
-
-    setPlayersInMonth(players);
     if (
       selectedPlayer == null ||
-      !players.some((p) => p.steamId === selectedPlayer)
+      !playersInMonth.some((p) => p.steamId === selectedPlayer)
     ) {
-      setSelectedPlayer(players[0]?.steamId || null);
+      setSelectedPlayer(playersInMonth[0]?.steamId || null);
     }
-  }, [matchMapByMonth, selectedMatchMonth, selectedPlayer]);
+  }, [selectedPlayer, playersInMonth]);
 
   useEffect(() => {
     const fetchDuels = async () => {
@@ -95,14 +76,6 @@ export const DuelsDropdown = ({ matchMapByMonth }: DuelsDropdownProps) => {
     return deaths === 0 ? kills.toFixed(2) : (kills / deaths).toFixed(2);
   }, [killTotal, deathTotal]);
 
-  const months = useMemo(() => {
-    return Array.from(matchMapByMonth.keys()).sort((a, b) => {
-      const da = new Date(a);
-      const db = new Date(b);
-      return db.getTime() - da.getTime();
-    });
-  }, [matchMapByMonth]);
-
   const duels = new Map<string, { kills: number; deaths: number }>();
   playerDuels.forEach((d) => {
     const enemy = duels.get(d.playerB_steamId);
@@ -118,27 +91,12 @@ export const DuelsDropdown = ({ matchMapByMonth }: DuelsDropdownProps) => {
     <div className="space-y-4">
       <div className="flex items-center gap-4">
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-            LAN
-          </label>
-          <Select
-            value={selectedMatchMonth}
-            onValueChange={(v) => {
-              setSelectedMatchMonth(v);
-            }}
-          >
-            <SelectTrigger className="w-45">
-              <SelectValue placeholder="Selecione a LAN" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todas</SelectItem>
-              {months.map((m) => (
-                <SelectItem key={m} value={m}>
-                  {m}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <SelectLan
+            matchMapByMonth={matchMapByMonth}
+            selectedMatchMonth={selectedMatchMonth}
+            setSelectedMatchMonth={setSelectedMatchMonth}
+            setPlayersInMonth={setPlayersInMonth}
+          />
         </div>
       </div>
       <div>
