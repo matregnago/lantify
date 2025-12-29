@@ -131,6 +131,7 @@ export const DuelsDropdown = ({ matchMapByMonth }: DuelsDropdownProps) => {
             onValueChange={(v) => {
               setSelectedMatchMonth(v);
             }}
+            disabled={isLoading}
           >
             <SelectTrigger className="w-45">
               <SelectValue placeholder="Selecione a LAN" />
