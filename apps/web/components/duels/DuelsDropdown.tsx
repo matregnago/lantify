@@ -11,13 +11,6 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
 import { getPlayerDuelsByMonth } from "@/lib/api/player";
 import { useRouter } from "next/navigation";
 import { diffColor } from "@/lib/diff-color";

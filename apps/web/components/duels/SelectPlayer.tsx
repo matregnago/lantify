@@ -7,8 +7,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "../ui/select";
-import { MatchDTO, PlayerDTO } from "@repo/contracts";
-import { useEffect, useMemo } from "react";
+import { PlayerDTO } from "@repo/contracts";
 
 interface SelectPlayerProps {
     selectedMatchMonth: string;

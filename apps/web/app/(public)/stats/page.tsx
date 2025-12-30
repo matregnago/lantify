@@ -1,5 +1,6 @@
 import { SelectLan } from "@/components/duels/SelectLan";
 import { DynamicGraph } from "@/components/stats/DynamicGraph";
+import { RankTables } from "@/components/stats/RankTables";
 import { listMatchesWithPlayers } from "@/lib/api/match";
 import { MatchDTO } from "@repo/contracts";
 
@@ -27,7 +28,9 @@ export default async function StatsPage() {
         <div className="max-w-7xl mx-auto my-12">
             <h1 className="text-4xl font-bold text-center md:text-left">Estatísticas</h1>
             <p className="text-1xl text-center md:text-left"> Fornecidas por gugab enterprise company LTDA & cia </p>
-            <DynamicGraph matchMapByMonth={matchMapByMonth} />
+            <div className="mt-8">
+                <RankTables matchMapByMonth={matchMapByMonth} />
+            </div>
         </div>
     );
 

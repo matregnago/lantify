@@ -1,15 +1,8 @@
 "use client";
 
 import { MatchDTO, PlayerDTO } from "@repo/contracts";
-import { useRouter } from "next/dist/client/components/navigation";
-import { useEffect, useMemo, useState } from "react";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "../ui/select";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { SelectLan } from "../duels/SelectLan";
 
 interface DynamicGraphProps {
