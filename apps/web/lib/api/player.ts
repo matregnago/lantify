@@ -1,5 +1,5 @@
 "use server";
-import { DuelDTO, PlayerMatchHistoryDTO, PlayerProfileDTO } from "@repo/contracts";
+import { DuelDTO, MatchDTO, PlayerMatchHistoryDTO, PlayerProfileDTO } from "@repo/contracts";
 import { db, eq, avg, sum, sql, desc, count } from "@repo/database";
 import * as s from "@repo/database/schema";
 import { fetchSteamProfiles } from "./steam";
@@ -160,13 +160,17 @@ export const getPlayersRanking = async () => {
 };
 
 
+type DuelRow = {
+  player_duels: DuelDTO;
+  match: MatchDTO;
+};
 
 export const getPlayerDuelsByMonth = async (steamId: string, month: string) => {
-  const key = `duels:v3:${steamId}:${month}`;
+  const key = `duels:v4:${steamId}:${month}`;
   const cachedDuels = await redis.get(key);
   if (cachedDuels) {
-    //console.log("Cache hit for player duels:", key);
-    return JSON.parse(cachedDuels) as DuelDTO[];
+    console.log("Cache hit for player duels:", key);
+    return JSON.parse(cachedDuels) as DuelRow[];
   }
 
   const query = db
@@ -183,6 +187,6 @@ export const getPlayerDuelsByMonth = async (steamId: string, month: string) => {
   const result = await query;
 
   await redis.set(key, JSON.stringify(result), "EX", 43200); // 12 hours
-  //console.log("Cache miss for player duels:", key);
+  console.log("Cache miss for player duels:", key);
   return result;
 };
