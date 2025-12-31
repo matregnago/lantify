@@ -15,9 +15,10 @@ interface SelectLanProps {
     selectedMatchMonth: string;
     setSelectedMatchMonth: (month: string) => void;
     setPlayersInMonth: (players: PlayerDTO[]) => void;
+    disabled?: boolean;
 }
 
-export const SelectLan = ({ matchMapByMonth, selectedMatchMonth, setSelectedMatchMonth, setPlayersInMonth }: SelectLanProps) => {
+export const SelectLan = ({ matchMapByMonth, selectedMatchMonth, setSelectedMatchMonth, setPlayersInMonth, disabled }: SelectLanProps) => {
 
     useEffect(() => {
         const allMatches: MatchDTO[] =
@@ -57,6 +58,7 @@ export const SelectLan = ({ matchMapByMonth, selectedMatchMonth, setSelectedMatc
                 onValueChange={(v) => {
                     setSelectedMatchMonth(v);
                 }}
+                disabled={disabled}
             >
                 <SelectTrigger className="w-45">
                     <SelectValue placeholder="Selecione a LAN" />
@@ -69,6 +71,7 @@ export const SelectLan = ({ matchMapByMonth, selectedMatchMonth, setSelectedMatc
                         </SelectItem>
                     ))}
                 </SelectContent>
+
             </Select>
         </div>
     );

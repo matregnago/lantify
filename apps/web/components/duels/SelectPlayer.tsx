@@ -14,7 +14,6 @@ interface SelectPlayerProps {
     selectedPlayer: string | null;
     setSelectedPlayer: (player: string) => void;
     playersInMonth: PlayerDTO[];
-
 }
 
 export const SelectPlayer = ({ selectedPlayer, setSelectedPlayer, selectedMatchMonth, playersInMonth }: SelectPlayerProps) => {

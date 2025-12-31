@@ -214,6 +214,7 @@ export const DuelsDropdown = ({ matchMapByMonth }: DuelsDropdownProps) => {
                 })}
               </TableBody>
             </Table>
+          )}
         </div>
       </div>
     </div>
