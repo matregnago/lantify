@@ -10,6 +10,7 @@ import {
 } from "../ui/table";
 import { useRouter } from "next/navigation";
 import { PlayerRankingDTO } from "@repo/contracts";
+import { RankingPosition } from "./RankingPosition";
 
 export const PlayersRankingTable = ({
   players,
@@ -23,7 +24,7 @@ export const PlayersRankingTable = ({
       <Table className="">
         <TableHeader>
           <TableRow>
-            <TableHead className="w-10 text-center">#</TableHead>
+            <TableHead className="w-10 text-center">Rank</TableHead>
             <TableHead className="w-65">Player</TableHead>
 
             <TableHead className="w-22.5 text-center">Rating</TableHead>
@@ -43,7 +44,7 @@ export const PlayersRankingTable = ({
               onClick={() => router.push(`/profile/${player.steamId}`)}
             >
               <TableCell className="text-center tabular-nums">
-                {idx + 1}
+                <RankingPosition position={idx + 1} />
               </TableCell>
               <TableCell>
                 <div className="flex flex-row gap-5 items-center w-fit py-2">

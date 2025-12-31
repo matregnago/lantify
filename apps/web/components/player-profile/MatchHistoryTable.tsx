@@ -66,7 +66,7 @@ export const MatchHistoryTable = ({
                   {matchHistory.team.score} :{" "}
                   {
                     matchHistory.match.teams.find(
-                      (team) => team.id !== matchHistory.team?.id
+                      (team) => team.id !== matchHistory.team?.id,
                     )?.score
                   }
                 </TableCell>

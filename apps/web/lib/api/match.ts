@@ -1,23 +1,7 @@
 import { db, desc, eq } from "@repo/database";
 import * as s from "@repo/database/schema";
 import { PlayerDTO } from "@repo/contracts";
-import { fetchSteamProfiles, SteamPlayer } from "./steam";
-
-function mapSteamDataWithPlayer(
-  players: PlayerDTO[],
-  steamApiResponse: SteamPlayer[],
-): PlayerDTO[] {
-  return players.map((player) => {
-    const playerData = steamApiResponse.find(
-      (data) => data.steamid === player.steamId,
-    );
-    return {
-      ...player,
-      avatarUrl: playerData?.avatarfull,
-      steamNickname: playerData?.personaname,
-    };
-  });
-}
+import { fetchSteamProfiles, getSteamIdentity } from "./steam";
 
 export async function getMatchData(matchId: string) {
   const match = await db.query.matches.findFirst({
@@ -49,11 +33,16 @@ export async function getMatchData(matchId: string) {
     ...match,
     teams: match.teams.map((team) => {
       const players: PlayerDTO[] = team.players.map((p) => {
-        return { ...p, avatarUrl: "", steamNickname: "" };
+        const steamIdentity = getSteamIdentity(p.steamId, steamData);
+        return {
+          ...p,
+          avatarUrl: steamIdentity.avatarUrl,
+          steamNickname: steamIdentity.nickName,
+        };
       });
       return {
         ...team,
-        players: mapSteamDataWithPlayer(players, steamData),
+        players,
       };
     }),
   };
@@ -90,17 +79,22 @@ export async function listMatchesWithPlayers() {
     )
     .filter((m) => m != null);
 
-  const steamData = (await fetchSteamProfiles(steamIds)) || [];
+  const steamData = await fetchSteamProfiles(steamIds);
   const matchesData = matches.map((match) => {
     return {
       ...match,
       teams: match.teams.map((team) => {
         const players: PlayerDTO[] = team.players.map((p) => {
-          return { ...p, avatarUrl: "", steamNickname: "" };
+          const steamIdentity = getSteamIdentity(p.steamId, steamData);
+          return {
+            ...p,
+            avatarUrl: steamIdentity.avatarUrl,
+            steamNickname: steamIdentity.nickName,
+          };
         });
         return {
           ...team,
-          players: mapSteamDataWithPlayer(players, steamData),
+          players,
         };
       }),
     };

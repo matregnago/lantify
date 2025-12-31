@@ -1,11 +1,26 @@
 import Image from "next/image";
+import { RankingPosition } from "../ranking/RankingPosition";
+import { getRankingPosByStat } from "@/lib/ranking";
+import { PlayerRankingDTO } from "@repo/contracts";
 
 interface PlayerHeaderProps {
   avatarUrl?: string | null;
   nickName?: string | null;
+  steamId: string;
+  playersRanking: PlayerRankingDTO[];
 }
 
-export const PlayerHeader = ({ avatarUrl, nickName }: PlayerHeaderProps) => {
+export const PlayerHeader = ({
+  avatarUrl,
+  nickName,
+  steamId,
+  playersRanking,
+}: PlayerHeaderProps) => {
+  const ratingRankPosition = getRankingPosByStat(
+    steamId,
+    playersRanking,
+    "rating2",
+  );
   return (
     <div
       className="border-b shadow-lg rounded-lg mb-8 py-8 px-8 flex flex-row items-center md:justify-start justify-center relative overflow-hidden"
@@ -25,6 +40,7 @@ export const PlayerHeader = ({ avatarUrl, nickName }: PlayerHeaderProps) => {
           alt={`${nickName} avatar pfp`}
         />
         <p className="text-base font-semibold">{nickName}</p>
+        <RankingPosition position={ratingRankPosition} />
       </div>
     </div>
   );

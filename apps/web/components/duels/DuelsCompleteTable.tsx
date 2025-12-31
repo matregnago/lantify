@@ -19,11 +19,13 @@ import { SelectLan } from "./SelectLan";
 import { SelectPlayer } from "./SelectPlayer";
 import { LoadingTable } from "./LoadingTable";
 
-interface DuelsDropdownProps {
+interface DuelsCompleteTableProps {
   matchMapByMonth: Map<string, MatchDTO[]>;
 }
 
-export const DuelsDropdown = ({ matchMapByMonth }: DuelsDropdownProps) => {
+export const DuelsCompleteTable = ({
+  matchMapByMonth,
+}: DuelsCompleteTableProps) => {
   const router = useRouter();
   const [selectedMatchMonth, setSelectedMatchMonth] = useState<string>("all");
   const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null);
@@ -167,7 +169,9 @@ export const DuelsDropdown = ({ matchMapByMonth }: DuelsDropdownProps) => {
                       <TableCell className="border-r hover:bg-muted/50">
                         <div
                           className="flex flex-row gap-3 items-center cursor-pointer w-fit"
-                          onClick={() => router.push(`/profile/${enemy.steamId}`)}
+                          onClick={() =>
+                            router.push(`/profile/${enemy.steamId}`)
+                          }
                         >
                           <div className="flex items-center gap-2.5">
                             <Image

@@ -32,7 +32,7 @@ export function ChartPie({
   return (
     <div className="flex flex-col items-center justify-center">
       <h1 className="text-lg font-semibold">{title}</h1>
-      <div className="w-[200px] h-[200px]">
+      <div className="w-50 h-50">
         <ChartContainer config={chartConfig} className="w-full h-full">
           <PieChart>
             <Pie data={chartData} dataKey="value" />

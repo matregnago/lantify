@@ -9,7 +9,7 @@ import {
 } from "@repo/contracts";
 import { db, eq, avg, sum, sql, count, and } from "@repo/database";
 import * as s from "@repo/database/schema";
-import { fetchSteamProfiles, SteamPlayer } from "./steam";
+import { fetchSteamProfiles, getSteamIdentity } from "./steam";
 import { redis } from "@repo/redis";
 
 function buildPlayerStatsCondition(steamId?: string, date: string = "all") {
@@ -90,18 +90,6 @@ export async function getAggregatedPlayerStats(
     .where(where);
 
   return playerData;
-}
-
-function getSteamIdentity(
-  steamId: string,
-  steamData: SteamPlayer[],
-): { nickName: string | null; avatarUrl: string | null } {
-  const steam = steamData.find((s) => s.steamid === steamId);
-
-  return {
-    nickName: steam?.personaname ?? null,
-    avatarUrl: steam?.avatarfull ?? null,
-  };
 }
 
 export async function getPlayerMatchHistory(steamId: string) {

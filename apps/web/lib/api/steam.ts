@@ -12,6 +12,18 @@ type SteamApiResponse = {
   };
 };
 
+export function getSteamIdentity(
+  steamId: string,
+  steamData: SteamPlayer[],
+): { nickName: string | null; avatarUrl: string | null } {
+  const steam = steamData.find((s) => s.steamid === steamId);
+
+  return {
+    nickName: steam?.personaname ?? null,
+    avatarUrl: steam?.avatarfull ?? null,
+  };
+}
+
 export async function fetchSteamProfiles(steamIds: string[]) {
   const cachedData = await redis.mget(...steamIds);
 

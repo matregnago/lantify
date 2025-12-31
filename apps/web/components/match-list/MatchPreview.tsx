@@ -22,7 +22,7 @@ export const MatchPreview = ({ match }: { match: MatchDTO }) => {
         onClick={() => router.push(`/match/${match.id}`)}
       >
         <div className="flex justify-between items-center mx-12">
-          <div className="w-40 flex flex-row items-center gap-2 text-muted-foreground">
+          <div className="w-40 flex flex-row items-center gap-2 text-muted-foreground text-sm">
             <Calendar size={16} />
             <p>{formatDate(match.date)}</p>
           </div>

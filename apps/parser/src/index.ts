@@ -25,7 +25,7 @@ async function main() {
 
   if (!values["skip-demo-parse"]) {
     const files = (await readdir(demosFolderPath)).filter((f) =>
-      f.endsWith(".dem")
+      f.endsWith(".dem"),
     );
     const dataPromises = [];
     for (const file of files) {
@@ -49,17 +49,17 @@ async function main() {
           onEnd: async () => {
             try {
               console.log(
-                `Parse da demo ${file} concluído. Salvando dados no banco...`
+                `Parse da demo ${file} concluído. Salvando dados no banco...`,
               );
               await saveDemoData(jsonOutputPath);
             } catch (error) {
               console.error(
                 `Erro ao salvar dados da demo ${file} no banco:`,
-                error
+                error,
               );
             }
           },
-        })
+        }),
       );
     }
     try {
@@ -70,7 +70,7 @@ async function main() {
   } else {
     const outputFolderPath = join(import.meta.dir, "../output");
     const files = (await readdir(outputFolderPath)).filter((f) =>
-      f.endsWith(".json")
+      f.endsWith(".json"),
     );
     const dataPromises = [];
     for (const file of files) {

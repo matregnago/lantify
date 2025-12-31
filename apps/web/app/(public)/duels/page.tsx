@@ -1,6 +1,6 @@
 "use server";
+import { DuelsCompleteTable } from "@/components/duels/DuelsCompleteTable";
 import { listMatchesWithPlayers } from "@/lib/api/match";
-import { DuelsDropdown } from "@/components/duels/DuelsDropdown";
 import { MatchDTO } from "@repo/contracts";
 
 export default async function DuelsPage() {
@@ -27,7 +27,7 @@ export default async function DuelsPage() {
       <div className="max-w-7xl mx-auto flex flex-col gap-8">
         <h1 className="text-4xl font-bold text-center md:text-left">Duelos</h1>
 
-        <DuelsDropdown matchMapByMonth={matchMapByMonth} />
+        <DuelsCompleteTable matchMapByMonth={matchMapByMonth} />
       </div>
     </div>
   );

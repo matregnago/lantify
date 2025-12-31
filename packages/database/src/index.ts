@@ -11,7 +11,7 @@ import {
   count,
   DrizzleQueryError,
   inArray,
-  and
+  and,
 } from "drizzle-orm";
 import * as schema from "./db/schema";
 
