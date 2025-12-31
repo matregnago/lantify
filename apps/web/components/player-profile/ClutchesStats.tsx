@@ -10,86 +10,86 @@ export const ClutchesStats = ({ profile }: { profile: PlayerProfileDTO }) => {
           chartData={[
             {
               label: "won",
-              value: profile.oneVsOneWonCount,
+              value: profile.stats.oneVsOneWonCount,
               fill: "#4dc49e",
             },
             {
               label: "lost",
-              value: profile.oneVsOneLostCount,
+              value: profile.stats.oneVsOneLostCount,
               fill: "#2e2f2f",
             },
           ]}
-          formattedValue={`${((profile.oneVsOneWonCount / profile.oneVsOneCount) * 100 || 0).toFixed(2)}%`}
+          formattedValue={`${((profile.stats.oneVsOneWonCount / profile.stats.oneVsOneCount) * 100 || 0).toFixed(2)}%`}
           title="1v1"
-          subtitle={`W:${profile.oneVsOneWonCount} / L:${profile.oneVsOneLostCount}`}
+          subtitle={`W:${profile.stats.oneVsOneWonCount} / L:${profile.stats.oneVsOneLostCount}`}
         />
         <ChartPie
           chartData={[
             {
               label: "won",
-              value: profile.oneVsTwoWonCount,
+              value: profile.stats.oneVsTwoWonCount,
               fill: "#4dc49e",
             },
             {
               label: "lost",
-              value: profile.oneVsTwoLostCount,
+              value: profile.stats.oneVsTwoLostCount,
               fill: "#2e2f2f",
             },
           ]}
-          formattedValue={`${((profile.oneVsTwoWonCount / profile.oneVsTwoCount) * 100 || 0).toFixed(2)}%`}
+          formattedValue={`${((profile.stats.oneVsTwoWonCount / profile.stats.oneVsTwoCount) * 100 || 0).toFixed(2)}%`}
           title="1v2"
-          subtitle={`W:${profile.oneVsTwoWonCount} / L:${profile.oneVsTwoLostCount}`}
+          subtitle={`W:${profile.stats.oneVsTwoWonCount} / L:${profile.stats.oneVsTwoLostCount}`}
         />
         <ChartPie
           chartData={[
             {
               label: "won",
-              value: profile.oneVsThreeWonCount,
+              value: profile.stats.oneVsThreeWonCount,
               fill: "#4dc49e",
             },
             {
               label: "lost",
-              value: profile.oneVsThreeLostCount,
+              value: profile.stats.oneVsThreeLostCount,
               fill: "#2e2f2f",
             },
           ]}
-          formattedValue={`${((profile.oneVsThreeWonCount / profile.oneVsThreeCount) * 100 || 0).toFixed(2)}%`}
+          formattedValue={`${((profile.stats.oneVsThreeWonCount / profile.stats.oneVsThreeCount) * 100 || 0).toFixed(2)}%`}
           title="1v3"
-          subtitle={`W:${profile.oneVsThreeWonCount} / L:${profile.oneVsThreeLostCount}`}
+          subtitle={`W:${profile.stats.oneVsThreeWonCount} / L:${profile.stats.oneVsThreeLostCount}`}
         />
         <ChartPie
           chartData={[
             {
               label: "won",
-              value: profile.oneVsFourWonCount,
+              value: profile.stats.oneVsFourWonCount,
               fill: "#4dc49e",
             },
             {
               label: "lost",
-              value: profile.oneVsFourLostCount,
+              value: profile.stats.oneVsFourLostCount,
               fill: "#2e2f2f",
             },
           ]}
-          formattedValue={`${((profile.oneVsFourWonCount / profile.oneVsFourCount) * 100 || 0).toFixed(2)}%`}
+          formattedValue={`${((profile.stats.oneVsFourWonCount / profile.stats.oneVsFourCount) * 100 || 0).toFixed(2)}%`}
           title="1v4"
-          subtitle={`W:${profile.oneVsFourWonCount} / L:${profile.oneVsFourLostCount}`}
+          subtitle={`W:${profile.stats.oneVsFourWonCount} / L:${profile.stats.oneVsFourLostCount}`}
         />
         <ChartPie
           chartData={[
             {
               label: "won",
-              value: profile.oneVsFiveWonCount,
+              value: profile.stats.oneVsFiveWonCount,
               fill: "#4dc49e",
             },
             {
               label: "lost",
-              value: profile.oneVsFiveLostCount,
+              value: profile.stats.oneVsFiveLostCount,
               fill: "#2e2f2f",
             },
           ]}
-          formattedValue={`${((profile.oneVsFiveWonCount / profile.oneVsFiveCount) * 100 || 0).toFixed(2)}%`}
+          formattedValue={`${((profile.stats.oneVsFiveWonCount / profile.stats.oneVsFiveCount) * 100 || 0).toFixed(2)}%`}
           title="1v5"
-          subtitle={`W:${profile.oneVsFiveWonCount} / L:${profile.oneVsFiveLostCount}`}
+          subtitle={`W:${profile.stats.oneVsFiveWonCount} / L:${profile.stats.oneVsFiveLostCount}`}
         />
       </div>
     </Field>
