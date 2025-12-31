@@ -24,7 +24,7 @@ export const players = t.pgTable(
   "player",
   {
     id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
-    steamId: t.varchar({ length: 255 }),
+    steamId: t.varchar({ length: 255 }).notNull(),
     matchId: t
       .varchar({ length: 255 })
       .references(() => matches.id, { onDelete: "cascade" }),

@@ -9,47 +9,78 @@ export type PlayerMatchHistoryDTO = typeof s.players.$inferInsert & {
     | null;
 };
 
-export type PlayerProfileDTO = {
+export type PlayerRankingDTO = {
+  steamId: string;
+  stats: PlayerStatsDTO;
   nickName?: string | null;
   avatarUrl?: string | null;
-  matchHistory: PlayerMatchHistoryDTO[];
+};
+
+export type PlayerStatsDTO = {
+  steamId: string;
+
   killDeathRatio: number;
   headshotPercent: number;
+
+  totalMatches: number;
+
   killsPerMatch: number;
   killsPerRound: number;
-  winRate: number;
+
   rating2: number;
+
   totalKills: number;
   totalDeaths: number;
   totalAssists: number;
   totalHeadshots: number;
   totalMvps: number;
-  totalMatches: number;
-  totalRounds: number;
+
   totalBombPlants: number;
   totalBombDefuses: number;
   totalMultiKills: number;
+
   totalFirstKills: number;
   totalFirstDeaths: number;
+
   utilityDamage: number;
   kast: number;
+
   averageDamagePerRound: number;
   averageDeathPerRound: number;
+
   oneVsOneCount: number;
   oneVsOneWonCount: number;
   oneVsOneLostCount: number;
+
   oneVsTwoCount: number;
   oneVsTwoWonCount: number;
   oneVsTwoLostCount: number;
+
   oneVsThreeCount: number;
   oneVsThreeWonCount: number;
   oneVsThreeLostCount: number;
+
   oneVsFourCount: number;
   oneVsFourWonCount: number;
   oneVsFourLostCount: number;
+
   oneVsFiveCount: number;
   oneVsFiveWonCount: number;
   oneVsFiveLostCount: number;
+};
+
+export type PlayerProfileDTO = {
+  steamId: string;
+
+  nickName?: string | null;
+  avatarUrl?: string | null;
+
+  stats: PlayerStatsDTO;
+
+  matchHistory: PlayerMatchHistoryDTO[];
+
+  winRate: number;
+  totalRounds: number;
 };
 
 export type PlayerDTO = typeof s.players.$inferSelect & {

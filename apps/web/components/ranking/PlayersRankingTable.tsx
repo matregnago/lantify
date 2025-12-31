@@ -9,21 +9,12 @@ import {
   TableRow,
 } from "../ui/table";
 import { useRouter } from "next/navigation";
-
-interface PlayerRanking {
-  steamId: string | null;
-  rating: string;
-  avatarUrl: string | undefined;
-  steamNickname: string | undefined;
-  partidas: number;
-  kd: number;
-  adr: string | null;
-}
+import { PlayerRankingDTO } from "@repo/contracts";
 
 export const PlayersRankingTable = ({
   players,
 }: {
-  players: PlayerRanking[];
+  players: PlayerRankingDTO[];
 }) => {
   const router = useRouter();
 
@@ -60,23 +51,23 @@ export const PlayersRankingTable = ({
                     src={player.avatarUrl || "/default-avatar.png"}
                     width={40}
                     height={40}
-                    alt={`${player.steamNickname} avatar`}
+                    alt={`${player.nickName} avatar`}
                     className="rounded-full border border-gray-800 shrink-0"
                   />
-                  <p className="font-semibold">{player.steamNickname}</p>
+                  <p className="font-semibold">{player.nickName}</p>
                 </div>
               </TableCell>
               <TableCell className="text-center tabular-nums">
-                {player.rating}
+                {player.stats.rating2.toFixed(2)}
               </TableCell>
               <TableCell className="text-center tabular-nums">
-                {player.kd}
+                {player.stats.killDeathRatio.toFixed(2)}
               </TableCell>
               <TableCell className="text-center tabular-nums">
-                {player.adr}
+                {player.stats.averageDamagePerRound.toFixed(1)}
               </TableCell>
               <TableCell className="text-center tabular-nums">
-                {player.partidas}
+                {player.stats.totalMatches}
               </TableCell>
             </TableRow>
           ))}

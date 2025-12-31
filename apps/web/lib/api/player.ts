@@ -1,15 +1,48 @@
 "use server";
-import { DuelDTO, MatchDTO, PlayerMatchHistoryDTO, PlayerProfileDTO } from "@repo/contracts";
-import { db, eq, avg, sum, sql, desc, count } from "@repo/database";
+import {
+  PlayerMatchHistoryDTO,
+  PlayerStatsDTO,
+  PlayerProfileDTO,
+  DuelDTO,
+  MatchDTO,
+  PlayerRankingDTO,
+} from "@repo/contracts";
+import { db, eq, avg, sum, sql, count, and } from "@repo/database";
 import * as s from "@repo/database/schema";
-import { fetchSteamProfiles } from "./steam";
+import { fetchSteamProfiles, SteamPlayer } from "./steam";
 import { redis } from "@repo/redis";
-export async function getPlayerProfileData(
-  steamId: string,
-): Promise<PlayerProfileDTO | null> {
+
+function buildPlayerStatsCondition(steamId?: string, date: string = "all") {
+  const conditions = [];
+
+  if (steamId) {
+    conditions.push(eq(s.players.steamId, steamId));
+  }
+  if (date != "all") {
+    conditions.push(
+      sql`AND to_char(${s.matches.date}::timestamp, 'Mon YYYY') = ${date}`,
+    );
+  }
+  return conditions.length > 0 ? and(...conditions) : undefined;
+}
+
+export async function getAggregatedPlayerStats(
+  steamId?: string,
+  date: string = "all",
+): Promise<PlayerStatsDTO[]> {
+  const where = buildPlayerStatsCondition(steamId, date);
   const playerData = await db
     .select({
-      headshotPercent: avg(s.players.headshotPercent).mapWith(Number),
+      steamId: s.players.steamId,
+      killDeathRatio: sql<number>`
+              SUM(${s.players.killCount})::float
+              / NULLIF(SUM(${s.players.deathCount}), 0)
+            `.mapWith(Number),
+      headshotPercent: sql<number>`
+              SUM(${s.players.headshotCount})::float
+              / NULLIF(SUM(${s.players.killCount}), 0) * 100
+            `.mapWith(Number),
+      totalMatches: count(s.players.matchId),
       killsPerMatch: avg(s.players.killCount).mapWith(Number),
       killsPerRound: avg(s.players.averageKillPerRound).mapWith(Number),
       rating2: avg(s.players.hltvRating2).mapWith(Number),
@@ -27,7 +60,7 @@ export async function getPlayerProfileData(
           ${s.players.fourKillCount} +
           ${s.players.fiveKillCount}
         )
-      `.as("totalMultiKills"),
+      `.mapWith(Number),
       totalFirstKills: sum(s.players.firstKillCount).mapWith(Number),
       totalFirstDeaths: sum(s.players.firstDeathCount).mapWith(Number),
       utilityDamage: avg(s.players.utilityDamage).mapWith(Number),
@@ -53,15 +86,26 @@ export async function getPlayerProfileData(
       oneVsFiveLostCount: sum(s.players.oneVsFiveLostCount).mapWith(Number),
     })
     .from(s.players)
-    .where(eq(s.players.steamId, steamId));
+    .groupBy(s.players.steamId)
+    .where(where);
 
-  const playerStats = playerData[0];
+  return playerData;
+}
 
-  if (!playerStats) {
-    return null;
-  }
+function getSteamIdentity(
+  steamId: string,
+  steamData: SteamPlayer[],
+): { nickName: string | null; avatarUrl: string | null } {
+  const steam = steamData.find((s) => s.steamid === steamId);
 
-  let playerMatchHistory: PlayerMatchHistoryDTO[] =
+  return {
+    nickName: steam?.personaname ?? null,
+    avatarUrl: steam?.avatarfull ?? null,
+  };
+}
+
+export async function getPlayerMatchHistory(steamId: string) {
+  const playerMatchHistory: PlayerMatchHistoryDTO[] =
     (await db.query.players.findMany({
       with: {
         team: true,
@@ -74,91 +118,68 @@ export async function getPlayerProfileData(
       where: eq(s.players.steamId, steamId),
     })) || [];
 
-  playerMatchHistory = playerMatchHistory.sort(
+  return playerMatchHistory.sort(
     (a, b) =>
       new Date(b.match?.date || 0).getTime() -
       new Date(a.match?.date || 0).getTime(),
   );
+}
 
-  const totalMatches = playerMatchHistory.length;
+export async function getPlayerProfileData(
+  steamId: string,
+): Promise<PlayerProfileDTO | null> {
+  const [stats] = await getAggregatedPlayerStats(steamId);
+  const steamData = await fetchSteamProfiles([steamId]);
+
+  const steamIdentity = getSteamIdentity(steamId, steamData);
+
+  if (!stats) {
+    return null;
+  }
+
+  const playerMatchHistory = await getPlayerMatchHistory(steamId);
+
   const winRate =
     (playerMatchHistory.reduce(
       (acc, playerMatch) => acc + (playerMatch.team?.isWinner ? 1 : 0),
       0,
     ) /
-      totalMatches) *
+      stats.totalMatches) *
     100;
 
   const totalRounds = playerMatchHistory
     .flatMap((p) => p.match?.teams)
     .reduce((acc, team) => (acc += team?.score || 0), 0);
 
-  const steamData = await fetchSteamProfiles([steamId]);
-  const killDeathRatio = playerStats.totalKills / playerStats.totalDeaths;
-
-  const headshotPercent =
-    (playerStats.totalHeadshots / playerStats.totalKills) * 100;
-
-  const playerSteamData = steamData[0] || {
-    avatarfull: null,
-    personaname: playerMatchHistory[0]?.name || "Unknown Player",
-    steamid: null,
-  };
-
   return {
-    ...playerStats,
-    killDeathRatio,
-    headshotPercent,
+    steamId,
+    stats,
     matchHistory: playerMatchHistory,
-    nickName: playerSteamData.personaname,
-    avatarUrl: playerSteamData.avatarfull,
     winRate,
-    totalMatches,
     totalRounds,
+    avatarUrl: steamIdentity.avatarUrl,
+    nickName: steamIdentity.nickName,
   };
 }
 
-export const getPlayersRanking = async () => {
-  const players = await db
-    .select({
-      steamId: s.players.steamId,
-      rating2: avg(s.players.hltvRating2),
-      partidas: count(s.players.matchId),
-      adr: avg(s.players.averageDamagePerRound),
-      kd: sql<number>`
-        ROUND(
-          SUM(${s.players.killCount})::numeric
-          / NULLIF(SUM(${s.players.deathCount}), 0),
-          2
-        )
-      `,
-    })
-    .from(s.players)
-    .groupBy(s.players.steamId)
-    .orderBy(desc(avg(s.players.hltvRating2)));
-
-  const steamIds = players
+export async function getPlayersRankingData(): Promise<PlayerRankingDTO[]> {
+  const playersStats = await getAggregatedPlayerStats();
+  const steamIds = playersStats
     .map((player) => player.steamId)
     .filter((p) => p != null);
 
-  const steamData = (await fetchSteamProfiles(steamIds)) || [];
+  const steamData = await fetchSteamProfiles(steamIds);
 
-  return players.map((player) => {
-    const playerData = steamData.find(
-      (data) => data.steamid === player.steamId,
-    );
+  return playersStats.map((playerStats) => {
+    const steamIdentity = getSteamIdentity(playerStats.steamId, steamData);
     return {
-      steamId: player.steamId,
-      rating: Number(player.rating2).toFixed(2),
-      avatarUrl: playerData?.avatarfull,
-      steamNickname: playerData?.personaname,
-      partidas: player.partidas,
-      kd: player.kd,
-      adr: Number(player.adr).toFixed(1),
+      steamId: playerStats.steamId,
+      stats: playerStats,
+      avatarUrl: steamIdentity.avatarUrl,
+      nickName: steamIdentity.nickName,
     };
   });
-};
-
+}
 
 type DuelRow = {
   player_duels: DuelDTO;
@@ -169,7 +190,6 @@ export const getPlayerDuelsByMonth = async (steamId: string, month: string) => {
   const key = `duels:v4:${steamId}:${month}`;
   const cachedDuels = await redis.get(key);
   if (cachedDuels) {
-    //console.log("Cache hit for player duels:", key);
     return JSON.parse(cachedDuels) as DuelRow[];
   }
 
@@ -181,12 +201,11 @@ export const getPlayerDuelsByMonth = async (steamId: string, month: string) => {
       month === "all"
         ? eq(s.playerDuels.playerA_steamId, steamId)
         : sql`${s.playerDuels.playerA_steamId} = ${steamId}
-              AND to_char(${s.matches.date}::timestamp, 'Mon YYYY') = ${month}`
+              AND to_char(${s.matches.date}::timestamp, 'Mon YYYY') = ${month}`,
     );
 
   const result = await query;
 
   await redis.set(key, JSON.stringify(result), "EX", 43200); // 12 hours
-  //console.log("Cache miss for player duels:", key);
   return result;
 };

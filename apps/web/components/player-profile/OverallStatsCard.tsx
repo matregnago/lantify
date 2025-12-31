@@ -16,38 +16,38 @@ export const OverallStatsCard = ({
         <div className="flex flex-col gap-6 w-full lg:w-[50%]">
           <ProgressStatus
             statusName="K/D"
-            value={profile.killDeathRatio}
-            formattedValue={profile.killDeathRatio.toFixed(2)}
+            value={profile.stats.killDeathRatio}
+            formattedValue={profile.stats.killDeathRatio.toFixed(2)}
             max={1.5}
           />
           <ProgressStatus
             statusName="Headshot %"
-            value={profile.headshotPercent}
-            formattedValue={profile.headshotPercent.toFixed(1) + "%"}
+            value={profile.stats.headshotPercent}
+            formattedValue={profile.stats.headshotPercent.toFixed(1) + "%"}
             max={70}
           />
           <ProgressStatus
             statusName="ADR"
-            value={profile.averageDamagePerRound}
-            formattedValue={profile.averageDamagePerRound.toFixed(1)}
+            value={profile.stats.averageDamagePerRound}
+            formattedValue={profile.stats.averageDamagePerRound.toFixed(1)}
             max={120}
           />
           <ProgressStatus
             statusName="Kills por partida"
-            value={profile.killsPerMatch}
-            formattedValue={profile.killsPerMatch.toFixed(0)}
+            value={profile.stats.killsPerMatch}
+            formattedValue={profile.stats.killsPerMatch.toFixed(0)}
             max={28}
           />
           <ProgressStatus
             statusName="Kills por round"
-            value={profile.killsPerRound}
-            formattedValue={profile.killsPerRound.toFixed(2)}
+            value={profile.stats.killsPerRound}
+            formattedValue={profile.stats.killsPerRound.toFixed(2)}
             max={1.1}
           />
           <ProgressStatus
             statusName="KAST"
-            value={profile.kast}
-            formattedValue={profile.kast.toFixed(1) + "%"}
+            value={profile.stats.kast}
+            formattedValue={profile.stats.kast.toFixed(1) + "%"}
             max={90}
           />
         </div>
@@ -63,9 +63,9 @@ export const OverallStatsCard = ({
           </Card>
           <Card>
             <CircularChart
-              color={colorByMaxValue(profile.rating2, 1.5)}
-              value={profile.rating2}
-              formattedValue={profile.rating2.toFixed(2)}
+              color={colorByMaxValue(profile.stats.rating2, 1.5)}
+              value={profile.stats.rating2}
+              formattedValue={profile.stats.rating2.toFixed(2)}
               label="Rating 2.0"
               max={1.5}
             />

@@ -1,21 +1,24 @@
 "use server";
 import { PlayersRankingTable } from "@/components/ranking/PlayersRankingTable";
-import { getPlayersRanking } from "@/lib/api/player";
+import { getPlayersRankingData } from "@/lib/api/player";
 import { notFound } from "next/navigation";
 
 export default async function MainRankingPage() {
-  const ranking = await getPlayersRanking();
+  const rankingData = await getPlayersRankingData();
 
-  if (!ranking) {
+  if (!rankingData) {
     notFound();
   }
+  const sortedRanking = rankingData.sort(
+    (a, b) => b.stats.rating2 - a.stats.rating2,
+  );
 
   return (
     <div className="max-w-7xl mx-auto my-12">
       <h1 className="text-4xl font-bold text-center md:text-left">Ranking</h1>
 
       <div className="flex flex-col w-full mt-8">
-        <PlayersRankingTable players={ranking} />
+        <PlayersRankingTable players={sortedRanking} />
       </div>
     </div>
   );
