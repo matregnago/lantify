@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { DuelDTO, MatchDTO, PlayerDTO } from "@repo/contracts";
 import {
@@ -11,17 +11,12 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
 import { getPlayerDuelsByMonth } from "@/lib/api/player";
 import { useRouter } from "next/navigation";
 import { diffColor } from "@/lib/diff-color";
 import { colorByMaxValue } from "@/lib/color-by-max-value";
+import { SelectLan } from "./SelectLan";
+import { SelectPlayer } from "./SelectPlayer";
 import { LoadingTable } from "./LoadingTable";
 
 interface DuelsDropdownProps {
@@ -37,33 +32,13 @@ export const DuelsDropdown = ({ matchMapByMonth }: DuelsDropdownProps) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    let allMatches: MatchDTO[] = [];
-    if (selectedMatchMonth === "all") {
-      allMatches = Array.from(matchMapByMonth.values()).flatMap((d) => d);
-    } else {
-      allMatches = matchMapByMonth.get(selectedMatchMonth) || [];
-    }
-
-    const playersMap = new Map<string, PlayerDTO>();
-
-    allMatches.forEach((m) =>
-      m.teams.forEach((t) =>
-        t.players?.forEach((p) => {
-          if (p?.steamId && !playersMap.has(p.steamId))
-            playersMap.set(p.steamId, p as PlayerDTO);
-        }),
-      ),
-    );
-    const players = Array.from(playersMap.values());
-
-    setPlayersInMonth(players);
     if (
       selectedPlayer == null ||
-      !players.some((p) => p.steamId === selectedPlayer)
+      !playersInMonth.some((p) => p.steamId === selectedPlayer)
     ) {
-      setSelectedPlayer(players[0]?.steamId || null);
+      setSelectedPlayer(playersInMonth[0]?.steamId || null);
     }
-  }, [matchMapByMonth, selectedMatchMonth, selectedPlayer]);
+  }, [selectedPlayer, playersInMonth]);
 
   useEffect(() => {
     const fetchDuels = async () => {
@@ -78,7 +53,6 @@ export const DuelsDropdown = ({ matchMapByMonth }: DuelsDropdownProps) => {
     };
     fetchDuels();
   }, [selectedPlayer, selectedMatchMonth]);
-
   const playerDuelTotal = useMemo(() => {
     return playerDuels.reduce(
       (total, duel) => total + duel.kills - duel.deaths,
@@ -100,14 +74,6 @@ export const DuelsDropdown = ({ matchMapByMonth }: DuelsDropdownProps) => {
     return deaths === 0 ? kills.toFixed(2) : (kills / deaths).toFixed(2);
   }, [killTotal, deathTotal]);
 
-  const months = useMemo(() => {
-    return Array.from(matchMapByMonth.keys()).sort((a, b) => {
-      const da = new Date(a);
-      const db = new Date(b);
-      return db.getTime() - da.getTime();
-    });
-  }, [matchMapByMonth]);
-
   const duels = new Map<string, { kills: number; deaths: number }>();
   playerDuels.forEach((d) => {
     const enemy = duels.get(d.playerB_steamId);
@@ -123,28 +89,13 @@ export const DuelsDropdown = ({ matchMapByMonth }: DuelsDropdownProps) => {
     <div className="space-y-4">
       <div className="flex items-center gap-4">
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-            LAN
-          </label>
-          <Select
-            value={selectedMatchMonth}
-            onValueChange={(v) => {
-              setSelectedMatchMonth(v);
-            }}
+          <SelectLan
+            matchMapByMonth={matchMapByMonth}
+            selectedMatchMonth={selectedMatchMonth}
+            setSelectedMatchMonth={setSelectedMatchMonth}
+            setPlayersInMonth={setPlayersInMonth}
             disabled={isLoading}
-          >
-            <SelectTrigger className="w-45">
-              <SelectValue placeholder="Selecione a LAN" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todas</SelectItem>
-              {months.map((m) => (
-                <SelectItem key={m} value={m}>
-                  {m}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          />
         </div>
       </div>
       <div>
@@ -156,44 +107,22 @@ export const DuelsDropdown = ({ matchMapByMonth }: DuelsDropdownProps) => {
               <TableHeader>
                 <TableRow className="hover:bg-card">
                   <TableHead className="w-64 border-r p-0 align-middle">
-                    <Select
-                      value={selectedPlayer ?? ""}
-                      onValueChange={(v) => setSelectedPlayer(v)}
-                      disabled={!selectedMatchMonth}
-                    >
-                      <SelectTrigger className="w-full h-full min-h-full border-0 rounded-none px-3 flex items-center">
-                        <SelectValue placeholder="Select a player" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {playersInMonth.map((p) => (
-                          <SelectItem
-                            key={p.steamId}
-                            value={p.steamId as string}
-                          >
-                            <div className="flex items-center gap-2.5">
-                              <Image
-                                src={p.avatarUrl || "/default-avatar.png"}
-                                width={32}
-                                height={32}
-                                alt={`${p.name}'s avatar`}
-                                className="rounded-full border border-gray-800 shrink-0"
-                              />
-                              <p>{p.name}</p>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <SelectPlayer
+                      selectedPlayer={selectedPlayer}
+                      setSelectedPlayer={setSelectedPlayer}
+                      selectedMatchMonth={selectedMatchMonth}
+                      playersInMonth={playersInMonth}
+                    />
                   </TableHead>
 
                   <TableHead
-                    className={`text-center w-48 bg-muted/60 transition border-r ${diffColor(playerDuelTotal)}`}
+                    className={`text-center w-max bg-muted/60 transition border-r ${diffColor(playerDuelTotal)}`}
                   >
                     {playerDuelTotal}
                   </TableHead>
 
                   <TableHead
-                    className="text-center w-48 bg-muted/60 transition border-r"
+                    className="text-center w-max bg-muted/60 transition border-r"
                     style={{ color: colorByMaxValue(Number(kdTotal), 1.5) }}
                   >
                     {kdTotal}
@@ -238,9 +167,7 @@ export const DuelsDropdown = ({ matchMapByMonth }: DuelsDropdownProps) => {
                       <TableCell className="border-r hover:bg-muted/50">
                         <div
                           className="flex flex-row gap-3 items-center cursor-pointer w-fit"
-                          onClick={() =>
-                            router.push(`/profile/${enemy.steamId}`)
-                          }
+                          onClick={() => router.push(`/profile/${enemy.steamId}`)}
                         >
                           <div className="flex items-center gap-2.5">
                             <Image

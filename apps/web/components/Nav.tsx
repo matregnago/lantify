@@ -15,6 +15,10 @@ export function Nav() {
       label: "Duelos",
       ref: "/duels",
     },
+    {
+      label: "Estatísticas",
+      ref: "/stats",
+    }
   ];
 
   return (

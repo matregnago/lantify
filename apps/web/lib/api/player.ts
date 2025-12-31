@@ -169,7 +169,7 @@ export const getPlayerDuelsByMonth = async (steamId: string, month: string) => {
   const key = `duels:v4:${steamId}:${month}`;
   const cachedDuels = await redis.get(key);
   if (cachedDuels) {
-    console.log("Cache hit for player duels:", key);
+    //console.log("Cache hit for player duels:", key);
     return JSON.parse(cachedDuels) as DuelRow[];
   }
 
@@ -187,6 +187,6 @@ export const getPlayerDuelsByMonth = async (steamId: string, month: string) => {
   const result = await query;
 
   await redis.set(key, JSON.stringify(result), "EX", 43200); // 12 hours
-  console.log("Cache miss for player duels:", key);
+  //console.log("Cache miss for player duels:", key);
   return result;
 };
