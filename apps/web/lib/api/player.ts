@@ -1,8 +1,9 @@
 "use server";
-import { PlayerMatchHistoryDTO, PlayerProfileDTO } from "@repo/contracts";
+import { DuelDTO, MatchDTO, PlayerMatchHistoryDTO, PlayerProfileDTO } from "@repo/contracts";
 import { db, eq, avg, sum, sql, desc, count } from "@repo/database";
 import * as s from "@repo/database/schema";
 import { fetchSteamProfiles } from "./steam";
+import { redis } from "@repo/redis";
 export async function getPlayerProfileData(
   steamId: string,
 ): Promise<PlayerProfileDTO | null> {
@@ -140,9 +141,7 @@ export const getPlayersRanking = async () => {
     .map((player) => player.steamId)
     .filter((p) => p != null);
 
-  const steamData = (await fetchSteamProfiles(steamIds)) || {
-    response: { players: [] },
-  };
+  const steamData = (await fetchSteamProfiles(steamIds)) || [];
 
   return players.map((player) => {
     const playerData = steamData.find(
@@ -160,22 +159,34 @@ export const getPlayersRanking = async () => {
   });
 };
 
+
+type DuelRow = {
+  player_duels: DuelDTO;
+  match: MatchDTO;
+};
+
 export const getPlayerDuelsByMonth = async (steamId: string, month: string) => {
-  if (month === "all") {
-    return await db
-      .select()
-      .from(s.playerDuels)
-      .leftJoin(s.matches, eq(s.playerDuels.matchId, s.matches.id))
-      .where(eq(s.playerDuels.playerA_steamId, steamId));
-  } else {
-    return await db
-      .select()
-      .from(s.playerDuels)
-      .leftJoin(s.matches, eq(s.playerDuels.matchId, s.matches.id))
-      .where(
-        sql`
-        ${s.playerDuels.playerA_steamId} = ${steamId}
-      AND to_char(${s.matches.date}::timestamp, 'Mon YYYY') = ${month}`,
-      );
+  const key = `duels:v4:${steamId}:${month}`;
+  const cachedDuels = await redis.get(key);
+  if (cachedDuels) {
+    //console.log("Cache hit for player duels:", key);
+    return JSON.parse(cachedDuels) as DuelRow[];
   }
+
+  const query = db
+    .select()
+    .from(s.playerDuels)
+    .leftJoin(s.matches, eq(s.playerDuels.matchId, s.matches.id))
+    .where(
+      month === "all"
+        ? eq(s.playerDuels.playerA_steamId, steamId)
+        : sql`${s.playerDuels.playerA_steamId} = ${steamId}
+              AND to_char(${s.matches.date}::timestamp, 'Mon YYYY') = ${month}`
+    );
+
+  const result = await query;
+
+  await redis.set(key, JSON.stringify(result), "EX", 43200); // 12 hours
+  //console.log("Cache miss for player duels:", key);
+  return result;
 };

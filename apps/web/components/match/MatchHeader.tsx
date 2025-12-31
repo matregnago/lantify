@@ -1,3 +1,4 @@
+"use client";
 import { MapName } from "@/lib/map-name";
 import { MapIcons } from "@/lib/map-icons";
 import { MapImages } from "@/lib/map-images";

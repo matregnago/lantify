@@ -44,10 +44,7 @@ export async function getMatchData(matchId: string) {
     .flatMap((team) => team.players.map((player) => player.steamId))
     .filter((id) => id != null);
 
-  const steamData = (await fetchSteamProfiles(steamIds)) || {
-    response: { players: [] },
-  };
-
+  const steamData = (await fetchSteamProfiles(steamIds)) || [];
   const completeMatchData = {
     ...match,
     teams: match.teams.map((team) => {
@@ -93,10 +90,7 @@ export async function listMatchesWithPlayers() {
     )
     .filter((m) => m != null);
 
-  const steamData = (await fetchSteamProfiles(steamIds)) || {
-    response: { players: [] },
-  };
-
+  const steamData = (await fetchSteamProfiles(steamIds)) || [];
   const matchesData = matches.map((match) => {
     return {
       ...match,
