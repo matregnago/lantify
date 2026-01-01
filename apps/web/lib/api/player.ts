@@ -30,13 +30,6 @@ export async function getAggregatedPlayerStats(
 	steamId?: string,
 	date: string = "all",
 ): Promise<PlayerStatsDTO[]> {
-	const key = `AggregatedStats:v1:${steamId},${date}`;
-	const cachedAggregatedStats = await redis.get(key);
-
-	if (cachedAggregatedStats) {
-		return JSON.parse(cachedAggregatedStats) as PlayerStatsDTO[];
-	}
-
 	const where = buildPlayerStatsCondition(steamId, date);
 	const playerData = await db
 		.select({
@@ -118,13 +111,6 @@ export async function getPlayerMatchHistory(steamId: string) {
 	return result;
 }
 
-export async function getPlayerClutches(steamId: string) {
-	return await db
-		.select()
-		.from(s.clutches)
-		.where(eq(s.clutches.clutcherSteamId, steamId));
-}
-
 export async function getPlayerProfileData(
 	steamId: string,
 ): Promise<PlayerProfileDTO | null> {
@@ -156,8 +142,6 @@ export async function getPlayerProfileData(
 	const totalRounds = playerMatchHistory
 		.flatMap((p) => p.match?.teams ?? [])
 		.reduce((acc, team) => acc + (team?.score ?? 0), 0);
-
-	const clutches = await getPlayerClutches(steamId);
 
 	const playerProfile: PlayerProfileDTO = {
 		steamId,
