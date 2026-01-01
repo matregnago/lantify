@@ -76,21 +76,6 @@ export async function getAggregatedPlayerStats(
         Number,
       ),
       averageDeathPerRound: avg(s.players.averageDeathPerRound).mapWith(Number),
-      oneVsOneCount: sum(s.players.oneVsOneCount).mapWith(Number),
-      oneVsOneWonCount: sum(s.players.oneVsOneWonCount).mapWith(Number),
-      oneVsOneLostCount: sum(s.players.oneVsOneLostCount).mapWith(Number),
-      oneVsTwoCount: sum(s.players.oneVsTwoCount).mapWith(Number),
-      oneVsTwoWonCount: sum(s.players.oneVsTwoWonCount).mapWith(Number),
-      oneVsTwoLostCount: sum(s.players.oneVsTwoLostCount).mapWith(Number),
-      oneVsThreeCount: sum(s.players.oneVsThreeCount).mapWith(Number),
-      oneVsThreeWonCount: sum(s.players.oneVsThreeWonCount).mapWith(Number),
-      oneVsThreeLostCount: sum(s.players.oneVsThreeLostCount).mapWith(Number),
-      oneVsFourCount: sum(s.players.oneVsFourCount).mapWith(Number),
-      oneVsFourWonCount: sum(s.players.oneVsFourWonCount).mapWith(Number),
-      oneVsFourLostCount: sum(s.players.oneVsFourLostCount).mapWith(Number),
-      oneVsFiveCount: sum(s.players.oneVsFiveCount).mapWith(Number),
-      oneVsFiveWonCount: sum(s.players.oneVsFiveWonCount).mapWith(Number),
-      oneVsFiveLostCount: sum(s.players.oneVsFiveLostCount).mapWith(Number),
     })
     .from(s.players)
     .groupBy(s.players.steamId)
@@ -127,10 +112,16 @@ export async function getPlayerMatchHistory(steamId: string) {
       new Date(b.match?.date || 0).getTime() -
       new Date(a.match?.date || 0).getTime(),
   );
-
   await redis.set(key, JSON.stringify(result), "EX", 43200); // 12 hours
 
   return result
+}
+
+export async function getPlayerClutches(steamId: string) {
+  return await db
+    .select()
+    .from(s.clutches)
+    .where(eq(s.clutches.clutcherSteamId, steamId));
 }
 
 export async function getPlayerProfileData(
@@ -166,8 +157,11 @@ export async function getPlayerProfileData(
     .flatMap((p) => p.match?.teams)
     .reduce((acc, team) => (acc += team?.score || 0), 0);
 
+  const clutches = await getPlayerClutches(steamId);
+
   const playerProfile: PlayerProfileDTO = {
     steamId,
+    clutches,
     stats,
     matchHistory: playerMatchHistory,
     winRate,

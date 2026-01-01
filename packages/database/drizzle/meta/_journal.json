@@ -43,6 +43,13 @@
       "when": 1766882753745,
       "tag": "0005_bright_maginty",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1767243355282,
+      "tag": "0006_icy_sandman",
+      "breakpoints": true
     }
   ]
 }
