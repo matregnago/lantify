@@ -85,6 +85,4 @@ export type MatchDataDTO = typeof s.matches.$inferSelect & {
 	duels: DuelDTO[];
 };
 
-// Credits to: https://github.com/akiver/cs-demo-manager
-
 export type ClutchDTO = typeof s.clutches.$inferSelect;
