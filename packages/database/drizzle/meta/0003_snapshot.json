@@ -1,607 +1,591 @@
 {
-  "id": "14515d7f-3ceb-42a9-975e-f5d26d53e99d",
-  "prevId": "0f51461c-26f9-4199-8034-3cb66e1b5456",
-  "version": "7",
-  "dialect": "postgresql",
-  "tables": {
-    "public.match": {
-      "name": "match",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(255)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "map": {
-          "name": "map",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "date": {
-          "name": "date",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.player_duels": {
-      "name": "player_duels",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "identity": {
-            "type": "always",
-            "name": "player_duels_id_seq",
-            "schema": "public",
-            "increment": "1",
-            "startWith": "1",
-            "minValue": "1",
-            "maxValue": "2147483647",
-            "cache": "1",
-            "cycle": false
-          }
-        },
-        "matchId": {
-          "name": "matchId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "playerA_steamId": {
-          "name": "playerA_steamId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "playerB_steamId": {
-          "name": "playerB_steamId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "kills": {
-          "name": "kills",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "deaths": {
-          "name": "deaths",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "player_duels_matchId_match_id_fk": {
-          "name": "player_duels_matchId_match_id_fk",
-          "tableFrom": "player_duels",
-          "tableTo": "match",
-          "columnsFrom": [
-            "matchId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.player": {
-      "name": "player",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "identity": {
-            "type": "always",
-            "name": "player_id_seq",
-            "schema": "public",
-            "increment": "1",
-            "startWith": "1",
-            "minValue": "1",
-            "maxValue": "2147483647",
-            "cache": "1",
-            "cycle": false
-          }
-        },
-        "steamId": {
-          "name": "steamId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "matchId": {
-          "name": "matchId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "teamId": {
-          "name": "teamId",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "name": {
-          "name": "name",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "score": {
-          "name": "score",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "mvpCount": {
-          "name": "mvpCount",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "winCount": {
-          "name": "winCount",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "crosshairShareCode": {
-          "name": "crosshairShareCode",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "color": {
-          "name": "color",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "killCount": {
-          "name": "killCount",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "deathCount": {
-          "name": "deathCount",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "assistCount": {
-          "name": "assistCount",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "killDeathRatio": {
-          "name": "killDeathRatio",
-          "type": "double precision",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "kast": {
-          "name": "kast",
-          "type": "double precision",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "bombDefusedCount": {
-          "name": "bombDefusedCount",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "bombPlantedCount": {
-          "name": "bombPlantedCount",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "healthDamage": {
-          "name": "healthDamage",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "armorDamage": {
-          "name": "armorDamage",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "utilityDamage": {
-          "name": "utilityDamage",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "headshotCount": {
-          "name": "headshotCount",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "headshotPercent": {
-          "name": "headshotPercent",
-          "type": "double precision",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "oneVsOneCount": {
-          "name": "oneVsOneCount",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "oneVsOneWonCount": {
-          "name": "oneVsOneWonCount",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "oneVsOneLostCount": {
-          "name": "oneVsOneLostCount",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "oneVsTwoCount": {
-          "name": "oneVsTwoCount",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "oneVsTwoWonCount": {
-          "name": "oneVsTwoWonCount",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "oneVsTwoLostCount": {
-          "name": "oneVsTwoLostCount",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "oneVsThreeCount": {
-          "name": "oneVsThreeCount",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "oneVsThreeWonCount": {
-          "name": "oneVsThreeWonCount",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "oneVsThreeLostCount": {
-          "name": "oneVsThreeLostCount",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "oneVsFourCount": {
-          "name": "oneVsFourCount",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "oneVsFourWonCount": {
-          "name": "oneVsFourWonCount",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "oneVsFourLostCount": {
-          "name": "oneVsFourLostCount",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "oneVsFiveCount": {
-          "name": "oneVsFiveCount",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "oneVsFiveWonCount": {
-          "name": "oneVsFiveWonCount",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "oneVsFiveLostCount": {
-          "name": "oneVsFiveLostCount",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "hostageRescuedCount": {
-          "name": "hostageRescuedCount",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "averageKillPerRound": {
-          "name": "averageKillPerRound",
-          "type": "double precision",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "averageDeathPerRound": {
-          "name": "averageDeathPerRound",
-          "type": "double precision",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "averageDamagePerRound": {
-          "name": "averageDamagePerRound",
-          "type": "double precision",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "utilityDamagePerRound": {
-          "name": "utilityDamagePerRound",
-          "type": "double precision",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "firstKillCount": {
-          "name": "firstKillCount",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "firstDeathCount": {
-          "name": "firstDeathCount",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "firstTradeDeathCount": {
-          "name": "firstTradeDeathCount",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "tradeDeathCount": {
-          "name": "tradeDeathCount",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "tradeKillCount": {
-          "name": "tradeKillCount",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "firstTradeKillCount": {
-          "name": "firstTradeKillCount",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "oneKillCount": {
-          "name": "oneKillCount",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "twoKillCount": {
-          "name": "twoKillCount",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "threeKillCount": {
-          "name": "threeKillCount",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "fourKillCount": {
-          "name": "fourKillCount",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "fiveKillCount": {
-          "name": "fiveKillCount",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "hltvRating": {
-          "name": "hltvRating",
-          "type": "double precision",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "hltvRating2": {
-          "name": "hltvRating2",
-          "type": "double precision",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {
-        "steamId_idx": {
-          "name": "steamId_idx",
-          "columns": [
-            {
-              "expression": "steamId",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "player_matchId_match_id_fk": {
-          "name": "player_matchId_match_id_fk",
-          "tableFrom": "player",
-          "tableTo": "match",
-          "columnsFrom": [
-            "matchId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "player_teamId_team_id_fk": {
-          "name": "player_teamId_team_id_fk",
-          "tableFrom": "player",
-          "tableTo": "team",
-          "columnsFrom": [
-            "teamId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.team": {
-      "name": "team",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "identity": {
-            "type": "always",
-            "name": "team_id_seq",
-            "schema": "public",
-            "increment": "1",
-            "startWith": "1",
-            "minValue": "1",
-            "maxValue": "2147483647",
-            "cache": "1",
-            "cycle": false
-          }
-        },
-        "matchId": {
-          "name": "matchId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "name": {
-          "name": "name",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "isWinner": {
-          "name": "isWinner",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "score": {
-          "name": "score",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "scoreFirstHalf": {
-          "name": "scoreFirstHalf",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "scoreSecondHalf": {
-          "name": "scoreSecondHalf",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "currentSide": {
-          "name": "currentSide",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "team_matchId_match_id_fk": {
-          "name": "team_matchId_match_id_fk",
-          "tableFrom": "team",
-          "tableTo": "match",
-          "columnsFrom": [
-            "matchId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    }
-  },
-  "enums": {},
-  "schemas": {},
-  "sequences": {},
-  "roles": {},
-  "policies": {},
-  "views": {},
-  "_meta": {
-    "columns": {},
-    "schemas": {},
-    "tables": {}
-  }
+	"id": "14515d7f-3ceb-42a9-975e-f5d26d53e99d",
+	"prevId": "0f51461c-26f9-4199-8034-3cb66e1b5456",
+	"version": "7",
+	"dialect": "postgresql",
+	"tables": {
+		"public.match": {
+			"name": "match",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "varchar(255)",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"map": {
+					"name": "map",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"date": {
+					"name": "date",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.player_duels": {
+			"name": "player_duels",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "integer",
+					"primaryKey": true,
+					"notNull": true,
+					"identity": {
+						"type": "always",
+						"name": "player_duels_id_seq",
+						"schema": "public",
+						"increment": "1",
+						"startWith": "1",
+						"minValue": "1",
+						"maxValue": "2147483647",
+						"cache": "1",
+						"cycle": false
+					}
+				},
+				"matchId": {
+					"name": "matchId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"playerA_steamId": {
+					"name": "playerA_steamId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"playerB_steamId": {
+					"name": "playerB_steamId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"kills": {
+					"name": "kills",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"deaths": {
+					"name": "deaths",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"player_duels_matchId_match_id_fk": {
+					"name": "player_duels_matchId_match_id_fk",
+					"tableFrom": "player_duels",
+					"tableTo": "match",
+					"columnsFrom": ["matchId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.player": {
+			"name": "player",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "integer",
+					"primaryKey": true,
+					"notNull": true,
+					"identity": {
+						"type": "always",
+						"name": "player_id_seq",
+						"schema": "public",
+						"increment": "1",
+						"startWith": "1",
+						"minValue": "1",
+						"maxValue": "2147483647",
+						"cache": "1",
+						"cycle": false
+					}
+				},
+				"steamId": {
+					"name": "steamId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"matchId": {
+					"name": "matchId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"teamId": {
+					"name": "teamId",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"name": {
+					"name": "name",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"score": {
+					"name": "score",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"mvpCount": {
+					"name": "mvpCount",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"winCount": {
+					"name": "winCount",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"crosshairShareCode": {
+					"name": "crosshairShareCode",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"color": {
+					"name": "color",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"killCount": {
+					"name": "killCount",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"deathCount": {
+					"name": "deathCount",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"assistCount": {
+					"name": "assistCount",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"killDeathRatio": {
+					"name": "killDeathRatio",
+					"type": "double precision",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"kast": {
+					"name": "kast",
+					"type": "double precision",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"bombDefusedCount": {
+					"name": "bombDefusedCount",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"bombPlantedCount": {
+					"name": "bombPlantedCount",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"healthDamage": {
+					"name": "healthDamage",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"armorDamage": {
+					"name": "armorDamage",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"utilityDamage": {
+					"name": "utilityDamage",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"headshotCount": {
+					"name": "headshotCount",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"headshotPercent": {
+					"name": "headshotPercent",
+					"type": "double precision",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"oneVsOneCount": {
+					"name": "oneVsOneCount",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"oneVsOneWonCount": {
+					"name": "oneVsOneWonCount",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"oneVsOneLostCount": {
+					"name": "oneVsOneLostCount",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"oneVsTwoCount": {
+					"name": "oneVsTwoCount",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"oneVsTwoWonCount": {
+					"name": "oneVsTwoWonCount",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"oneVsTwoLostCount": {
+					"name": "oneVsTwoLostCount",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"oneVsThreeCount": {
+					"name": "oneVsThreeCount",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"oneVsThreeWonCount": {
+					"name": "oneVsThreeWonCount",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"oneVsThreeLostCount": {
+					"name": "oneVsThreeLostCount",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"oneVsFourCount": {
+					"name": "oneVsFourCount",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"oneVsFourWonCount": {
+					"name": "oneVsFourWonCount",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"oneVsFourLostCount": {
+					"name": "oneVsFourLostCount",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"oneVsFiveCount": {
+					"name": "oneVsFiveCount",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"oneVsFiveWonCount": {
+					"name": "oneVsFiveWonCount",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"oneVsFiveLostCount": {
+					"name": "oneVsFiveLostCount",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"hostageRescuedCount": {
+					"name": "hostageRescuedCount",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"averageKillPerRound": {
+					"name": "averageKillPerRound",
+					"type": "double precision",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"averageDeathPerRound": {
+					"name": "averageDeathPerRound",
+					"type": "double precision",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"averageDamagePerRound": {
+					"name": "averageDamagePerRound",
+					"type": "double precision",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"utilityDamagePerRound": {
+					"name": "utilityDamagePerRound",
+					"type": "double precision",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"firstKillCount": {
+					"name": "firstKillCount",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"firstDeathCount": {
+					"name": "firstDeathCount",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"firstTradeDeathCount": {
+					"name": "firstTradeDeathCount",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"tradeDeathCount": {
+					"name": "tradeDeathCount",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"tradeKillCount": {
+					"name": "tradeKillCount",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"firstTradeKillCount": {
+					"name": "firstTradeKillCount",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"oneKillCount": {
+					"name": "oneKillCount",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"twoKillCount": {
+					"name": "twoKillCount",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"threeKillCount": {
+					"name": "threeKillCount",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"fourKillCount": {
+					"name": "fourKillCount",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"fiveKillCount": {
+					"name": "fiveKillCount",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"hltvRating": {
+					"name": "hltvRating",
+					"type": "double precision",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"hltvRating2": {
+					"name": "hltvRating2",
+					"type": "double precision",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {
+				"steamId_idx": {
+					"name": "steamId_idx",
+					"columns": [
+						{
+							"expression": "steamId",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				}
+			},
+			"foreignKeys": {
+				"player_matchId_match_id_fk": {
+					"name": "player_matchId_match_id_fk",
+					"tableFrom": "player",
+					"tableTo": "match",
+					"columnsFrom": ["matchId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				},
+				"player_teamId_team_id_fk": {
+					"name": "player_teamId_team_id_fk",
+					"tableFrom": "player",
+					"tableTo": "team",
+					"columnsFrom": ["teamId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.team": {
+			"name": "team",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "integer",
+					"primaryKey": true,
+					"notNull": true,
+					"identity": {
+						"type": "always",
+						"name": "team_id_seq",
+						"schema": "public",
+						"increment": "1",
+						"startWith": "1",
+						"minValue": "1",
+						"maxValue": "2147483647",
+						"cache": "1",
+						"cycle": false
+					}
+				},
+				"matchId": {
+					"name": "matchId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"name": {
+					"name": "name",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"isWinner": {
+					"name": "isWinner",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"score": {
+					"name": "score",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"scoreFirstHalf": {
+					"name": "scoreFirstHalf",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"scoreSecondHalf": {
+					"name": "scoreSecondHalf",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"currentSide": {
+					"name": "currentSide",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"team_matchId_match_id_fk": {
+					"name": "team_matchId_match_id_fk",
+					"tableFrom": "team",
+					"tableTo": "match",
+					"columnsFrom": ["matchId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		}
+	},
+	"enums": {},
+	"schemas": {},
+	"sequences": {},
+	"roles": {},
+	"policies": {},
+	"views": {},
+	"_meta": {
+		"columns": {},
+		"schemas": {},
+		"tables": {}
+	}
 }

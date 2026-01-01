@@ -9,13 +9,13 @@ dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  images: {
-    remotePatterns: [
-      {
-        hostname: "avatars.steamstatic.com",
-      },
-    ],
-  },
+	images: {
+		remotePatterns: [
+			{
+				hostname: "avatars.steamstatic.com",
+			},
+		],
+	},
 };
 
 export default nextConfig;

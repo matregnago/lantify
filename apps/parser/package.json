@@ -1,22 +1,25 @@
 {
-  "name": "parser",
-  "module": "index.ts",
-  "type": "module",
-  "private": true,
-  "devDependencies": {
-    "@types/bun": "latest",
-    "@repo/database": "workspace:*"
-  },
-  "scripts": {
-    "parse": "bun run src/index.ts"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
-  },
-  "dependencies": {
-    "@akiver/cs-demo-analyzer": "^1.7.7",
-    "@types/json-bigint": "^1.0.4",
-    "dotenv": "^17.2.3",
-    "json-bigint": "^1.0.0"
-  }
+	"name": "parser",
+	"module": "index.ts",
+	"type": "module",
+	"private": true,
+	"devDependencies": {
+		"@types/bun": "latest"
+	},
+	"scripts": {
+		"parse": "bun run src/index.ts"
+	},
+	"peerDependencies": {
+		"typescript": "^5"
+	},
+	"dependencies": {
+		"@akiver/cs-demo-analyzer": "^1.7.7",
+		"@types/json-bigint": "^1.0.4",
+		"dotenv": "^17.2.3",
+		"@repo/database": "workspace:*",
+		"@repo/contracts": "workspace:*",
+		"@repo/typescript-config": "workspace:*",
+		"@repo/redis": "workspace:*",
+		"json-bigint": "^1.0.0"
+	}
 }

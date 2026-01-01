@@ -1,18 +1,17 @@
 import "dotenv/config";
-import { drizzle } from "drizzle-orm/node-postgres";
 import {
-  type SQL,
-  eq,
-  asc,
-  desc,
-  avg,
-  sum,
-  sql,
-  count,
-  DrizzleQueryError,
-  inArray,
-  and,
+	and,
+	asc,
+	avg,
+	count,
+	DrizzleQueryError,
+	desc,
+	eq,
+	inArray,
+	sql,
+	sum,
 } from "drizzle-orm";
+import { drizzle } from "drizzle-orm/node-postgres";
 import * as schema from "./db/schema";
 
 export const db = drizzle(process.env.DATABASE_URL!, { schema });

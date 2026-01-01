@@ -1,14 +1,14 @@
 import { Nav } from "@/components/Nav";
 
 export default function RootLayout({
-  children,
+	children,
 }: Readonly<{
-  children: React.ReactNode;
+	children: React.ReactNode;
 }>) {
-  return (
-    <>
-      <Nav />
-      <main>{children}</main>
-    </>
-  );
+	return (
+		<>
+			<Nav />
+			<main>{children}</main>
+		</>
+	);
 }
