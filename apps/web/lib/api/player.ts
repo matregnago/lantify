@@ -30,7 +30,12 @@ export async function getAggregatedPlayerStats(
   steamId?: string,
   date: string = "all",
 ): Promise<PlayerStatsDTO[]> {
+  const key = `AggregatedStats:v1:${steamId},${date}`;
+  const cachedAggregatedStats = await redis.get(key);
 
+  if (cachedAggregatedStats) {
+    return JSON.parse(cachedAggregatedStats) as PlayerStatsDTO[];
+  }
 
   const where = buildPlayerStatsCondition(steamId, date);
   const playerData = await db
@@ -90,6 +95,8 @@ export async function getAggregatedPlayerStats(
     .from(s.players)
     .groupBy(s.players.steamId)
     .where(where);
+
+  await redis.set(key, JSON.stringify(playerData), "EX", 43200); // 12 hours
 
   return playerData;
 }
