@@ -47,21 +47,6 @@ export const players = t.pgTable(
     utilityDamage: t.integer().notNull(),
     headshotCount: t.integer().notNull(),
     headshotPercent: t.doublePrecision().notNull(),
-    oneVsOneCount: t.integer().notNull(),
-    oneVsOneWonCount: t.integer().notNull(),
-    oneVsOneLostCount: t.integer().notNull(),
-    oneVsTwoCount: t.integer().notNull(),
-    oneVsTwoWonCount: t.integer().notNull(),
-    oneVsTwoLostCount: t.integer().notNull(),
-    oneVsThreeCount: t.integer().notNull(),
-    oneVsThreeWonCount: t.integer().notNull(),
-    oneVsThreeLostCount: t.integer().notNull(),
-    oneVsFourCount: t.integer().notNull(),
-    oneVsFourWonCount: t.integer().notNull(),
-    oneVsFourLostCount: t.integer().notNull(),
-    oneVsFiveCount: t.integer().notNull(),
-    oneVsFiveWonCount: t.integer().notNull(),
-    oneVsFiveLostCount: t.integer().notNull(),
     hostageRescuedCount: t.integer().notNull(),
     averageKillPerRound: t.doublePrecision().notNull(),
     averageDeathPerRound: t.doublePrecision().notNull(),
@@ -108,9 +93,23 @@ export const playerDuels = t.pgTable("player_duels", {
   deaths: t.integer().notNull(),
 });
 
+export const clutches = t.pgTable("clutch", {
+  id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
+  matchId: t
+    .varchar({ length: 255 })
+    .references(() => matches.id, { onDelete: "cascade" }),
+  roundNumber: t.integer().notNull(),
+  opponentCount: t.integer().notNull(),
+  hasWon: t.boolean().notNull(),
+  clutcherSteamId: t.varchar({ length: 255 }).notNull(),
+  clutcherSurvived: t.varchar({ length: 255 }),
+  clutcherKillCount: t.integer().notNull(),
+});
+
 export const matchRelations = relations(matches, ({ many }) => ({
   teams: many(teams),
   duels: many(playerDuels),
+  clutches: many(clutches),
 }));
 
 export const teamRelations = relations(teams, ({ many, one }) => ({
@@ -121,7 +120,7 @@ export const teamRelations = relations(teams, ({ many, one }) => ({
   players: many(players),
 }));
 
-export const playerRelations = relations(players, ({ one, many }) => ({
+export const playerRelations = relations(players, ({ one }) => ({
   match: one(matches, {
     fields: [players.matchId],
     references: [matches.id],
@@ -132,9 +131,16 @@ export const playerRelations = relations(players, ({ one, many }) => ({
   }),
 }));
 
-export const playerDuelsRelations = relations(playerDuels, ({ one, many }) => ({
+export const playerDuelsRelations = relations(playerDuels, ({ one }) => ({
   match: one(matches, {
     fields: [playerDuels.matchId],
+    references: [matches.id],
+  }),
+}));
+
+export const clutchesRelations = relations(clutches, ({ one }) => ({
+  match: one(matches, {
+    fields: [clutches.matchId],
     references: [matches.id],
   }),
 }));

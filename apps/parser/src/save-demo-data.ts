@@ -7,6 +7,7 @@ type NewMatch = typeof schema.matches.$inferInsert;
 type NewTeam = typeof schema.teams.$inferInsert;
 type NewPlayer = typeof schema.players.$inferInsert;
 type NewDuel = typeof schema.playerDuels.$inferInsert;
+type NewClutch = typeof schema.clutches.$inferInsert;
 
 type PlayerStats = {
   totalFlashes: number;
@@ -197,6 +198,21 @@ export const saveDemoData = async (fileName: string) => {
       );
       await tx.insert(schema.playerDuels).values(duels);
 
+      let clutches: NewClutch[] = [];
+
+      for (const clutch of data.clutches) {
+        clutches.push({
+          matchId,
+          clutcherKillCount: clutch.clutcherKillCount,
+          clutcherSteamId: clutch.clutcherSteamId,
+          hasWon: clutch.hasWon,
+          opponentCount: clutch.opponentCount,
+          roundNumber: clutch.roundNumber,
+          clutcherSurvived: clutch.clutcherSurvived,
+        });
+      }
+      await tx.insert(schema.clutches).values(clutches);
+
       for (const shot of data.shots) {
         const playerStats = getOrCreatePlayerStats(shot.playerSteamId);
         switch (shot.weaponName) {
@@ -279,21 +295,6 @@ export const saveDemoData = async (fileName: string) => {
             utilityDamage: player.utilityDamage,
             headshotCount: player.headshotCount,
             headshotPercent: player.headshotPercent,
-            oneVsOneCount: player.oneVsOneCount,
-            oneVsOneWonCount: player.oneVsOneWonCount,
-            oneVsOneLostCount: player.oneVsOneLostCount,
-            oneVsTwoCount: player.oneVsTwoCount,
-            oneVsTwoWonCount: player.oneVsTwoWonCount,
-            oneVsTwoLostCount: player.oneVsTwoLostCount,
-            oneVsThreeCount: player.oneVsThreeCount,
-            oneVsThreeWonCount: player.oneVsThreeWonCount,
-            oneVsThreeLostCount: player.oneVsThreeLostCount,
-            oneVsFourCount: player.oneVsFourCount,
-            oneVsFourWonCount: player.oneVsFourWonCount,
-            oneVsFourLostCount: player.oneVsFourLostCount,
-            oneVsFiveCount: player.oneVsFiveCount,
-            oneVsFiveWonCount: player.oneVsFiveWonCount,
-            oneVsFiveLostCount: player.oneVsFiveLostCount,
             hostageRescuedCount: player.hostageRescuedCount,
             averageKillPerRound: player.averageKillPerRound,
             averageDeathPerRound: player.averageDeathPerRound,
