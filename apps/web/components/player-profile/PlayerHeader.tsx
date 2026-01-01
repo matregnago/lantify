@@ -1,26 +1,25 @@
 import Image from "next/image";
 import { RankingPosition } from "../ranking/RankingPosition";
 import { getRankingPosByStat } from "@/lib/ranking";
-import { PlayerRankingDTO } from "@repo/contracts";
+import { PlayerRankingDTO, PlayerProfileDTO } from "@repo/contracts";
+import { PlayerTag, getPlayerTags } from "../ranking/PlayerTag";
 
 interface PlayerHeaderProps {
-  avatarUrl?: string | null;
-  nickName?: string | null;
-  steamId: string;
+  profile: PlayerProfileDTO;
   playersRanking: PlayerRankingDTO[];
 }
 
 export const PlayerHeader = ({
-  avatarUrl,
-  nickName,
-  steamId,
+  profile,
   playersRanking,
 }: PlayerHeaderProps) => {
   const ratingRankPosition = getRankingPosByStat(
-    steamId,
+    profile.steamId,
     playersRanking,
     "rating2",
   );
+  const tags = getPlayerTags(profile.stats, playersRanking, 3);
+
   return (
     <div
       className="border-b shadow-lg rounded-lg mb-8 py-8 px-8 flex flex-row items-center md:justify-start justify-center relative overflow-hidden"
@@ -31,16 +30,23 @@ export const PlayerHeader = ({
         backgroundPosition: "center",
       }}
     >
-      <div className="flex flex-col items-center gap-4 border w-52 h-72 justify-center rounded-xl bg-card relative z-3">
+      <div className="flex flex-col items-center gap-3 border w-52 min-h-72 py-4 justify-center rounded-xl bg-card relative z-3">
         <Image
           className="rounded-full border-2 border-accent"
-          src={avatarUrl || "/default-avatar.png"}
+          src={profile.avatarUrl || "/default-avatar.png"}
           width={140}
           height={140}
-          alt={`${nickName} avatar pfp`}
+          alt={`${profile.nickName} avatar pfp`}
         />
-        <p className="text-base font-semibold">{nickName}</p>
+        <p className="text-base font-semibold">{profile.nickName}</p>
         <RankingPosition position={ratingRankPosition} />
+        {tags.length > 0 && (
+          <div className="flex flex-wrap gap-1 justify-center px-2 mt-1">
+            {tags.map((tag) => (
+              <PlayerTag key={tag} tag={tag} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
