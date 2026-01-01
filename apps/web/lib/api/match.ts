@@ -1,9 +1,16 @@
-import type { PlayerDTO } from "@repo/contracts";
+import type { MatchDataDTO, PlayerDTO } from "@repo/contracts";
 import { db, desc, eq } from "@repo/database";
 import * as s from "@repo/database/schema";
+import { redis } from "@repo/redis";
 import { fetchSteamProfiles, getSteamIdentity } from "./steam";
 
 export async function getMatchData(matchId: string) {
+	const key = `matchData:v1:${matchId}`;
+	const cachedMatchData = await redis.get(key);
+
+	if (cachedMatchData) {
+		return JSON.parse(cachedMatchData) as MatchDataDTO;
+	}
 	const match = await db.query.matches.findFirst({
 		where: eq(s.matches.id, matchId),
 		with: {
@@ -29,7 +36,7 @@ export async function getMatchData(matchId: string) {
 		.filter((id) => id != null);
 
 	const steamData = (await fetchSteamProfiles(steamIds)) || [];
-	const completeMatchData = {
+	const completeMatchData: MatchDataDTO = {
 		...match,
 		teams: match.teams.map((team) => {
 			const players: PlayerDTO[] = team.players.map((p) => {
@@ -46,6 +53,9 @@ export async function getMatchData(matchId: string) {
 			};
 		}),
 	};
+
+	await redis.set(key, JSON.stringify(completeMatchData), "EX", 43200); // 12 hours
+
 	return completeMatchData;
 }
 

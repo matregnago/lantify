@@ -80,4 +80,9 @@ export type MatchDTO = typeof s.matches.$inferSelect & {
 
 export type DuelDTO = typeof s.playerDuels.$inferSelect;
 
+export type MatchDataDTO = typeof s.matches.$inferSelect & {
+	teams: TeamDTO[];
+	duels: DuelDTO[];
+};
+
 export type ClutchDTO = typeof s.clutches.$inferSelect;
