@@ -4,6 +4,7 @@ import { PlayerHeader } from "./PlayerHeader";
 import { OverallStatsCard } from "./OverallStatsCard";
 import { CompleteStats } from "./CompleteStats";
 import { MatchHistoryStats } from "./MatchHistoryStats";
+import { ClutchesStats } from "./ClutchesStats";
 
 interface PlayerProfileProps {
   profile: PlayerProfileDTO;
@@ -25,7 +26,7 @@ export const PlayerProfile = ({
       <div className="flex flex-col gap-8">
         <OverallStatsCard profile={profile} playersRanking={playersRanking} />
         <CompleteStats profile={profile} />
-        {/* <ClutchesStats profile={profile} /> */}
+        <ClutchesStats profile={profile} />
         <MatchHistoryStats profile={profile} />
       </div>
     </div>
