@@ -87,6 +87,13 @@ export async function getAggregatedPlayerStats(
 }
 
 export async function getPlayerMatchHistory(steamId: string) {
+	const key = `matchHistory:v1:${steamId}`;
+	const cachedMatchHistory = await redis.get(key);
+
+	if (cachedMatchHistory) {
+		return JSON.parse(cachedMatchHistory) as PlayerMatchHistoryDTO[];
+	}
+
 	const playerMatchHistory: PlayerMatchHistoryDTO[] =
 		(await db.query.players.findMany({
 			with: {
@@ -100,11 +107,15 @@ export async function getPlayerMatchHistory(steamId: string) {
 			where: eq(s.players.steamId, steamId),
 		})) || [];
 
-	return playerMatchHistory.sort(
+	const result = playerMatchHistory.sort(
 		(a, b) =>
 			new Date(b.match?.date || 0).getTime() -
 			new Date(a.match?.date || 0).getTime(),
 	);
+
+	await redis.set(key, JSON.stringify(result), "EX", 43200); // 12 hours
+
+	return result;
 }
 
 export async function getPlayerClutches(steamId: string) {
@@ -117,6 +128,12 @@ export async function getPlayerClutches(steamId: string) {
 export async function getPlayerProfileData(
 	steamId: string,
 ): Promise<PlayerProfileDTO | null> {
+	const key = `playerProfile:v1:${steamId}`;
+	const cachedProfile = await redis.get(key);
+	if (cachedProfile) {
+		return JSON.parse(cachedProfile) as PlayerProfileDTO;
+	}
+
 	const [stats] = await getAggregatedPlayerStats(steamId);
 	const steamData = await fetchSteamProfiles([steamId]);
 
@@ -142,9 +159,8 @@ export async function getPlayerProfileData(
 
 	const clutches = await getPlayerClutches(steamId);
 
-	return {
+	const playerProfile: PlayerProfileDTO = {
 		steamId,
-		clutches,
 		stats,
 		matchHistory: playerMatchHistory,
 		winRate,
@@ -152,6 +168,10 @@ export async function getPlayerProfileData(
 		avatarUrl: steamIdentity.avatarUrl,
 		nickName: steamIdentity.nickName,
 	};
+
+	await redis.set(key, JSON.stringify(playerProfile), "EX", 43200); // 12 hours
+
+	return playerProfile;
 }
 
 export async function getPlayersRankingData(): Promise<PlayerRankingDTO[]> {
