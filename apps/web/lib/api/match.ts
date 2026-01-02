@@ -5,10 +5,9 @@ import { redis } from "@repo/redis";
 import { fetchSteamProfiles, getSteamIdentity } from "./steam";
 
 export async function getMatchData(matchId: string) {
-	const key = `matchData:v1:${matchId}`;
+	const key = `matchData:${matchId}`;
 	const cachedMatchData = await redis.get(key);
-
-	if (cachedMatchData) {
+	if (cachedMatchData && cachedMatchData !== "") {
 		return JSON.parse(cachedMatchData) as MatchDataDTO;
 	}
 	const match = await db.query.matches.findFirst({

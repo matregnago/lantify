@@ -1,7 +1,8 @@
-"use server";
 import type { MatchDTO } from "@repo/contracts";
 import { MatchPreview } from "@/components/match-list/MatchPreview";
 import { listMatches } from "@/lib/api/match";
+
+export const dynamic = "force-dynamic";
 
 export default async function Home() {
 	const matches: MatchDTO[] = await listMatches();

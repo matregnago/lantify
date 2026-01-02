@@ -1,8 +1,9 @@
-"use server";
 import { notFound } from "next/navigation";
 import { PlayersRankingTable } from "@/components/ranking/PlayersRankingTable";
 import { getPlayersRankingData } from "@/lib/api/player";
 import { sortRankingByStat } from "@/lib/ranking";
+
+export const dynamic = "force-dynamic";
 
 export default async function MainRankingPage() {
 	let rankingData = await getPlayersRankingData();

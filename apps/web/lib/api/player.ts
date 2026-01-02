@@ -30,11 +30,12 @@ export async function getAggregatedPlayerStats(
 	steamId?: string,
 	date: string = "all",
 ): Promise<PlayerStatsDTO[]> {
-	const key = `AggregatedStats:v1:${steamId},${date}`;
+	const key = `AggregatedStats:${steamId},${date}`;
 	const cachedAggregatedStats = await redis.get(key);
 
-	if (cachedAggregatedStats) {
-		return JSON.parse(cachedAggregatedStats) as PlayerStatsDTO[];
+	if (cachedAggregatedStats && cachedAggregatedStats !== "") {
+		const playersStats = JSON.parse(cachedAggregatedStats) as PlayerStatsDTO[];
+		if (playersStats.length > 0) return playersStats;
 	}
 
 	const where = buildPlayerStatsCondition(steamId, date);
@@ -87,10 +88,10 @@ export async function getAggregatedPlayerStats(
 }
 
 export async function getPlayerMatchHistory(steamId: string) {
-	const key = `matchHistory:v1:${steamId}`;
+	const key = `matchHistory:${steamId}`;
 	const cachedMatchHistory = await redis.get(key);
 
-	if (cachedMatchHistory) {
+	if (cachedMatchHistory && cachedMatchHistory !== "") {
 		return JSON.parse(cachedMatchHistory) as PlayerMatchHistoryDTO[];
 	}
 
@@ -121,9 +122,9 @@ export async function getPlayerMatchHistory(steamId: string) {
 export async function getPlayerProfileData(
 	steamId: string,
 ): Promise<PlayerProfileDTO | null> {
-	const key = `playerProfile:v1:${steamId}`;
+	const key = `playerProfile:${steamId}`;
 	const cachedProfile = await redis.get(key);
-	if (cachedProfile) {
+	if (cachedProfile && cachedProfile !== "") {
 		return JSON.parse(cachedProfile) as PlayerProfileDTO;
 	}
 
@@ -196,9 +197,9 @@ type DuelRow = {
 };
 
 export const getPlayerDuelsByMonth = async (steamId: string, month: string) => {
-	const key = `duels:v4:${steamId}:${month}`;
+	const key = `duels:${steamId}:${month}`;
 	const cachedDuels = await redis.get(key);
-	if (cachedDuels) {
+	if (cachedDuels && cachedDuels !== "") {
 		return JSON.parse(cachedDuels) as DuelRow[];
 	}
 

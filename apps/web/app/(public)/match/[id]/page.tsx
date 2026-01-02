@@ -1,4 +1,3 @@
-"use server";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -10,6 +9,8 @@ import { TeamTable } from "@/components/match/TeamTable";
 import { UtilityTable } from "@/components/match/UtilityTable";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getMatchData } from "@/lib/api/match";
+
+export const dynamic = "force-static";
 
 export default async function MatchPage({
 	params,

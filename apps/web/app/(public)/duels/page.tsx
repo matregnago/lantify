@@ -1,7 +1,8 @@
-"use server";
 import type { MatchDTO } from "@repo/contracts";
 import { DuelsCompleteTable } from "@/components/duels/DuelsCompleteTable";
 import { listMatchesWithPlayers } from "@/lib/api/match";
+
+export const dynamic = "force-dynamic";
 
 export default async function DuelsPage() {
 	const matches: MatchDTO[] = await listMatchesWithPlayers();
