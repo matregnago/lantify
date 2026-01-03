@@ -8,11 +8,16 @@ import { TeamHeader } from "@/components/match/TeamHeader";
 import { TeamTable } from "@/components/match/TeamTable";
 import { UtilityTable } from "@/components/match/UtilityTable";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getMatchData } from "@/lib/api/match";
+import { getMatchData, listMatches } from "@/lib/api/match";
 import { ClutchesTable } from "@/components/match/clutch/ClutchesTable";
 
-export const dynamic = "force-static";
+export async function generateStaticParams() {
+	const matches = await listMatches();
 
+	return matches.map((match) => ({
+		id: match.id,
+	}));
+}
 export default async function MatchPage({
 	params,
 }: {
