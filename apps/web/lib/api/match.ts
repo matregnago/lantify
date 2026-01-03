@@ -34,9 +34,15 @@ export async function getMatchData(matchId: string) {
 		.flatMap((team) => team.players.map((player) => player.steamId))
 		.filter((id) => id != null);
 
+	const clutches = await db
+		.select()
+		.from(s.clutches)
+		.where(eq(s.clutches.matchId, matchId));
+
 	const steamData = (await fetchSteamProfiles(steamIds)) || [];
 	const completeMatchData: MatchDataDTO = {
 		...match,
+		clutches,
 		teams: match.teams.map((team) => {
 			const players: PlayerDTO[] = team.players.map((p) => {
 				const steamIdentity = getSteamIdentity(p.steamId, steamData);
