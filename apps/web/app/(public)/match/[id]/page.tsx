@@ -9,6 +9,7 @@ import { TeamTable } from "@/components/match/TeamTable";
 import { UtilityTable } from "@/components/match/UtilityTable";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getMatchData, listMatches } from "@/lib/api/match";
+import { ClutchesTable } from "@/components/match/clutch/ClutchesTable";
 
 export async function generateStaticParams() {
 	const matches = await listMatches();
@@ -52,6 +53,7 @@ export default async function MatchPage({
 						<TabsTrigger value="utility">Utilitarios</TabsTrigger>
 						<TabsTrigger value="flashes">Flashes</TabsTrigger>
 						<TabsTrigger value="duels">Duelos</TabsTrigger>
+						<TabsTrigger value="clutches">Clutches</TabsTrigger>
 					</TabsList>
 					<TabsContent value="summary">
 						<TeamHeader team={teamA} />
@@ -70,6 +72,13 @@ export default async function MatchPage({
 						<FlashesTable team={teamA} />
 						<TeamHeader team={teamB} />
 						<FlashesTable team={teamB} />
+					</TabsContent>
+					<TabsContent value="clutches">
+						<ClutchesTable
+							clutches={match.clutches}
+							teamA={teamA}
+							teamB={teamB}
+						/>
 					</TabsContent>
 					<TabsContent value="duels">
 						<DuelsTable duels={match.duels} teamA={teamA} teamB={teamB} />
