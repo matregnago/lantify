@@ -24,6 +24,7 @@ export const MatchHeader = ({ match }: { match: MatchDTO }) => {
 				alt={match.map}
 				fill
 				className="object-cover blur-xs absolute inset-0"
+				preload
 			/>
 			<div className="relative flex flex-col gap-4 items-center justify-center h-full px-2">
 				<HeaderCard>

@@ -102,7 +102,7 @@ export const clutches = t.pgTable("clutch", {
 	opponentCount: t.integer().notNull(),
 	hasWon: t.boolean().notNull(),
 	clutcherSteamId: t.varchar({ length: 255 }).notNull(),
-	clutcherSurvived: t.varchar({ length: 255 }),
+	clutcherSurvived: t.boolean().notNull(),
 	clutcherKillCount: t.integer().notNull(),
 });
 
