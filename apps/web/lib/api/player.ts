@@ -30,7 +30,7 @@ export async function getAggregatedPlayerStats(
 	steamId?: string,
 	date: string = "all",
 ): Promise<PlayerStatsDTO[]> {
-	const key = `AggregatedStats:${steamId},${date}`;
+	const key = `aggregated-stats:${steamId ?? "all"}:${date}`;
 	const cachedAggregatedStats = await redis.get(key);
 
 	if (cachedAggregatedStats && cachedAggregatedStats !== "") {
@@ -88,7 +88,7 @@ export async function getAggregatedPlayerStats(
 }
 
 export async function getPlayerMatchHistory(steamId: string) {
-	const key = `matchHistory:${steamId}`;
+	const key = `match-history:${steamId}`;
 	const cachedMatchHistory = await redis.get(key);
 
 	if (cachedMatchHistory && cachedMatchHistory !== "") {
@@ -122,7 +122,7 @@ export async function getPlayerMatchHistory(steamId: string) {
 export async function getPlayerProfileData(
 	steamId: string,
 ): Promise<PlayerProfileDTO | null> {
-	const key = `playerProfile:${steamId}`;
+	const key = `player-profile:${steamId}`;
 	const cachedProfile = await redis.get(key);
 	if (cachedProfile && cachedProfile !== "") {
 		return JSON.parse(cachedProfile) as PlayerProfileDTO;

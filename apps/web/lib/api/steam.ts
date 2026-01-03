@@ -25,8 +25,8 @@ export function getSteamIdentity(
 }
 
 export async function fetchSteamProfiles(steamIds: string[]) {
-	const cachedData = await redis.mget(...steamIds);
-
+	const keys = steamIds.map((id) => `steam:profile:${id}`);
+	const cachedData = await redis.mget(...keys);
 	const cachedProfiles: SteamPlayer[] = await Promise.all(
 		cachedData
 			.filter((profile) => profile != null)
@@ -52,13 +52,13 @@ export async function fetchSteamProfiles(steamIds: string[]) {
 	const data: SteamApiResponse = await response.json();
 
 	const profilesKeyValuePairs = data.response.players.flatMap((profile) => [
-		profile.steamid,
+		`steam:profile:${profile.steamid}`,
 		JSON.stringify(profile),
 	]);
 
 	await redis.mset(...profilesKeyValuePairs);
-	const expirePromises = notCachedProfiles.map((key) =>
-		redis.expire(key, 43200),
+	const expirePromises = notCachedProfiles.map((steamId) =>
+		redis.expire(`steam:profile:${steamId}`, 43200),
 	); // 12h
 	await Promise.all(expirePromises);
 	return [...cachedProfiles, ...data.response.players];
