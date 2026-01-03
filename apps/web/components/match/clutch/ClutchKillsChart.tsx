@@ -29,7 +29,7 @@ export const ClutchKillsChart = ({ clutches }: ClutchKillsChartProps) => {
                     color={color}
                     value={totalKills}
                     label=""
-                    max={max}
+                    max={totalOpponents}
                     formattedValue={totalKills.toString()}
                 />
             </div>
