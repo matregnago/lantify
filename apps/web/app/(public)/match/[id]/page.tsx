@@ -53,7 +53,7 @@ export default async function MatchPage({
 						<TabsTrigger value="utility">Utilitarios</TabsTrigger>
 						<TabsTrigger value="flashes">Flashes</TabsTrigger>
 						<TabsTrigger value="duels">Duelos</TabsTrigger>
-						<TabsTrigger value="clutches">Clutches</TabsTrigger>
+						{/* <TabsTrigger value="clutches">Clutches</TabsTrigger> */}
 					</TabsList>
 					<TabsContent value="summary">
 						<TeamHeader team={teamA} />
