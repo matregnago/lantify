@@ -73,13 +73,13 @@ export default async function MatchPage({
 						<TeamHeader team={teamB} />
 						<FlashesTable team={teamB} />
 					</TabsContent>
-					<TabsContent value="clutches">
+					{/* <TabsContent value="clutches">
 						<ClutchesTable
 							clutches={match.clutches}
 							teamA={teamA}
 							teamB={teamB}
 						/>
-					</TabsContent>
+					</TabsContent> */}
 					<TabsContent value="duels">
 						<DuelsTable duels={match.duels} teamA={teamA} teamB={teamB} />
 					</TabsContent>
