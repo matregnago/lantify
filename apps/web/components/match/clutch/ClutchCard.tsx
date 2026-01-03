@@ -6,7 +6,7 @@ interface ClutchCardProps {
 
 const getClutchResult = (clutch: ClutchDTO) => {
 	if (clutch.hasWon) return "Venceu";
-	else if (clutch.clutcherSurvived === "true") return "Guardou";
+	else if (clutch.clutcherSurvived) return "Guardou";
 	else return "Perdeu";
 };
 

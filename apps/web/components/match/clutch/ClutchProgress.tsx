@@ -12,7 +12,7 @@ export const ClutchProgress = ({ clutches }: ClutchProgressProps) => {
 	const winsTotal = clutches.filter((c) => c.hasWon).length;
 	const winRate = Math.round((winsTotal / clutches.length) * 100);
 	const saveTotal = clutches.filter(
-		(c) => c.clutcherSurvived === "true" && !c.hasWon,
+		(c) => c.clutcherSurvived && !c.hasWon,
 	).length;
 	const lossTotal = clutches.length - winsTotal;
 

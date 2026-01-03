@@ -34,7 +34,7 @@ export default async function MatchPage({
 	const teamA = match.teams[0];
 	const teamB = match.teams[1];
 
-	if (!teamA || !teamB || !teamA.players || !teamB.players) return <></>;
+	if (!teamA || !teamB || !teamA.players || !teamB.players) return;
 
 	return (
 		<div className="py-12 mx-4">
