@@ -1,6 +1,7 @@
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ClutchesTable } from "@/components/match/clutch/ClutchesTable";
 import { DuelsTable } from "@/components/match/DuelsTable";
 import { FlashesTable } from "@/components/match/FlashesTable";
 import { MatchHeader } from "@/components/match/MatchHeader";
@@ -8,10 +9,15 @@ import { TeamHeader } from "@/components/match/TeamHeader";
 import { TeamTable } from "@/components/match/TeamTable";
 import { UtilityTable } from "@/components/match/UtilityTable";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getMatchData } from "@/lib/api/match";
+import { getMatchData, listMatches } from "@/lib/api/match";
 
-export const dynamic = "force-static";
+export async function generateStaticParams() {
+	const matches = await listMatches();
 
+	return matches.map((match) => ({
+		id: match.id,
+	}));
+}
 export default async function MatchPage({
 	params,
 }: {
@@ -47,6 +53,7 @@ export default async function MatchPage({
 						<TabsTrigger value="utility">Utilitarios</TabsTrigger>
 						<TabsTrigger value="flashes">Flashes</TabsTrigger>
 						<TabsTrigger value="duels">Duelos</TabsTrigger>
+						<TabsTrigger value="clutches">Clutches</TabsTrigger>
 					</TabsList>
 					<TabsContent value="summary">
 						<TeamHeader team={teamA} />
@@ -65,6 +72,13 @@ export default async function MatchPage({
 						<FlashesTable team={teamA} />
 						<TeamHeader team={teamB} />
 						<FlashesTable team={teamB} />
+					</TabsContent>
+					<TabsContent value="clutches">
+						<ClutchesTable
+							clutches={match.clutches}
+							teamA={teamA}
+							teamB={teamB}
+						/>
 					</TabsContent>
 					<TabsContent value="duels">
 						<DuelsTable duels={match.duels} teamA={teamA} teamB={teamB} />

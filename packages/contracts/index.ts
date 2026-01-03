@@ -3,10 +3,10 @@ import type * as s from "@repo/database/schema";
 export type PlayerMatchHistoryDTO = typeof s.players.$inferInsert & {
 	team: typeof s.teams.$inferSelect | null;
 	match:
-		| (typeof s.matches.$inferSelect & {
-				teams: (typeof s.teams.$inferSelect)[];
-		  })
-		| null;
+	| (typeof s.matches.$inferSelect & {
+		teams: (typeof s.teams.$inferSelect)[];
+	})
+	| null;
 };
 
 export type PlayerRankingDTO = {
@@ -83,6 +83,7 @@ export type DuelDTO = typeof s.playerDuels.$inferSelect;
 export type MatchDataDTO = typeof s.matches.$inferSelect & {
 	teams: TeamDTO[];
 	duels: DuelDTO[];
+	clutches: ClutchDTO[];
 };
 
 export type ClutchDTO = typeof s.clutches.$inferSelect;
