@@ -1,4 +1,5 @@
 import type { MatchDTO } from "@repo/contracts";
+import { DynamicGraph } from "@/components/stats/DynamicGraph";
 import { listMatchesWithPlayers } from "@/lib/api/match";
 
 export default async function StatsPage() {
@@ -29,6 +30,7 @@ export default async function StatsPage() {
 				{" "}
 				Fornecidas por gugab enterprise company LTDA & cia{" "}
 			</p>
+			<DynamicGraph matchMapByMonth={matchMapByMonth}></DynamicGraph>
 		</div>
 	);
 }

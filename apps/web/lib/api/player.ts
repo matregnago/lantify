@@ -10,6 +10,7 @@ import type {
 import { and, avg, count, db, eq, sql, sum } from "@repo/database";
 import * as s from "@repo/database/schema";
 import { redis } from "@repo/redis";
+import { type Stat, sortRankingByStat } from "../ranking";
 import { fetchSteamProfiles, getSteamIdentity } from "./steam";
 
 function buildPlayerStatsCondition(steamId?: string, date: string = "all") {
@@ -172,15 +173,18 @@ export async function getPlayerProfileData(
 	return playerProfile;
 }
 
-export async function getPlayersRankingData(): Promise<PlayerRankingDTO[]> {
-	const playersStats = await getAggregatedPlayerStats();
+export async function getPlayersRankingData(
+	stat: Stat,
+	date: string = "all",
+): Promise<PlayerRankingDTO[]> {
+	const playersStats = await getAggregatedPlayerStats(undefined, date);
 	const steamIds = playersStats
 		.map((player) => player.steamId)
 		.filter((p) => p != null);
 
 	const steamData = await fetchSteamProfiles(steamIds);
 
-	return playersStats.map((playerStats) => {
+	const unranked = playersStats.map((playerStats) => {
 		const steamIdentity = getSteamIdentity(playerStats.steamId, steamData);
 		return {
 			steamId: playerStats.steamId,
@@ -189,6 +193,10 @@ export async function getPlayersRankingData(): Promise<PlayerRankingDTO[]> {
 			nickName: steamIdentity.nickName,
 		};
 	});
+
+	const playersRanking = sortRankingByStat(unranked, stat);
+
+	return playersRanking;
 }
 
 type DuelRow = {

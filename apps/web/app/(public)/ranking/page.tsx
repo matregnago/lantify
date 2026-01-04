@@ -1,18 +1,15 @@
 import { notFound } from "next/navigation";
 import { PlayersRankingTable } from "@/components/ranking/PlayersRankingTable";
 import { getPlayersRankingData } from "@/lib/api/player";
-import { sortRankingByStat } from "@/lib/ranking";
 
 export const dynamic = "force-dynamic";
 
 export default async function MainRankingPage() {
-	let rankingData = await getPlayersRankingData();
+	const rankingData = await getPlayersRankingData("rating2");
 
 	if (!rankingData) {
 		notFound();
 	}
-
-	rankingData = sortRankingByStat(rankingData, "rating2");
 
 	return (
 		<div className="max-w-7xl mx-auto my-12">
