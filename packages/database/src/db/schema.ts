@@ -106,10 +106,61 @@ export const clutches = t.pgTable("clutch", {
 	clutcherKillCount: t.integer().notNull(),
 });
 
+export const kills = t.pgTable("kill", {
+	id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
+	matchId: t
+		.varchar({ length: 255 })
+		.references(() => matches.id, { onDelete: "cascade" })
+		.notNull(),
+	frame: t.integer().notNull(),
+	tick: t.integer().notNull(),
+	roundNumber: t.integer().notNull(),
+	weaponType: t.varchar({ length: 255 }).notNull(),
+	weaponName: t.varchar({ length: 255 }).notNull(),
+	killerName: t.varchar({ length: 255 }).notNull(),
+	killerSteamId: t.varchar({ length: 255 }).notNull(),
+	killerSide: t.integer().notNull(),
+	killerTeamName: t.varchar({ length: 255 }).notNull(),
+	killerX: t.doublePrecision().notNull(),
+	killerY: t.doublePrecision().notNull(),
+	killerZ: t.doublePrecision().notNull(),
+	isKillerAirborne: t.boolean().notNull(),
+	isKillerBlinded: t.boolean().notNull(),
+	isKillerControllingBot: t.boolean().notNull(),
+	victimName: t.varchar({ length: 255 }).notNull(),
+	victimSteamId: t.varchar({ length: 255 }).notNull(),
+	victimSide: t.integer().notNull(),
+	victimTeamName: t.varchar({ length: 255 }).notNull(),
+	victimX: t.doublePrecision().notNull(),
+	victimY: t.doublePrecision().notNull(),
+	victimZ: t.doublePrecision().notNull(),
+	isVictimAirborne: t.boolean().notNull(),
+	isVictimBlinded: t.boolean().notNull(),
+	isVictimControllingBot: t.boolean().notNull(),
+	isVictimInspectingWeapon: t.boolean().notNull(),
+	assisterName: t.varchar({ length: 255 }),
+	assisterSteamId: t.varchar({ length: 255 }),
+	assisterSide: t.integer(),
+	assisterTeamName: t.varchar({ length: 255 }),
+	assisterX: t.doublePrecision(),
+	assisterY: t.doublePrecision(),
+	assisterZ: t.doublePrecision(),
+	isAssisterControllingBot: t.boolean(),
+	isAssistedFlash: t.boolean(),
+	isHeadshot: t.boolean().notNull(),
+	penetratedObjects: t.integer().notNull(),
+	isThroughSmoke: t.boolean().notNull(),
+	isNoScope: t.boolean().notNull(),
+	isTradeKill: t.boolean().notNull(),
+	isTradeDeath: t.boolean().notNull(),
+	distance: t.doublePrecision().notNull(),
+});
+
 export const matchRelations = relations(matches, ({ many }) => ({
 	teams: many(teams),
 	duels: many(playerDuels),
 	clutches: many(clutches),
+	kills: many(kills),
 }));
 
 export const teamRelations = relations(teams, ({ many, one }) => ({
@@ -141,6 +192,13 @@ export const playerDuelsRelations = relations(playerDuels, ({ one }) => ({
 export const clutchesRelations = relations(clutches, ({ one }) => ({
 	match: one(matches, {
 		fields: [clutches.matchId],
+		references: [matches.id],
+	}),
+}));
+
+export const killsRelations = relations(kills, ({ one }) => ({
+	match: one(matches, {
+		fields: [kills.matchId],
 		references: [matches.id],
 	}),
 }));

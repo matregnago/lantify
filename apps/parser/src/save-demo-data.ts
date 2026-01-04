@@ -3,6 +3,7 @@ import * as schema from "@repo/database/schema";
 import JSONbig from "json-bigint";
 import { createClutches } from "./clutches.js";
 import { createDuels } from "./duels.js";
+import { createKills } from "./kills.js";
 import { createMatch } from "./match.js";
 import { calculateAggregatedStats } from "./players.js";
 import { createTeams, mapTeamsIds } from "./teams.js";
@@ -51,6 +52,10 @@ export const saveDemoData = async (fileName: string) => {
 			const clutches = createClutches(data, matchData.id);
 
 			await tx.insert(schema.clutches).values(clutches);
+
+			const kills = createKills(data, matchData.id);
+
+			await tx.insert(schema.kills).values(kills);
 		});
 		console.log(
 			`Dados da demo ${data.demoFileName} salvos com sucesso no banco.`,

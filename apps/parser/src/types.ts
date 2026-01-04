@@ -6,6 +6,7 @@ export type NewTeam = typeof schema.teams.$inferInsert;
 export type NewPlayer = typeof schema.players.$inferInsert;
 export type NewDuel = typeof schema.playerDuels.$inferInsert;
 export type NewClutch = typeof schema.clutches.$inferInsert;
+export type NewKill = typeof schema.kills.$inferInsert;
 
 export type DemoFile = {
 	checksum: string;
