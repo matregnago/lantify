@@ -64,6 +64,20 @@
 			"when": 1767533859074,
 			"tag": "0008_loose_whizzer",
 			"breakpoints": true
+		},
+		{
+			"idx": 9,
+			"version": "7",
+			"when": 1767545339602,
+			"tag": "0009_chubby_talos",
+			"breakpoints": true
+		},
+		{
+			"idx": 10,
+			"version": "7",
+			"when": 1767550736534,
+			"tag": "0010_fresh_redwing",
+			"breakpoints": true
 		}
 	]
 }

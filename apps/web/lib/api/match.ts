@@ -1,5 +1,5 @@
 import type { MatchDataDTO, PlayerDTO } from "@repo/contracts";
-import { db, desc, eq } from "@repo/database";
+import { count, db, desc, eq, sql } from "@repo/database";
 import * as s from "@repo/database/schema";
 import { redis } from "@repo/redis";
 import { fetchSteamProfiles, getSteamIdentity } from "./steam";
@@ -115,4 +115,16 @@ export async function listMatchesWithPlayers() {
 		};
 	});
 	return matchesData;
+}
+
+export async function getTotalRounds(date: string = "all"): Promise<number> {
+	const rows = await db
+		.select({
+			totalRounds: count(s.rounds.id).mapWith(Number),
+		})
+		.from(s.rounds)
+		.innerJoin(s.matches, eq(s.matches.id, s.rounds.matchId))
+		.where(sql`to_char(${s.matches.date}::timestamp, 'Mon YYYY') = ${date}`);
+
+	return rows[0]?.totalRounds ?? 0;
 }

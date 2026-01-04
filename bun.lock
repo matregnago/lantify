@@ -69,6 +69,9 @@
     },
     "packages/contracts": {
       "name": "@repo/contracts",
+      "dependencies": {
+        "@akiver/cs-demo-analyzer": "^1.7.8",
+      },
       "devDependencies": {
         "@repo/database": "workspace:*",
         "@types/bun": "latest",

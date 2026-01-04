@@ -6,7 +6,6 @@ export const createKills = (data: DemoFile, matchId: string) => {
 		kills.push({
 			matchId,
 			roundNumber: kill.roundNumber,
-			frame: kill.frame,
 			tick: kill.tick,
 			weaponType: kill.weaponType,
 			weaponName: kill.weaponName,

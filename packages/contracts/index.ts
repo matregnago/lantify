@@ -1,3 +1,4 @@
+import type { WeaponName, WeaponType } from "@akiver/cs-demo-analyzer";
 import type * as s from "@repo/database/schema";
 
 export type PlayerMatchHistoryDTO = typeof s.players.$inferInsert & {
@@ -8,6 +9,8 @@ export type PlayerMatchHistoryDTO = typeof s.players.$inferInsert & {
 		  })
 		| null;
 };
+
+export type { WeaponName, WeaponType };
 
 export type PlayerRankingDTO = {
 	steamId: string;

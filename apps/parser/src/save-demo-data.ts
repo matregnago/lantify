@@ -6,6 +6,7 @@ import { createDuels } from "./duels.js";
 import { createKills } from "./kills.js";
 import { createMatch } from "./match.js";
 import { calculateAggregatedStats } from "./players.js";
+import { createRounds } from "./rounds.js";
 import { createTeams, mapTeamsIds } from "./teams.js";
 import type { DemoFile, NewMatch, NewPlayer } from "./types.js";
 
@@ -56,6 +57,10 @@ export const saveDemoData = async (fileName: string) => {
 			const kills = createKills(data, matchData.id);
 
 			await tx.insert(schema.kills).values(kills);
+
+			const rounds = createRounds(data, matchData.id);
+
+			await tx.insert(schema.rounds).values(rounds);
 		});
 		console.log(
 			`Dados da demo ${data.demoFileName} salvos com sucesso no banco.`,
