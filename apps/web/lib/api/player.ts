@@ -11,6 +11,7 @@ import type { WeaponName, WeaponType } from "@repo/contracts/enums";
 import { and, avg, count, db, eq, sql, sum } from "@repo/database";
 import * as s from "@repo/database/schema";
 import { redis } from "@repo/redis";
+import { getSnipingValue } from "./HLTVParameters/sniping";
 import { buildStatsWhere, withMatchJoinIfDate } from "./query-helpers";
 import { fetchSteamProfiles, getSteamIdentity } from "./steam";
 
@@ -162,6 +163,9 @@ export async function getPlayerProfileData(
 		nickName: steamIdentity.nickName,
 	};
 
+	const sniperParameters = getSnipingValue(steamId);
+	console.log(sniperParameters);
+
 	await redis.set(key, JSON.stringify(playerProfile), "EX", 43200); // 12 hours
 
 	return playerProfile;
@@ -215,60 +219,6 @@ export const getPlayerDuelsByMonth = async (steamId: string, month: string) => {
 	return result;
 };
 
-export const getWeaponTypeStats = async (
-	weaponType: WeaponType,
-	steamId?: string,
-	date: string = "all",
-) => {
-	const weaponTypeCondition = eq(s.kills.weaponType, weaponType);
-
-	const whereWeaponType = await buildStatsWhere({
-		steamId,
-		date,
-		steamIdColumn: s.kills.killerSteamId,
-		dateColumn: date === "all" ? undefined : s.matches.date,
-		extra: weaponTypeCondition,
-	});
-	const weaponTypeStats = await db
-		.select({
-			steamId: s.kills.killerSteamId,
-			totalKills: count(s.kills.id).mapWith(Number),
-			totalRoundsWithKills: count(),
-		})
-		.from(s.kills)
-		.where(whereWeaponType)
-		.groupBy(s.kills.killerSteamId);
-
-	return weaponTypeStats;
-};
-
-export const getWeaponNameStats = async (
-	weaponName: WeaponName,
-	steamId?: string,
-	date: string = "all",
-) => {
-	const weaponNameCondition = eq(s.kills.weaponName, weaponName);
-
-	const whereWeaponName = await buildStatsWhere({
-		steamId,
-		date,
-		steamIdColumn: s.kills.killerSteamId,
-		dateColumn: date === "all" ? undefined : s.matches.date,
-		extra: weaponNameCondition,
-	});
-
-	const weaponTypeStats = await db
-		.select({
-			steamId: s.kills.killerSteamId,
-			totalKills: count(s.kills.id).mapWith(Number),
-		})
-		.from(s.kills)
-		.where(whereWeaponName)
-		.groupBy(s.kills.killerSteamId);
-
-	return weaponTypeStats;
-};
-
 type TotalKillsDTO = {
 	steamId: string;
 	totalKills: number;
@@ -278,7 +228,7 @@ export const getTotalKills = async (
 	steamId?: string,
 	date: string = "all",
 ): Promise<TotalKillsDTO[]> => {
-	const where = await buildStatsWhere({
+	const where = buildStatsWhere({
 		steamId,
 		date,
 		steamIdColumn: s.kills.killerSteamId,
@@ -290,11 +240,9 @@ export const getTotalKills = async (
 			steamId: s.kills.killerSteamId,
 			totalKills: count(s.kills.id).mapWith(Number),
 		})
-		.from(s.kills)
-		.where(where)
-		.groupBy(s.kills.killerSteamId);
+		.from(s.kills);
 
-	const q = withMatchJoinIfDate(base, date, s.players.matchId);
+	const q = withMatchJoinIfDate(base, date, s.kills.matchId);
 
 	const totalKills = await q.where(where).groupBy(s.kills.killerSteamId);
 

@@ -1,11 +1,15 @@
 import type { MatchDTO } from "@repo/contracts";
 import { MatchPreview } from "@/components/match-list/MatchPreview";
+import { getSnipingValue } from "@/lib/api/HLTVParameters/sniping";
 import { listMatches } from "@/lib/api/match";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
 	const matches: MatchDTO[] = await listMatches();
+
+	const sniperParameters = await getSnipingValue();
+	console.log(sniperParameters);
 
 	const matchMapByMonth = new Map<string, MatchDTO[]>();
 

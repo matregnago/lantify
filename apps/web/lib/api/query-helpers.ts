@@ -6,7 +6,7 @@ export function buildStatsWhere(opts: {
 	date?: string;
 	steamIdColumn: any;
 	dateColumn?: any;
-	extra?: any;
+	extra?: any[];
 }) {
 	const { steamId, date = "all", steamIdColumn, dateColumn, extra } = opts;
 
@@ -22,7 +22,7 @@ export function buildStatsWhere(opts: {
 		);
 	}
 
-	if (extra) conditions.push(extra);
+	if (extra?.length) conditions.push(...extra);
 
 	if (conditions.length === 0) return sql`true`;
 	if (conditions.length === 1) return conditions[0];
