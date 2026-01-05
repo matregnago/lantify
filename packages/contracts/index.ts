@@ -50,6 +50,57 @@ export type PlayerStatsDTO = {
 
 	averageDamagePerRound: number;
 	averageDeathPerRound: number;
+
+	// firepowerScore: number;
+	// killsPerRoundWin: number;
+	// damagePerRoundWin: number;
+	// roundsWithAKillPercent: number;
+	// roundsWithAMultiKillPercent: number;
+	// pistolRoundRating: number;
+
+	// enteringScore: number;
+	// savedByTeammatePerRound: number;
+	// tradedDeathsPerRound: number;
+	// tradedDeathsPercent: number;
+	// openingDeathsTradedPercent: number;
+	// assistsPerRound: number;
+	// supportRoundsPercent: number;
+
+	// tradingScore: number;
+	// savedTeammatePerRound: number;
+	// tradeKillsPerRound: number;
+	// tradeKillsPercent: number;
+	// assistedKillsPercent: number;
+	// damagePerKill: number;
+
+	// openingScore: number;
+	// openingKillsPerRound: number;
+	// openingDeathsPerRound: number;
+	// openingAttemptsPercent: number;
+	// openingSuccessPercent: number;
+	// winPercentAfterOpeningKill: number;
+	// attacksPerRound: number;
+
+	// clutchingScore: number;
+	// clutchPointsPerRound: number;
+	// lastAlivePercent: number;
+	// oneVOneWinPercent: number;
+	// timeAlivePerRoundSeconds: number;
+	// savesPerRoundLossPercent: number;
+
+	// snipingScore: number;
+	// sniperKillsPerRound: number;
+	// sniperKillsPercent: number;
+	// roundsWithSniperKillsPercent: number;
+	// sniperMultiKillRoundsPerRound: number;
+	// sniperOpeningKillsPerRound: number;
+
+	// utilityScore: number;
+	// utilityDamagePerRound: number;
+	// utilityKillsPer100Rounds: number;
+	// flashesThrownPerRound: number;
+	// flashAssistsPerRound: number;
+	// timeOpponentsFlashedPerRoundSeconds: number;
 };
 
 export type PlayerProfileDTO = {

@@ -14,7 +14,7 @@ export const getSnipingValue = async (
 };
 
 const getSniperParameters = async (steamId?: string, date: string = "all") => {
-	const totalKills = await getTotalKills(steamId, date);
+	const totalKillsPerPlayer = await getTotalKills(steamId, date);
 	const sniperOpeningTotal = await getOpeningAmount(
 		WeaponType.Sniper,
 		steamId,
@@ -27,23 +27,29 @@ const getSniperParameters = async (steamId?: string, date: string = "all") => {
 		date,
 	);
 
-	const totalRounds = await getTotalRounds(date);
+	const totalRoundsPerPlayer = await getTotalRounds(steamId, date);
 
 	const sniperParameters = sniperStats.map((sniper) => {
-		const total = totalKills.find(
+		const totalKillsRow = totalKillsPerPlayer.find(
 			(player) => player.steamId === sniper.steamId,
 		);
 		const opkTotal = sniperOpeningTotal.find(
 			(player) => player.steamId === sniper.steamId,
 		);
-		if (!total || !opkTotal || totalRounds === 0) return null;
+		const totalRoundsRow = totalRoundsPerPlayer.find(
+			(player) => player.steamId === sniper.steamId,
+		);
+
+		if (!totalRoundsRow || !totalKillsRow) return null;
+		const totalRounds = totalRoundsRow.totalRounds;
+		const totalKills = totalKillsRow.totalKills;
 		return {
 			steamId: sniper.steamId,
-			SniperKPR: sniper.totalKills / totalRounds,
-			SniperKillPC: (sniper.totalKills / total.totalKills) * 100,
-			SniperKillRoundsPC: (sniper.totalRoundsWithKills / totalRounds) * 100,
-			SniperMKRounds: sniper.totalRoundsWithMultiKills / totalRounds,
-			sniperOpening: opkTotal.openingKills / totalRounds,
+			sniperKPR: sniper.totalKills / totalRounds,
+			sniperKillPC: (sniper.totalKills / totalKills) * 100,
+			sniperKillRoundsPC: (sniper.totalRoundsWithKills / totalRounds) * 100,
+			sniperMKRounds: sniper.totalRoundsWithMultiKills / totalRounds,
+			sniperOpening: opkTotal ? opkTotal.openingKills / totalRounds : 0,
 		};
 	});
 

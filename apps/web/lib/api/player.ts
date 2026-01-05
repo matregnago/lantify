@@ -163,9 +163,6 @@ export async function getPlayerProfileData(
 		nickName: steamIdentity.nickName,
 	};
 
-	const sniperParameters = getSnipingValue(steamId);
-	console.log(sniperParameters);
-
 	await redis.set(key, JSON.stringify(playerProfile), "EX", 43200); // 12 hours
 
 	return playerProfile;

@@ -29,11 +29,9 @@ export function buildStatsWhere(opts: {
 	return and(...conditions);
 }
 
-export function withMatchJoinIfDate<TQuery extends { innerJoin: Function }>(
-	base: TQuery,
-	date: string,
-	matchIdColumn: any,
-) {
+export function withMatchJoinIfDate<
+	TQuery extends { innerJoin: (...args: any[]) => any },
+>(base: TQuery, date: string, matchIdColumn: any) {
 	return date === "all"
 		? base
 		: (base as any).innerJoin(s.matches, eq(s.matches.id, matchIdColumn));
