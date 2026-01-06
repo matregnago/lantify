@@ -12,6 +12,7 @@ import { and, avg, count, db, eq, sql, sum } from "@repo/database";
 import * as s from "@repo/database/schema";
 import { redis } from "@repo/redis";
 import { getSnipingValue } from "./HLTVParameters/sniping";
+import { getUtilityValue } from "./HLTVParameters/utility";
 import { buildStatsWhere, withMatchJoinIfDate } from "./query-helpers";
 import { fetchSteamProfiles, getSteamIdentity } from "./steam";
 
@@ -77,21 +78,29 @@ export async function getAggregatedPlayerStats(
 		dateColumn: date === "all" ? undefined : s.matches.date,
 	});
 
-	const playerData = await q.where(where).groupBy(s.players.steamId);
-
-	await redis.set(key, JSON.stringify(playerData), "EX", 43200);
+	const playerData = (await q
+		.where(where)
+		.groupBy(s.players.steamId)) as PlayerStatsDTO[];
 
 	const snipingValues = await getSnipingValue(steamId, date);
-	await redis.set(key, JSON.stringify(playerData), "EX", 43200);
-	return playerData.map((playerStats) => {
+	const utilityValues = await getUtilityValue(steamId, date);
+
+	const aggregatedPlayerStatsList = playerData.map((playerStats) => {
 		const snipingValue = snipingValues.find(
 			(sv) => sv?.steamId === playerStats.steamId,
+		);
+		const utilityValue = utilityValues.find(
+			(uv) => uv?.steamId === playerStats.steamId,
 		);
 		return {
 			...playerStats,
 			...snipingValue,
+			...utilityValue,
 		};
 	});
+	await redis.set(key, JSON.stringify(aggregatedPlayerStatsList), "EX", 43200);
+
+	return aggregatedPlayerStatsList;
 }
 
 export async function getPlayerMatchHistory(steamId: string) {

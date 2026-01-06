@@ -95,12 +95,12 @@ export type PlayerStatsDTO = {
 	sniperMultiKillRoundsPerRound: number;
 	sniperOpeningKillsPerRound: number;
 
-	// utilityScore: number;
-	// utilityDamagePerRound: number;
-	// utilityKillsPer100Rounds: number;
-	// flashesThrownPerRound: number;
-	// flashAssistsPerRound: number;
-	// timeOpponentsFlashedPerRoundSeconds: number;
+	utilityScore: number;
+	utilityDamagePerRound: number;
+	utilityKillsPer100Rounds: number;
+	flashesThrownPerRound: number;
+	flashAssistsPerRound: number;
+	timeOpponentsFlashedPerRoundSeconds: number;
 };
 
 export type PlayerProfileDTO = {

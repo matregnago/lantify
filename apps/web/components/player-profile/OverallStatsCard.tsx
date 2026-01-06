@@ -104,6 +104,52 @@ export const OverallStatsCard = ({
 							],
 						}}
 					/>
+					<MainStatsProgress
+						category={{
+							name: "Utilitários",
+							value: profile.stats.snipingScore ?? 0,
+							subCategories: [
+								{
+									name: "Dano de utilitário por round",
+									value: profile.stats.utilityDamagePerRound ?? 0,
+									formattedValue: (
+										profile.stats.utilityDamagePerRound ?? 0
+									).toFixed(2),
+									max: 10,
+								},
+								{
+									name: "Kill de utilitário por 100 rounds",
+									value: profile.stats.utilityKillsPer100Rounds ?? 0,
+									formattedValue: `${(profile.stats.utilityKillsPer100Rounds ?? 0).toFixed(1)}`,
+									max: 1,
+								},
+								{
+									name: "Flashes lançadas por round",
+									value: profile.stats.flashesThrownPerRound ?? 0,
+									formattedValue: `${(
+										profile.stats.flashesThrownPerRound ?? 0
+									).toFixed(1)}`,
+									max: 1,
+								},
+								{
+									name: "Flash assists por round",
+									value: profile.stats.flashAssistsPerRound ?? 0,
+									formattedValue: (
+										profile.stats.flashAssistsPerRound ?? 0
+									).toFixed(3),
+									max: 0.08,
+								},
+								{
+									name: "Tempo de oponentes cegos por round",
+									value: profile.stats.timeOpponentsFlashedPerRoundSeconds ?? 0,
+									formattedValue: (
+										profile.stats.timeOpponentsFlashedPerRoundSeconds ?? 0
+									).toFixed(3),
+									max: 6.5,
+								},
+							],
+						}}
+					/>
 					<ProgressStatusRow
 						statusName="Headshot %"
 						value={profile.stats.headshotPercent}
