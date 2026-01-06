@@ -45,11 +45,16 @@ const getSniperParameters = async (steamId?: string, date: string = "all") => {
 		const totalKills = totalKillsRow.totalKills;
 		return {
 			steamId: sniper.steamId,
-			sniperKPR: sniper.totalKills / totalRounds,
-			sniperKillPC: (sniper.totalKills / totalKills) * 100,
-			sniperKillRoundsPC: (sniper.totalRoundsWithKills / totalRounds) * 100,
-			sniperMKRounds: sniper.totalRoundsWithMultiKills / totalRounds,
-			sniperOpening: opkTotal ? opkTotal.openingKills / totalRounds : 0,
+			snipingScore: 0,
+			sniperKillsPerRound: sniper.totalKills / totalRounds,
+			sniperKillsPercent: (sniper.totalKills / totalKills) * 100,
+			roundsWithSniperKillsPercent:
+				(sniper.totalRoundsWithKills / totalRounds) * 100,
+			sniperMultiKillRoundsPerRound:
+				sniper.totalRoundsWithMultiKills / totalRounds,
+			sniperOpeningKillsPerRound: opkTotal
+				? opkTotal.openingKills / totalRounds
+				: 0,
 		};
 	});
 

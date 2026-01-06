@@ -5,6 +5,7 @@ import { RankingPosition } from "../ranking/RankingPosition";
 import { Card } from "../ui/card";
 import { CircularChart } from "./CircularChart";
 import { Field } from "./Field";
+import { MainStatsProgress } from "./MainStatsProgress";
 import { ProgressStatus } from "./ProgressStatus";
 
 interface ProgressStatusRowProps {
@@ -57,19 +58,56 @@ export const OverallStatsCard = ({
 		<Field title="Estatísticas Gerais">
 			<div className="flex flex-col lg:flex-row gap-6">
 				<div className="flex flex-col gap-6 w-full lg:w-[50%]">
-					<ProgressStatusRow
-						statusName="K/D"
-						value={profile.stats.killDeathRatio}
-						formattedValue={profile.stats.killDeathRatio.toFixed(2)}
-						max={1.5}
-						stat="killDeathRatio" // Verifique se bate com o tipo Stat
-						steamId={profile.steamId}
-						playersRanking={playersRanking}
+					<MainStatsProgress
+						category={{
+							name: "Sniping",
+							value: profile.stats.snipingScore ?? 0,
+							subCategories: [
+								{
+									name: "Sniper Kills por round",
+									value: profile.stats.sniperKillsPerRound ?? 0,
+									formattedValue: (
+										profile.stats.sniperKillsPerRound ?? 0
+									).toFixed(2),
+									max: 0.3,
+								},
+								{
+									name: "Sniper Kills %",
+									value: profile.stats.sniperKillsPercent ?? 0,
+									formattedValue: `${(profile.stats.sniperKillsPercent ?? 0).toFixed(1)}%`,
+									max: 15,
+								},
+								{
+									name: "Rounds com Sniper Kills %",
+									value: profile.stats.roundsWithSniperKillsPercent ?? 0,
+									formattedValue: `${(
+										profile.stats.roundsWithSniperKillsPercent ?? 0
+									).toFixed(1)}%`,
+									max: 20,
+								},
+								{
+									name: "Sniper Multi-Kill Rounds por round",
+									value: profile.stats.sniperMultiKillRoundsPerRound ?? 0,
+									formattedValue: (
+										profile.stats.sniperMultiKillRoundsPerRound ?? 0
+									).toFixed(3),
+									max: 0.05,
+								},
+								{
+									name: "Sniper Opening Kills por round",
+									value: profile.stats.sniperOpeningKillsPerRound ?? 0,
+									formattedValue: (
+										profile.stats.sniperOpeningKillsPerRound ?? 0
+									).toFixed(3),
+									max: 0.05,
+								},
+							],
+						}}
 					/>
 					<ProgressStatusRow
 						statusName="Headshot %"
 						value={profile.stats.headshotPercent}
-						formattedValue={profile.stats.headshotPercent.toFixed(1) + "%"}
+						formattedValue={`${profile.stats.headshotPercent.toFixed(1)}%`}
 						max={70}
 						stat="headshotPercent"
 						steamId={profile.steamId}
@@ -105,7 +143,7 @@ export const OverallStatsCard = ({
 					<ProgressStatusRow
 						statusName="KAST"
 						value={profile.stats.kast}
-						formattedValue={profile.stats.kast.toFixed(1) + "%"}
+						formattedValue={`${profile.stats.kast.toFixed(1)}%`}
 						max={90}
 						stat="kast"
 						steamId={profile.steamId}
@@ -121,7 +159,7 @@ export const OverallStatsCard = ({
 							value={profile.winRate}
 							label="Taxa de vitória"
 							max={100}
-							formattedValue={profile.winRate.toFixed(0) + "%"}
+							formattedValue={`${profile.winRate.toFixed(0)}%`}
 						/>
 					</Card>
 					<Card>

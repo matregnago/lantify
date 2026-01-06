@@ -80,7 +80,18 @@ export async function getAggregatedPlayerStats(
 	const playerData = await q.where(where).groupBy(s.players.steamId);
 
 	await redis.set(key, JSON.stringify(playerData), "EX", 43200);
-	return playerData;
+
+	const snipingValues = await getSnipingValue(steamId, date);
+	await redis.set(key, JSON.stringify(playerData), "EX", 43200);
+	return playerData.map((playerStats) => {
+		const snipingValue = snipingValues.find(
+			(sv) => sv?.steamId === playerStats.steamId,
+		);
+		return {
+			...playerStats,
+			...snipingValue,
+		};
+	});
 }
 
 export async function getPlayerMatchHistory(steamId: string) {

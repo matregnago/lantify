@@ -88,12 +88,12 @@ export type PlayerStatsDTO = {
 	// timeAlivePerRoundSeconds: number;
 	// savesPerRoundLossPercent: number;
 
-	// snipingScore: number;
-	// sniperKillsPerRound: number;
-	// sniperKillsPercent: number;
-	// roundsWithSniperKillsPercent: number;
-	// sniperMultiKillRoundsPerRound: number;
-	// sniperOpeningKillsPerRound: number;
+	snipingScore: number;
+	sniperKillsPerRound: number;
+	sniperKillsPercent: number;
+	roundsWithSniperKillsPercent: number;
+	sniperMultiKillRoundsPerRound: number;
+	sniperOpeningKillsPerRound: number;
 
 	// utilityScore: number;
 	// utilityDamagePerRound: number;
