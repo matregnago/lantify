@@ -207,6 +207,51 @@ export const rounds = t.pgTable(
 	],
 );
 
+export const damages = t.pgTable(
+	"damage",
+	{
+		id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
+
+		matchId: t
+			.varchar({ length: 255 })
+			.notNull()
+			.references(() => matches.id, { onDelete: "cascade" }),
+
+		tick: t.integer().notNull(),
+		roundNumber: t.integer().notNull(),
+
+		healthDamage: t.integer().notNull(),
+		armorDamage: t.integer().notNull(),
+
+		attackerSteamId: t.varchar({ length: 255 }).notNull(),
+		attackerSide: t.integer().notNull(),
+		attackerTeamName: t.varchar({ length: 255 }).notNull(),
+		isAttackerControllingBot: t.boolean().notNull(),
+
+		victimSteamId: t.varchar({ length: 255 }).notNull(),
+		victimSide: t.integer().notNull(),
+		victimTeamName: t.varchar({ length: 255 }).notNull(),
+		isVictimControllingBot: t.boolean().notNull(),
+
+		victimHealth: t.integer().notNull(),
+		victimNewHealth: t.integer().notNull(),
+		victimArmor: t.integer().notNull(),
+		victimNewArmor: t.integer().notNull(),
+
+		hitgroup: t.integer().notNull(),
+
+		weaponName: t.varchar({ length: 64 }).notNull(),
+		weaponType: t.varchar({ length: 64 }).notNull(),
+		weaponUniqueId: t.varchar({ length: 255 }).notNull(),
+	},
+	(table) => [
+		t.index("damage_match_tick_idx").on(table.matchId, table.tick),
+		t.index("damage_attacker_idx").on(table.attackerSteamId),
+		t.index("damage_victim_idx").on(table.victimSteamId),
+		t.index("damage_round_idx").on(table.matchId, table.roundNumber),
+	],
+);
+
 export const matchRelations = relations(matches, ({ many }) => ({
 	teams: many(teams),
 	duels: many(playerDuels),

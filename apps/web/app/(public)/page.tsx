@@ -1,6 +1,8 @@
 import type { MatchDTO } from "@repo/contracts";
 import { MatchPreview } from "@/components/match-list/MatchPreview";
 import { getClutchValue } from "@/lib/api/HLTVParameters/clutching";
+import { getEntryingValue } from "@/lib/api/HLTVParameters/entrying";
+import { getSaveStats } from "@/lib/api/HLTVParameters/saves";
 import { getSnipingValue } from "@/lib/api/HLTVParameters/sniping";
 import { getUtilityValue } from "@/lib/api/HLTVParameters/utility";
 import { listMatches } from "@/lib/api/match";
@@ -18,6 +20,9 @@ export default async function Home() {
 
 	// const utilityParameters = await getUtilityValue();
 	// console.log(utilityParameters);
+
+	// const entryParameters = await getEntryingValue();
+	// console.log(entryParameters);
 
 	const matchMapByMonth = new Map<string, MatchDTO[]>();
 

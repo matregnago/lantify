@@ -8,6 +8,7 @@ export type NewDuel = typeof schema.playerDuels.$inferInsert;
 export type NewClutch = typeof schema.clutches.$inferInsert;
 export type NewKill = typeof schema.kills.$inferInsert;
 export type NewRound = typeof schema.rounds.$inferInsert;
+export type NewDamage = typeof schema.damages.$inferInsert;
 
 export type DemoFile = {
 	checksum: string;

@@ -58,13 +58,13 @@ export type PlayerStatsDTO = {
 	// roundsWithAMultiKillPercent: number;
 	// pistolRoundRating: number;
 
-	// enteringScore: number;
-	// savedByTeammatePerRound: number;
-	// tradedDeathsPerRound: number;
-	// tradedDeathsPercent: number;
-	// openingDeathsTradedPercent: number;
-	// assistsPerRound: number;
-	// supportRoundsPercent: number;
+	entryingScore: number;
+	savedByTeammatePerRound: number;
+	tradedDeathsPerRound: number;
+	tradedDeathsPercent: number;
+	openingDeathsTradedPercent: number;
+	assistsPerRound: number;
+	supportRoundsPercent: number;
 
 	// tradingScore: number;
 	// savedTeammatePerRound: number;

@@ -2,6 +2,7 @@ import { DrizzleQueryError, db } from "@repo/database";
 import * as schema from "@repo/database/schema";
 import JSONbig from "json-bigint";
 import { createClutches } from "./clutches.js";
+import { createDamages } from "./damages.js";
 import { createDuels } from "./duels.js";
 import { createKills } from "./kills.js";
 import { createMatch } from "./match.js";
@@ -61,6 +62,10 @@ export const saveDemoData = async (fileName: string) => {
 			const rounds = createRounds(data, matchData.id);
 
 			await tx.insert(schema.rounds).values(rounds);
+
+			const damages = createDamages(data, matchData.id);
+
+			await tx.insert(schema.damages).values(damages);
 		});
 		console.log(
 			`Dados da demo ${data.demoFileName} salvos com sucesso no banco.`,

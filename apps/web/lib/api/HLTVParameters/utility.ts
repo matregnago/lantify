@@ -1,5 +1,5 @@
 import { WeaponType } from "@repo/contracts/enums";
-import { avg, count, db, sql, sum } from "@repo/database";
+import { db, sum } from "@repo/database";
 import * as s from "@repo/database/schema";
 import { getTotalRounds } from "../match";
 import { buildStatsWhere, withMatchJoinIfDate } from "../query-helpers";
@@ -49,7 +49,7 @@ const getUtilityParameters = async (steamId?: string, date: string = "all") => {
 	return utilityParameters;
 };
 
-type utilityStatsDTO = {
+type UtilityStatsDTO = {
 	steamId: string;
 	utilityDamage: number;
 	flashesThrown: number;
@@ -60,7 +60,7 @@ type utilityStatsDTO = {
 const getUtilityStats = async (
 	steamId?: string,
 	date: string = "all",
-): Promise<utilityStatsDTO[]> => {
+): Promise<UtilityStatsDTO[]> => {
 	const where = buildStatsWhere({
 		steamId,
 		date,

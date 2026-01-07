@@ -1,6 +1,6 @@
 "use server";
 import type { WeaponName, WeaponType } from "@repo/contracts/enums";
-import { count, db, eq, sql } from "@repo/database";
+import { and, count, db, eq, sql } from "@repo/database";
 import * as s from "@repo/database/schema";
 import { buildStatsWhere, withMatchJoinIfDate } from "../query-helpers";
 
@@ -130,23 +130,49 @@ export const getWeaponNameStats = async (
 	return await q.where(whereWeaponName).groupBy(s.kills.killerSteamId);
 };
 
-type OpeningAmountDTO = {
+type OpeningKillDTO = {
 	steamId: string;
 	openingKills: number;
+};
+
+type OpeningDeathDTO = {
+	steamId: string;
+	openingDeaths: number;
+};
+
+type OpeningStatsDTO = {
+	steamId: string;
+	openingKills: number;
+	openingDeaths: number;
 };
 
 export const getOpeningAmount = async (
 	weaponType?: WeaponType,
 	steamId?: string,
 	date: string = "all",
-): Promise<OpeningAmountDTO[]> => {
+): Promise<OpeningStatsDTO[]> => {
 	const extraConditions = [];
 	if (weaponType) extraConditions.push(eq(s.kills.weaponType, weaponType));
 
-	const whereBase = buildStatsWhere({
+	const whereRound = buildStatsWhere({
+		date,
+		steamIdColumn: s.kills.killerSteamId,
+		dateColumn: date === "all" ? undefined : s.matches.date,
+		extra: extraConditions,
+	});
+
+	const whereKills = buildStatsWhere({
 		steamId,
 		date,
 		steamIdColumn: s.kills.killerSteamId,
+		dateColumn: date === "all" ? undefined : s.matches.date,
+		extra: extraConditions,
+	});
+
+	const whereDeaths = buildStatsWhere({
+		steamId,
+		date,
+		steamIdColumn: s.kills.victimSteamId,
 		dateColumn: date === "all" ? undefined : s.matches.date,
 		extra: extraConditions,
 	});
@@ -164,30 +190,26 @@ export const getOpeningAmount = async (
 		date,
 		s.kills.matchId,
 	)
-		.where(whereBase)
+		.where(whereRound)
 		.groupBy(s.kills.matchId, s.kills.roundNumber)
 		.as("round_min_tick");
 
-	// 2) Join kills to round_min_tick and keep only kills that match that earliest tick
-	// (If two kills share the same earliest tick, both count as "opening" — if you want tie-breaking, say so.)
+	const openingConditions = and(
+		eq(s.kills.matchId, roundMinTick.matchId),
+		eq(s.kills.roundNumber, roundMinTick.roundNumber),
+		eq(s.kills.tick, roundMinTick.minTick),
+	);
+
 	const openingKills = db
 		.select({
 			steamId: s.kills.killerSteamId,
 		})
 		.from(s.kills)
-		.innerJoin(
-			roundMinTick,
-			sql`
-        ${s.kills.matchId} = ${roundMinTick.matchId}
-        AND ${s.kills.roundNumber} = ${roundMinTick.roundNumber}
-        AND ${s.kills.tick} = ${roundMinTick.minTick}
-      `,
-		)
-		.where(whereBase)
+		.innerJoin(roundMinTick, openingConditions)
+		.where(whereKills)
 		.as("opening_kills");
 
-	// 3) Count opening kills per player
-	const q = db
+	const openingKillsQ = db
 		.select({
 			steamId: openingKills.steamId,
 			openingKills: sql<number>`COUNT(*)`.mapWith(Number).as("openingKills"),
@@ -195,5 +217,43 @@ export const getOpeningAmount = async (
 		.from(openingKills)
 		.groupBy(openingKills.steamId);
 
-	return await q;
+	const openingDeaths = db
+		.select({
+			steamId: s.kills.victimSteamId,
+		})
+		.from(s.kills)
+		.innerJoin(roundMinTick, openingConditions)
+		.where(whereDeaths)
+		.as("opening_deaths");
+
+	const openingDeathsQ = db
+		.select({
+			steamId: openingDeaths.steamId,
+			openingDeaths: sql<number>`COUNT(*)`.mapWith(Number).as("openingDeaths"),
+		})
+		.from(openingDeaths)
+		.groupBy(openingDeaths.steamId);
+
+	const openingKillsStats = (await openingKillsQ) as OpeningKillDTO[];
+	const openingDeathsStats = (await openingDeathsQ) as OpeningDeathDTO[];
+
+	const killsMap = new Map<string, number>();
+	for (const row of openingKillsStats) {
+		killsMap.set(row.steamId, row.openingKills);
+	}
+
+	const deathsMap = new Map<string, number>();
+	for (const row of openingDeathsStats) {
+		deathsMap.set(row.steamId, row.openingDeaths);
+	}
+
+	const allIds = new Set<string>([...killsMap.keys(), ...deathsMap.keys()]);
+
+	const openingStats: OpeningStatsDTO[] = Array.from(allIds, (id) => ({
+		steamId: id,
+		openingKills: killsMap.get(id) ?? 0,
+		openingDeaths: deathsMap.get(id) ?? 0,
+	}));
+
+	return openingStats;
 };

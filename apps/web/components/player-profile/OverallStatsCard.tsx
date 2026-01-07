@@ -60,6 +60,60 @@ export const OverallStatsCard = ({
 				<div className="flex flex-col gap-6 w-full lg:w-[50%]">
 					<MainStatsProgress
 						category={{
+							name: "Entry",
+							value: profile.stats.entryingScore ?? 0,
+							subCategories: [
+								{
+									name: "Salvo por teammate por round",
+									value: profile.stats.savedByTeammatePerRound ?? 0,
+									formattedValue: (
+										profile.stats.savedByTeammatePerRound ?? 0
+									).toFixed(3),
+									max: 0.2,
+								},
+								{
+									name: "Mortes tradadas por round",
+									value: profile.stats.tradedDeathsPerRound ?? 0,
+									formattedValue: `${(profile.stats.tradedDeathsPerRound ?? 0).toFixed(2)}`,
+									max: 0.2,
+								},
+								{
+									name: "Porcentagem de mortes tradadas",
+									value: profile.stats.tradedDeathsPercent ?? 0,
+									formattedValue: `${(
+										profile.stats.tradedDeathsPercent ?? 0
+									).toFixed(1)}%`,
+									max: 25,
+								},
+								{
+									name: "Porcentagem de mortes de opening tradadas",
+									value: profile.stats.openingDeathsTradedPercent ?? 0,
+									formattedValue: `${(
+										profile.stats.openingDeathsTradedPercent ?? 0
+									).toFixed(1)}%`,
+									max: 30,
+								},
+								{
+									name: "Assists por round",
+									value: profile.stats.assistsPerRound ?? 0,
+									formattedValue: (profile.stats.assistsPerRound ?? 0).toFixed(
+										2,
+									),
+									max: 0.2,
+								},
+								{
+									name: "Porcentagem de rounds suporte",
+									value: profile.stats.supportRoundsPercent ?? 0,
+									formattedValue: (
+										profile.stats.supportRoundsPercent ?? 0
+									).toFixed(1),
+									max: 50,
+								},
+							],
+						}}
+					/>
+					<MainStatsProgress
+						category={{
 							name: "Sniping",
 							value: profile.stats.snipingScore ?? 0,
 							subCategories: [
@@ -107,7 +161,7 @@ export const OverallStatsCard = ({
 					<MainStatsProgress
 						category={{
 							name: "Utilitários",
-							value: profile.stats.snipingScore ?? 0,
+							value: profile.stats.utilityScore ?? 0,
 							subCategories: [
 								{
 									name: "Dano de utilitário por round",
@@ -120,7 +174,7 @@ export const OverallStatsCard = ({
 								{
 									name: "Kill de utilitário por 100 rounds",
 									value: profile.stats.utilityKillsPer100Rounds ?? 0,
-									formattedValue: `${(profile.stats.utilityKillsPer100Rounds ?? 0).toFixed(1)}`,
+									formattedValue: `${(profile.stats.utilityKillsPer100Rounds ?? 0).toFixed(2)}`,
 									max: 1,
 								},
 								{
@@ -128,7 +182,7 @@ export const OverallStatsCard = ({
 									value: profile.stats.flashesThrownPerRound ?? 0,
 									formattedValue: `${(
 										profile.stats.flashesThrownPerRound ?? 0
-									).toFixed(1)}`,
+									).toFixed(2)}`,
 									max: 1,
 								},
 								{
@@ -144,7 +198,7 @@ export const OverallStatsCard = ({
 									value: profile.stats.timeOpponentsFlashedPerRoundSeconds ?? 0,
 									formattedValue: (
 										profile.stats.timeOpponentsFlashedPerRoundSeconds ?? 0
-									).toFixed(3),
+									).toFixed(2),
 									max: 6.5,
 								},
 							],

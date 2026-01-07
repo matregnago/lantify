@@ -24,7 +24,6 @@ interface MainStatsProgressProps {
 }
 
 export function MainStatsProgress({ category }: MainStatsProgressProps) {
-	console.log("Rendering MainStatsProgress for category:", category);
 	const [isOpen, setIsOpen] = useState(false);
 	return (
 		<div className="border rounded">
