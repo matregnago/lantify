@@ -18,7 +18,7 @@ interface ProgressStatusRowProps {
 	playersRanking: PlayerRankingDTO[];
 }
 
-const ProgressStatusRow = ({
+export const ProgressStatusRow = ({
 	statusName,
 	value,
 	formattedValue,
@@ -70,28 +70,50 @@ export const OverallStatsCard = ({
 										profile.stats.savedByTeammatePerRound ?? 0
 									).toFixed(3),
 									max: 0.2,
+									stat: "savedByTeammatePerRound",
+									position: getRankingPosByStat(
+										profile.steamId,
+										playersRanking,
+										"savedByTeammatePerRound",
+									),
 								},
 								{
 									name: "Mortes tradadas por round",
 									value: profile.stats.tradedDeathsPerRound ?? 0,
-									formattedValue: `${(profile.stats.tradedDeathsPerRound ?? 0).toFixed(2)}`,
+									formattedValue: (
+										profile.stats.tradedDeathsPerRound ?? 0
+									).toFixed(2),
 									max: 0.2,
+									stat: "tradedDeathsPerRound",
+									position: getRankingPosByStat(
+										profile.steamId,
+										playersRanking,
+										"tradedDeathsPerRound",
+									),
 								},
 								{
 									name: "Mortes tradadas %",
 									value: profile.stats.tradedDeathsPercent ?? 0,
-									formattedValue: `${(
-										profile.stats.tradedDeathsPercent ?? 0
-									).toFixed(1)}%`,
+									formattedValue: `${(profile.stats.tradedDeathsPercent ?? 0).toFixed(1)}%`,
 									max: 25,
+									stat: "tradedDeathsPercent",
+									position: getRankingPosByStat(
+										profile.steamId,
+										playersRanking,
+										"tradedDeathsPercent",
+									),
 								},
 								{
 									name: "Mortes de opening tradadas %",
 									value: profile.stats.openingDeathsTradedPercent ?? 0,
-									formattedValue: `${(
-										profile.stats.openingDeathsTradedPercent ?? 0
-									).toFixed(1)}%`,
+									formattedValue: `${(profile.stats.openingDeathsTradedPercent ?? 0).toFixed(1)}%`,
 									max: 30,
+									stat: "openingDeathsTradedPercent",
+									position: getRankingPosByStat(
+										profile.steamId,
+										playersRanking,
+										"openingDeathsTradedPercent",
+									),
 								},
 								{
 									name: "Assists por round",
@@ -100,6 +122,12 @@ export const OverallStatsCard = ({
 										2,
 									),
 									max: 0.2,
+									stat: "assistsPerRound",
+									position: getRankingPosByStat(
+										profile.steamId,
+										playersRanking,
+										"assistsPerRound",
+									),
 								},
 								{
 									name: "Rounds suporte %",
@@ -108,6 +136,12 @@ export const OverallStatsCard = ({
 										profile.stats.supportRoundsPercent ?? 0
 									).toFixed(1),
 									max: 50,
+									stat: "supportRoundsPercent",
+									position: getRankingPosByStat(
+										profile.steamId,
+										playersRanking,
+										"supportRoundsPercent",
+									),
 								},
 							],
 						}}
@@ -124,20 +158,38 @@ export const OverallStatsCard = ({
 										profile.stats.savedTeammatePerRound ?? 0
 									).toFixed(2),
 									max: 0.16,
+									stat: "savedTeammatePerRound",
+									position: getRankingPosByStat(
+										profile.steamId,
+										playersRanking,
+										"savedTeammatePerRound",
+									),
 								},
 								{
 									name: "Trade kills por round",
 									value: profile.stats.tradeKillsPerRound ?? 0,
-									formattedValue: `${(profile.stats.tradeKillsPerRound ?? 0).toFixed(2)}`,
+									formattedValue: (
+										profile.stats.tradeKillsPerRound ?? 0
+									).toFixed(2),
 									max: 0.2,
+									stat: "tradeKillsPerRound",
+									position: getRankingPosByStat(
+										profile.steamId,
+										playersRanking,
+										"tradeKillsPerRound",
+									),
 								},
 								{
 									name: "Porcentagem de trade kills",
 									value: profile.stats.tradeKillsPercent ?? 0,
-									formattedValue: `${(
-										profile.stats.tradeKillsPercent ?? 0
-									).toFixed(1)}%`,
+									formattedValue: `${(profile.stats.tradeKillsPercent ?? 0).toFixed(1)}%`,
 									max: 35,
+									stat: "tradeKillsPercent",
+									position: getRankingPosByStat(
+										profile.steamId,
+										playersRanking,
+										"tradeKillsPercent",
+									),
 								},
 								{
 									name: "Kills assistidas %",
@@ -146,12 +198,24 @@ export const OverallStatsCard = ({
 										profile.stats.assistedKillsPercent ?? 0
 									).toFixed(1),
 									max: 40,
+									stat: "assistedKillsPercent",
+									position: getRankingPosByStat(
+										profile.steamId,
+										playersRanking,
+										"assistedKillsPercent",
+									),
 								},
 								{
 									name: "Dano por kill",
 									value: profile.stats.damagePerKill ?? 0,
 									formattedValue: (profile.stats.damagePerKill ?? 0).toFixed(0),
 									max: 200,
+									stat: "damagePerKill",
+									position: getRankingPosByStat(
+										profile.steamId,
+										playersRanking,
+										"damagePerKill",
+									),
 								},
 							],
 						}}
@@ -168,20 +232,36 @@ export const OverallStatsCard = ({
 										profile.stats.sniperKillsPerRound ?? 0
 									).toFixed(2),
 									max: 0.3,
+									stat: "sniperKillsPerRound",
+									position: getRankingPosByStat(
+										profile.steamId,
+										playersRanking,
+										"sniperKillsPerRound",
+									),
 								},
 								{
 									name: "Sniper Kills %",
 									value: profile.stats.sniperKillsPercent ?? 0,
 									formattedValue: `${(profile.stats.sniperKillsPercent ?? 0).toFixed(1)}%`,
 									max: 15,
+									stat: "sniperKillsPercent",
+									position: getRankingPosByStat(
+										profile.steamId,
+										playersRanking,
+										"sniperKillsPercent",
+									),
 								},
 								{
 									name: "Rounds com Sniper Kills %",
 									value: profile.stats.roundsWithSniperKillsPercent ?? 0,
-									formattedValue: `${(
-										profile.stats.roundsWithSniperKillsPercent ?? 0
-									).toFixed(1)}%`,
+									formattedValue: `${(profile.stats.roundsWithSniperKillsPercent ?? 0).toFixed(1)}%`,
 									max: 20,
+									stat: "roundsWithSniperKillsPercent",
+									position: getRankingPosByStat(
+										profile.steamId,
+										playersRanking,
+										"roundsWithSniperKillsPercent",
+									),
 								},
 								{
 									name: "Sniper Multi-Kill Rounds por round",
@@ -190,6 +270,12 @@ export const OverallStatsCard = ({
 										profile.stats.sniperMultiKillRoundsPerRound ?? 0
 									).toFixed(3),
 									max: 0.05,
+									stat: "sniperMultiKillRoundsPerRound",
+									position: getRankingPosByStat(
+										profile.steamId,
+										playersRanking,
+										"sniperMultiKillRoundsPerRound",
+									),
 								},
 								{
 									name: "Sniper Opening Kills por round",
@@ -198,6 +284,12 @@ export const OverallStatsCard = ({
 										profile.stats.sniperOpeningKillsPerRound ?? 0
 									).toFixed(3),
 									max: 0.05,
+									stat: "sniperOpeningKillsPerRound",
+									position: getRankingPosByStat(
+										profile.steamId,
+										playersRanking,
+										"sniperOpeningKillsPerRound",
+									),
 								},
 							],
 						}}
@@ -214,20 +306,40 @@ export const OverallStatsCard = ({
 										profile.stats.utilityDamagePerRound ?? 0
 									).toFixed(2),
 									max: 10,
+									stat: "utilityDamagePerRound",
+									position: getRankingPosByStat(
+										profile.steamId,
+										playersRanking,
+										"utilityDamagePerRound",
+									),
 								},
 								{
 									name: "Kill de utilitário por 100 rounds",
 									value: profile.stats.utilityKillsPer100Rounds ?? 0,
-									formattedValue: `${(profile.stats.utilityKillsPer100Rounds ?? 0).toFixed(2)}`,
+									formattedValue: (
+										profile.stats.utilityKillsPer100Rounds ?? 0
+									).toFixed(2),
 									max: 1,
+									stat: "utilityKillsPer100Rounds",
+									position: getRankingPosByStat(
+										profile.steamId,
+										playersRanking,
+										"utilityKillsPer100Rounds",
+									),
 								},
 								{
 									name: "Flashes lançadas por round",
 									value: profile.stats.flashesThrownPerRound ?? 0,
-									formattedValue: `${(
+									formattedValue: (
 										profile.stats.flashesThrownPerRound ?? 0
-									).toFixed(2)}`,
+									).toFixed(2),
 									max: 1,
+									stat: "flashesThrownPerRound",
+									position: getRankingPosByStat(
+										profile.steamId,
+										playersRanking,
+										"flashesThrownPerRound",
+									),
 								},
 								{
 									name: "Flash assists por round",
@@ -236,6 +348,12 @@ export const OverallStatsCard = ({
 										profile.stats.flashAssistsPerRound ?? 0
 									).toFixed(3),
 									max: 0.08,
+									stat: "flashAssistsPerRound",
+									position: getRankingPosByStat(
+										profile.steamId,
+										playersRanking,
+										"flashAssistsPerRound",
+									),
 								},
 								{
 									name: "Tempo de oponentes cegos por round",
@@ -244,6 +362,12 @@ export const OverallStatsCard = ({
 										profile.stats.timeOpponentsFlashedPerRoundSeconds ?? 0
 									).toFixed(2),
 									max: 6.5,
+									stat: "timeOpponentsFlashedPerRoundSeconds",
+									position: getRankingPosByStat(
+										profile.steamId,
+										playersRanking,
+										"timeOpponentsFlashedPerRoundSeconds",
+									),
 								},
 							],
 						}}

@@ -13,21 +13,6 @@ export const dynamic = "force-dynamic";
 export default async function Home() {
 	const matches: MatchDTO[] = await listMatches();
 
-	// const sniperParameters = await getSnipingValue();
-	// console.log(sniperParameters);
-
-	// const clutchParameters = await getClutchValue();
-	// console.log(clutchParameters);
-
-	// const utilityParameters = await getUtilityValue();
-	// console.log(utilityParameters);
-
-	// const entryParameters = await getEntryingValue();
-	// console.log(entryParameters);
-
-	const tradingParameters = await getTradingValue();
-	console.log(tradingParameters);
-
 	const matchMapByMonth = new Map<string, MatchDTO[]>();
 
 	matches.forEach((match) => {
