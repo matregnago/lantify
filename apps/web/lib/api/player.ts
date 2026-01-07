@@ -7,12 +7,12 @@ import type {
 	PlayerRankingDTO,
 	PlayerStatsDTO,
 } from "@repo/contracts";
-import type { WeaponName, WeaponType } from "@repo/contracts/enums";
-import { and, avg, count, db, eq, sql, sum } from "@repo/database";
+import { and, avg, count, db, eq, ne, sql, sum } from "@repo/database";
 import * as s from "@repo/database/schema";
 import { redis } from "@repo/redis";
 import { getEntryingValue } from "./HLTVParameters/entrying";
 import { getSnipingValue } from "./HLTVParameters/sniping";
+import { getTradingValue } from "./HLTVParameters/trading";
 import { getUtilityValue } from "./HLTVParameters/utility";
 import { buildStatsWhere, withMatchJoinIfDate } from "./query-helpers";
 import { fetchSteamProfiles, getSteamIdentity } from "./steam";
@@ -86,6 +86,7 @@ export async function getAggregatedPlayerStats(
 	const snipingValues = await getSnipingValue(steamId, date);
 	const utilityValues = await getUtilityValue(steamId, date);
 	const entryValues = await getEntryingValue(steamId, date);
+	const tradingValues = await getTradingValue(steamId, date);
 
 	const aggregatedPlayerStatsList = playerData.map((playerStats) => {
 		const snipingValue = snipingValues.find(
@@ -97,11 +98,15 @@ export async function getAggregatedPlayerStats(
 		const entryValue = entryValues.find(
 			(ev) => ev?.steamId === playerStats.steamId,
 		);
+		const tradingValue = tradingValues.find(
+			(tv) => tv?.steamId === playerStats.steamId,
+		);
 		return {
 			...playerStats,
 			...snipingValue,
 			...utilityValue,
 			...entryValue,
+			...tradingValue,
 		};
 	});
 	await redis.set(key, JSON.stringify(aggregatedPlayerStatsList), "EX", 43200);
@@ -272,6 +277,40 @@ export const getTotalKills = async (
 	return totalKills;
 };
 
+type TotalAssistedKillsDTO = {
+	steamId: string;
+	totalAssistedKills: number;
+};
+
+export const getTotalAssistedKills = async (
+	steamId?: string,
+	date: string = "all",
+): Promise<TotalAssistedKillsDTO[]> => {
+	const extra = [ne(s.kills.assisterSteamId, "0")];
+	const where = buildStatsWhere({
+		steamId,
+		date,
+		steamIdColumn: s.kills.killerSteamId,
+		dateColumn: date === "all" ? undefined : s.matches.date,
+		extra,
+	});
+
+	const base = db
+		.select({
+			steamId: s.kills.killerSteamId,
+			totalAssistedKills: count(s.kills.id).mapWith(Number),
+		})
+		.from(s.kills);
+
+	const q = withMatchJoinIfDate(base, date, s.kills.matchId);
+
+	const totalAssistedKills = await q
+		.where(where)
+		.groupBy(s.kills.killerSteamId);
+
+	return totalAssistedKills;
+};
+
 type TotalAssistsDTO = {
 	steamId: string;
 	totalAssists: number;
@@ -330,4 +369,59 @@ export const getTotalDeaths = async (
 	const totalDeaths = await q.where(where).groupBy(s.kills.victimSteamId);
 
 	return totalDeaths;
+};
+
+type TotalDamageDTO = {
+	steamId: string;
+	totalDamage: number;
+};
+
+export const getTotalDamage = async (
+	steamId?: string,
+	date: string = "all",
+): Promise<TotalDamageDTO[]> => {
+	const adrPerMatch = db
+		.select({
+			steamId: s.players.steamId,
+			matchId: s.players.matchId,
+			adr: s.players.averageDamagePerRound,
+		})
+		.from(s.players)
+		.as("pm");
+
+	const roundsPerMatch = db
+		.select({
+			matchId: s.rounds.matchId,
+			rounds: count().mapWith(Number).as("rounds"),
+		})
+		.from(s.rounds)
+		.groupBy(s.rounds.matchId)
+		.as("rm");
+
+	const where = buildStatsWhere({
+		steamId,
+		date,
+		steamIdColumn: adrPerMatch.steamId,
+		dateColumn: date === "all" ? undefined : s.matches.date,
+	});
+
+	const base = db
+		.select({
+			steamId: adrPerMatch.steamId,
+			totalDamage: sql<number>`
+        SUM(${adrPerMatch.adr} * ${roundsPerMatch.rounds})
+      `
+				.mapWith(Number)
+				.as("totalDamage"),
+		})
+		.from(adrPerMatch)
+		.innerJoin(roundsPerMatch, eq(roundsPerMatch.matchId, adrPerMatch.matchId));
+
+	const q = withMatchJoinIfDate(base, date, adrPerMatch.matchId)
+		.where(where)
+		.groupBy(adrPerMatch.steamId);
+
+	const totalDamage = (await q) as TotalDamageDTO[];
+
+	return totalDamage;
 };

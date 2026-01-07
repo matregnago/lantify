@@ -66,12 +66,12 @@ export type PlayerStatsDTO = {
 	assistsPerRound: number;
 	supportRoundsPercent: number;
 
-	// tradingScore: number;
-	// savedTeammatePerRound: number;
-	// tradeKillsPerRound: number;
-	// tradeKillsPercent: number;
-	// assistedKillsPercent: number;
-	// damagePerKill: number;
+	tradingScore: number;
+	savedTeammatePerRound: number;
+	tradeKillsPerRound: number;
+	tradeKillsPercent: number;
+	assistedKillsPercent: number;
+	damagePerKill: number;
 
 	// openingScore: number;
 	// openingKillsPerRound: number;

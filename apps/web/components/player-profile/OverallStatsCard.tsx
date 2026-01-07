@@ -78,7 +78,7 @@ export const OverallStatsCard = ({
 									max: 0.2,
 								},
 								{
-									name: "Porcentagem de mortes tradadas",
+									name: "Mortes tradadas %",
 									value: profile.stats.tradedDeathsPercent ?? 0,
 									formattedValue: `${(
 										profile.stats.tradedDeathsPercent ?? 0
@@ -86,7 +86,7 @@ export const OverallStatsCard = ({
 									max: 25,
 								},
 								{
-									name: "Porcentagem de mortes de opening tradadas",
+									name: "Mortes de opening tradadas %",
 									value: profile.stats.openingDeathsTradedPercent ?? 0,
 									formattedValue: `${(
 										profile.stats.openingDeathsTradedPercent ?? 0
@@ -102,12 +102,56 @@ export const OverallStatsCard = ({
 									max: 0.2,
 								},
 								{
-									name: "Porcentagem de rounds suporte",
+									name: "Rounds suporte %",
 									value: profile.stats.supportRoundsPercent ?? 0,
 									formattedValue: (
 										profile.stats.supportRoundsPercent ?? 0
 									).toFixed(1),
 									max: 50,
+								},
+							],
+						}}
+					/>
+					<MainStatsProgress
+						category={{
+							name: "Trading",
+							value: profile.stats.tradingScore ?? 0,
+							subCategories: [
+								{
+									name: "Temmate salvo por round",
+									value: profile.stats.savedTeammatePerRound ?? 0,
+									formattedValue: (
+										profile.stats.savedTeammatePerRound ?? 0
+									).toFixed(2),
+									max: 0.16,
+								},
+								{
+									name: "Trade kills por round",
+									value: profile.stats.tradeKillsPerRound ?? 0,
+									formattedValue: `${(profile.stats.tradeKillsPerRound ?? 0).toFixed(2)}`,
+									max: 0.2,
+								},
+								{
+									name: "Porcentagem de trade kills",
+									value: profile.stats.tradeKillsPercent ?? 0,
+									formattedValue: `${(
+										profile.stats.tradeKillsPercent ?? 0
+									).toFixed(1)}%`,
+									max: 35,
+								},
+								{
+									name: "Kills assistidas %",
+									value: profile.stats.assistedKillsPercent ?? 0,
+									formattedValue: (
+										profile.stats.assistedKillsPercent ?? 0
+									).toFixed(1),
+									max: 40,
+								},
+								{
+									name: "Dano por kill",
+									value: profile.stats.damagePerKill ?? 0,
+									formattedValue: (profile.stats.damagePerKill ?? 0).toFixed(0),
+									max: 200,
 								},
 							],
 						}}

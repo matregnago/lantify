@@ -15,7 +15,7 @@ import { getTotalRounds } from "../match";
 import { getTotalAssists, getTotalDeaths } from "../player";
 import { buildStatsWhere, withMatchJoinIfDate } from "../query-helpers";
 import { getSaveStats } from "./saves";
-import { getOpeningDeathsTraded, getTradeStats } from "./trades";
+import { getOpeningDeathsTraded, getTradeStats } from "./trading";
 
 export const getEntryingValue = async (
 	steamId?: string,

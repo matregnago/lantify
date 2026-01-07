@@ -4,6 +4,7 @@ import { getClutchValue } from "@/lib/api/HLTVParameters/clutching";
 import { getEntryingValue } from "@/lib/api/HLTVParameters/entrying";
 import { getSaveStats } from "@/lib/api/HLTVParameters/saves";
 import { getSnipingValue } from "@/lib/api/HLTVParameters/sniping";
+import { getTradingValue } from "@/lib/api/HLTVParameters/trading";
 import { getUtilityValue } from "@/lib/api/HLTVParameters/utility";
 import { listMatches } from "@/lib/api/match";
 
@@ -23,6 +24,9 @@ export default async function Home() {
 
 	// const entryParameters = await getEntryingValue();
 	// console.log(entryParameters);
+
+	const tradingParameters = await getTradingValue();
+	console.log(tradingParameters);
 
 	const matchMapByMonth = new Map<string, MatchDTO[]>();
 
