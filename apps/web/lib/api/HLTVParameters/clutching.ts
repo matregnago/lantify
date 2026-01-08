@@ -1,8 +1,8 @@
 import type { ClutchDTO } from "@repo/contracts";
-import { db, eq, sum } from "@repo/database";
+import { count, db, eq, sql } from "@repo/database";
 import * as s from "@repo/database/schema";
-import build from "next/dist/build";
 import { getTotalRounds } from "../match";
+import { getTotalLostRounds, getTotalTimeAliveTicks } from "../player";
 import { buildStatsWhere, withMatchJoinIfDate } from "../query-helpers";
 
 export const getClutchValue = async (
@@ -14,9 +14,52 @@ export const getClutchValue = async (
 };
 
 const getClutchParameters = async (steamId?: string, date: string = "all") => {
-	const clutchPoints = await getClutchPoints(steamId, date);
+	const clutchPointsMap = await getClutchPoints(steamId, date);
+	const saveRounds = await getSaveRounds(steamId, date);
+	const lastAliveRounds = await getLastAliveRounds(steamId, date);
+	const oneOnOneWinPercent = await getOneOnOneWinPercentage(steamId, date);
+	const totalTimeAliveTicks = await getTotalTimeAliveTicks(steamId, date);
+	const totalRoundsMap = await getTotalRounds(steamId, date);
+	const totalLostRoundsMap = await getTotalLostRounds(steamId, date);
 
-	return clutchPoints;
+	const clutchParameters = totalRoundsMap.map((clutcher) => {
+		const clutchPoints = clutchPointsMap.get(clutcher.steamId);
+		const saveRoundRow = saveRounds.find(
+			(player) => player.steamId === clutcher.steamId,
+		);
+		const lastAliveRoundsRow = lastAliveRounds.find(
+			(player) => player.steamId === clutcher.steamId,
+		);
+		const oneOnOneWinPercentRow = oneOnOneWinPercent.find(
+			(player) => player.steamId === clutcher.steamId,
+		);
+		const totalTimeAliveTicksRow = totalTimeAliveTicks.find(
+			(player) => player.steamId === clutcher.steamId,
+		);
+		const totalRounds = clutcher.totalRounds;
+		const totalLostRoundsRow = totalLostRoundsMap.find(
+			(player) => player.steamId === clutcher.steamId,
+		);
+		return {
+			steamId: clutcher.steamId,
+			clutchPointsPerRound: clutchPoints ? clutchPoints / totalRounds : 0,
+			lastAlivePercent: lastAliveRoundsRow
+				? (lastAliveRoundsRow.totalLastAliveRounds / totalRounds) * 100
+				: 0,
+			oneVOneWinPercent: oneOnOneWinPercentRow
+				? oneOnOneWinPercentRow.winPCT * 100
+				: 0,
+			timeAlivePerRoundSeconds: totalTimeAliveTicksRow
+				? totalTimeAliveTicksRow.totalTimeAliveTicks / 64 / totalRounds
+				: 0,
+			savesPerRoundLossPercent:
+				saveRoundRow && totalLostRoundsRow
+					? (saveRoundRow.totalSaves / totalLostRoundsRow.lostRounds) * 100
+					: 0,
+		};
+	});
+
+	return clutchParameters;
 };
 
 const getClutchPoints = async (steamId?: string, date: string = "all") => {
@@ -67,4 +110,110 @@ const pointsPerClutch = (opponentCount: number): number => {
 		default:
 			throw new Error(`Invalid opponentCount: ${opponentCount}`);
 	}
+};
+
+type SaveRoundsDTO = {
+	steamId: string;
+	totalSaves: number;
+};
+
+const getSaveRounds = async (
+	steamId?: string,
+	date: string = "all",
+): Promise<SaveRoundsDTO[]> => {
+	const extra = [
+		eq(s.clutches.hasWon, false),
+		eq(s.clutches.clutcherSurvived, true),
+	];
+
+	const where = buildStatsWhere({
+		steamId,
+		date,
+		steamIdColumn: s.clutches.clutcherSteamId,
+		dateColumn: date === "all" ? undefined : s.matches.date,
+		extra,
+	});
+
+	const base = db
+		.select({
+			steamId: s.clutches.clutcherSteamId,
+			totalSaves: count(),
+		})
+		.from(s.clutches);
+
+	const q = withMatchJoinIfDate(base, date, s.clutches.matchId)
+		.where(where)
+		.groupBy(s.clutches.clutcherSteamId);
+
+	return await q;
+};
+
+type LastAliveRoundsDTO = {
+	steamId: string;
+	totalLastAliveRounds: number;
+};
+
+const getLastAliveRounds = async (
+	steamId?: string,
+	date: string = "all",
+): Promise<LastAliveRoundsDTO[]> => {
+	const where = buildStatsWhere({
+		steamId,
+		date,
+		steamIdColumn: s.clutches.clutcherSteamId,
+		dateColumn: date === "all" ? undefined : s.matches.date,
+	});
+
+	const base = db
+		.select({
+			steamId: s.clutches.clutcherSteamId,
+			totalLastAliveRounds: count(),
+		})
+		.from(s.clutches);
+
+	const q = withMatchJoinIfDate(base, date, s.clutches.matchId)
+		.where(where)
+		.groupBy(s.clutches.clutcherSteamId);
+
+	return await q;
+};
+
+type OneOnOneWinPercentageDTO = {
+	steamId: string;
+	totalOneOnOnes: number;
+	wonOneOnOnes: number;
+	winPCT: number;
+};
+
+const getOneOnOneWinPercentage = async (
+	steamId?: string,
+	date: string = "all",
+): Promise<OneOnOneWinPercentageDTO[]> => {
+	const where = buildStatsWhere({
+		steamId,
+		date,
+		steamIdColumn: s.clutches.clutcherSteamId,
+		dateColumn: date === "all" ? undefined : s.matches.date,
+		extra: [eq(s.clutches.opponentCount, 1)],
+	});
+
+	const base = db
+		.select({
+			steamId: s.clutches.clutcherSteamId,
+			totalOneOnOnes: count(),
+			wonOneOnOnes: sql<number>`sum(case when ${s.clutches.hasWon} then 1 else 0 end)`,
+			winPCT: sql<number>`
+        case 
+          when ${count()} = 0 then 0
+          else (sum(case when ${s.clutches.hasWon} then 1 else 0 end)::float / ${count()}::float)
+        end
+      `,
+		})
+		.from(s.clutches);
+
+	const q = withMatchJoinIfDate(base, date, s.clutches.matchId)
+		.where(where)
+		.groupBy(s.clutches.clutcherSteamId);
+
+	return await q;
 };

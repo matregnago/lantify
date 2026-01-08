@@ -10,6 +10,7 @@ import type {
 import { and, avg, count, db, eq, ne, sql, sum } from "@repo/database";
 import * as s from "@repo/database/schema";
 import { redis } from "@repo/redis";
+import { getClutchValue } from "./HLTVParameters/clutching";
 import { getEntryingValue } from "./HLTVParameters/entrying";
 import { getSnipingValue } from "./HLTVParameters/sniping";
 import { getTradingValue } from "./HLTVParameters/trading";
@@ -87,6 +88,7 @@ export async function getAggregatedPlayerStats(
 	const utilityValues = await getUtilityValue(steamId, date);
 	const entryValues = await getEntryingValue(steamId, date);
 	const tradingValues = await getTradingValue(steamId, date);
+	const clutchingValues = await getClutchValue(steamId, date);
 
 	const aggregatedPlayerStatsList = playerData.map((playerStats) => {
 		const snipingValue = snipingValues.find(
@@ -101,12 +103,16 @@ export async function getAggregatedPlayerStats(
 		const tradingValue = tradingValues.find(
 			(tv) => tv?.steamId === playerStats.steamId,
 		);
+		const clutchingValue = clutchingValues.find(
+			(cv) => cv?.steamId === playerStats.steamId,
+		);
 		return {
 			...playerStats,
 			...snipingValue,
 			...utilityValue,
 			...entryValue,
 			...tradingValue,
+			...clutchingValue,
 		};
 	});
 	await redis.set(key, JSON.stringify(aggregatedPlayerStatsList), "EX", 43200);
@@ -424,4 +430,148 @@ export const getTotalDamage = async (
 	const totalDamage = (await q) as TotalDamageDTO[];
 
 	return totalDamage;
+};
+
+export const getTotalTimeAliveTicks = async (
+	steamId?: string,
+	date: string = "all",
+) => {
+	/**
+	 * Universe: every (match, round, player) from roster × rounds
+	 */
+	const pr = db
+		.select({
+			matchId: s.rounds.matchId,
+			roundNumber: s.rounds.number,
+			steamId: s.players.steamId,
+			startTick: s.rounds.startTick,
+			endTick: s.rounds.endTick,
+		})
+		.from(s.rounds)
+		.innerJoin(s.players, eq(s.players.matchId, s.rounds.matchId))
+		.as("pr");
+
+	/**
+	 * Death tick per (match, round, player) — should be at most one.
+	 * If you can have duplicates, use MIN/ MAX; MIN is safer.
+	 */
+	const deathPerRound = db
+		.select({
+			matchId: s.kills.matchId,
+			roundNumber: s.kills.roundNumber,
+			steamId: s.kills.victimSteamId,
+			deathTick: sql<number>`MIN(${s.kills.tick})`.as("deathTick"),
+		})
+		.from(s.kills)
+		.groupBy(s.kills.matchId, s.kills.roundNumber, s.kills.victimSteamId)
+		.as("dpr");
+
+	/**
+	 * Join pr -> deathPerRound (left join so survivors have deathTick = null),
+	 * then compute alive ticks per round:
+	 * - if died: deathTick - startTick
+	 * - else: endTick - startTick
+	 *
+	 * Clamp to [0, roundDuration] just in case.
+	 */
+	const alivePerRoundBase = db
+		.select({
+			steamId: pr.steamId,
+			timeAliveTicks: sql<number>`
+        SUM(
+          LEAST(
+            GREATEST(
+              COALESCE(${deathPerRound.deathTick}, ${pr.endTick}) - ${pr.startTick},
+              0
+            ),
+            (${pr.endTick} - ${pr.startTick})
+          )
+        )
+      `.as("timeAliveTicks"),
+		})
+		.from(pr)
+		.leftJoin(
+			deathPerRound,
+			and(
+				eq(deathPerRound.matchId, pr.matchId),
+				eq(deathPerRound.roundNumber, pr.roundNumber),
+				eq(deathPerRound.steamId, pr.steamId),
+			),
+		)
+		.groupBy(pr.matchId, pr.steamId);
+
+	// Apply your standard filters (steamId + optional month filter via matches join)
+	const aliveWithDateJoin = withMatchJoinIfDate(
+		alivePerRoundBase,
+		date,
+		pr.matchId,
+	).as("alive_with_date");
+
+	const where = buildStatsWhere({
+		steamId,
+		date,
+		steamIdColumn: aliveWithDateJoin.steamId,
+		dateColumn: date === "all" ? undefined : s.matches.date,
+	});
+
+	const finalQ = db
+		.select({
+			steamId: aliveWithDateJoin.steamId,
+			totalTimeAliveTicks: sql<number>`SUM(${aliveWithDateJoin.timeAliveTicks})`
+				.mapWith(Number)
+				.as("totalTimeAliveTicks"),
+		})
+		.from(aliveWithDateJoin)
+		.where(where)
+		.groupBy(aliveWithDateJoin.steamId);
+
+	return await finalQ;
+};
+
+type TotalLostRoundsDTO = {
+	steamId: string;
+	lostRounds: number;
+};
+
+export const getTotalLostRounds = async (
+	steamId?: string,
+	date: string = "all",
+): Promise<TotalLostRoundsDTO[]> => {
+	const participants = db
+		.select({
+			steamId: s.players.steamId,
+			matchId: s.players.matchId,
+			teamName: s.teams.name,
+		})
+		.from(s.players)
+		.innerJoin(s.teams, eq(s.teams.id, s.players.teamId))
+		.groupBy(s.players.steamId, s.players.matchId, s.teams.name)
+		.as("p");
+
+	const where = buildStatsWhere({
+		steamId,
+		date,
+		steamIdColumn: participants.steamId,
+		dateColumn: s.matches.date,
+	});
+
+	const base = db
+		.select({
+			steamId: participants.steamId,
+			lostRounds: sql<number>`
+        SUM(
+          CASE
+            WHEN ${s.rounds.winnerName} <> ${participants.teamName}
+            THEN 1 ELSE 0
+          END
+        )
+      `
+				.mapWith(Number)
+				.as("lostRounds"),
+		})
+		.from(s.rounds)
+		.innerJoin(participants, eq(participants.matchId, s.rounds.matchId))
+		.groupBy(participants.steamId);
+
+	return await withMatchJoinIfDate(base, date, s.rounds.matchId).where(where);
 };

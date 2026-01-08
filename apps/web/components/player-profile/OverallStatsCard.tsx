@@ -148,6 +148,78 @@ export const OverallStatsCard = ({
 					/>
 					<MainStatsProgress
 						category={{
+							name: "Clutching",
+							value: profile.stats.clutchingScore ?? 0,
+							subCategories: [
+								{
+									name: "Pontos de clutch por round",
+									value: profile.stats.clutchPointsPerRound ?? 0,
+									formattedValue: (
+										profile.stats.clutchPointsPerRound ?? 0
+									).toFixed(3),
+									max: 0.15,
+									stat: "clutchPointsPerRound",
+									position: getRankingPosByStat(
+										profile.steamId,
+										playersRanking,
+										"clutchPointsPerRound",
+									),
+								},
+								{
+									name: "Último vivo %",
+									value: (profile.stats.lastAlivePercent ?? 0) * 100,
+									formattedValue: `${(profile.stats.lastAlivePercent ?? 0).toFixed(1)}%`,
+									max: 20,
+									stat: "lastAlivePercent",
+									position: getRankingPosByStat(
+										profile.steamId,
+										playersRanking,
+										"lastAlivePercent",
+									),
+								},
+								{
+									name: "Winrate 1v1",
+									value: profile.stats.oneVOneWinPercent ?? 0,
+									formattedValue: `${(profile.stats.oneVOneWinPercent ?? 0).toFixed(1)}%`,
+									max: 70,
+									stat: "oneVOneWinPercent",
+									position: getRankingPosByStat(
+										profile.steamId,
+										playersRanking,
+										"oneVOneWinPercent",
+									),
+								},
+								{
+									name: "Tempo vivo por round",
+									value: profile.stats.timeAlivePerRoundSeconds ?? 0,
+									formattedValue: `${(profile.stats.timeAlivePerRoundSeconds ?? 0).toFixed(1)}s`,
+									max: 120,
+									stat: "timeAlivePerRoundSeconds",
+									position: getRankingPosByStat(
+										profile.steamId,
+										playersRanking,
+										"timeAlivePerRoundSeconds",
+									),
+								},
+								{
+									name: "Saves por round perdido %",
+									value: profile.stats.savesPerRoundLossPercent ?? 0,
+									formattedValue: `${(
+										profile.stats.savesPerRoundLossPercent ?? 0
+									).toFixed(1)}%`,
+									max: 0.12,
+									stat: "savesPerRoundLossPercent",
+									position: getRankingPosByStat(
+										profile.steamId,
+										playersRanking,
+										"savesPerRoundLossPercent",
+									),
+								},
+							],
+						}}
+					/>
+					<MainStatsProgress
+						category={{
 							name: "Trading",
 							value: profile.stats.tradingScore ?? 0,
 							subCategories: [
@@ -220,6 +292,7 @@ export const OverallStatsCard = ({
 							],
 						}}
 					/>
+
 					<MainStatsProgress
 						category={{
 							name: "Sniping",

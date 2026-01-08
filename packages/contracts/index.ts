@@ -81,12 +81,12 @@ export type PlayerStatsDTO = {
 	// winPercentAfterOpeningKill: number;
 	// attacksPerRound: number;
 
-	// clutchingScore: number;
-	// clutchPointsPerRound: number;
-	// lastAlivePercent: number;
-	// oneVOneWinPercent: number;
-	// timeAlivePerRoundSeconds: number;
-	// savesPerRoundLossPercent: number;
+	clutchingScore: number;
+	clutchPointsPerRound: number;
+	lastAlivePercent: number;
+	oneVOneWinPercent: number;
+	timeAlivePerRoundSeconds: number;
+	savesPerRoundLossPercent: number;
 
 	snipingScore: number;
 	sniperKillsPerRound: number;

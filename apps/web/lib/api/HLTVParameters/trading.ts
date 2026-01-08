@@ -7,7 +7,7 @@ import {
 	getTotalKills,
 } from "../player";
 import { buildStatsWhere, withMatchJoinIfDate } from "../query-helpers";
-import { getSaveStats } from "./saves";
+import { getSaveStats } from "./saved";
 
 export const getTradingValue = async (
 	steamId?: string,
