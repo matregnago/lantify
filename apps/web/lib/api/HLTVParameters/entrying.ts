@@ -11,6 +11,8 @@ import {
 	unionAll,
 } from "@repo/database";
 import * as s from "@repo/database/schema";
+import { getStatPercentage } from "../../get-stat-percentage";
+import { STATS_MIN_MAX_VALUES } from "../../stats-max-min-values";
 import { getTotalRounds } from "../match";
 import { getTotalAssists, getTotalDeaths } from "../player";
 import { buildStatsWhere, withMatchJoinIfDate } from "../query-helpers";
@@ -56,8 +58,9 @@ const getEntryingParameters = async (
 		);
 
 		const deathRow = deaths.find((player) => player.steamId === entry.steamId);
-		return {
+		const playerEntryParameters = {
 			steamId: entry.steamId,
+			entryingScore: 0,
 			savedByTeammatePerRound: saveRow
 				? saveRow.wasSavedAmount / totalRounds
 				: 0,
@@ -74,6 +77,43 @@ const getEntryingParameters = async (
 			supportRoundsPercent: supportRow
 				? (supportRow.supportRounds / totalRounds) * 100
 				: 0,
+		};
+		const entryingScore =
+			(getStatPercentage(
+				playerEntryParameters.savedByTeammatePerRound,
+				STATS_MIN_MAX_VALUES.savedByTeammatePerRound.min,
+				STATS_MIN_MAX_VALUES.savedByTeammatePerRound.max,
+			) +
+				getStatPercentage(
+					playerEntryParameters.tradedDeathsPerRound,
+					STATS_MIN_MAX_VALUES.tradedDeathsPerRound.min,
+					STATS_MIN_MAX_VALUES.tradedDeathsPerRound.max,
+				) +
+				getStatPercentage(
+					playerEntryParameters.tradedDeathsPercent,
+					STATS_MIN_MAX_VALUES.tradedDeathsPercent.min,
+					STATS_MIN_MAX_VALUES.tradedDeathsPercent.max,
+				) +
+				getStatPercentage(
+					playerEntryParameters.openingDeathsTradedPercent,
+					STATS_MIN_MAX_VALUES.openingDeathsTradedPercent.min,
+					STATS_MIN_MAX_VALUES.openingDeathsTradedPercent.max,
+				) +
+				getStatPercentage(
+					playerEntryParameters.assistsPerRound,
+					STATS_MIN_MAX_VALUES.assistsPerRound.min,
+					STATS_MIN_MAX_VALUES.assistsPerRound.max,
+				) +
+				getStatPercentage(
+					playerEntryParameters.supportRoundsPercent,
+					STATS_MIN_MAX_VALUES.supportRoundsPercent.min,
+					STATS_MIN_MAX_VALUES.supportRoundsPercent.max,
+				)) /
+			6;
+
+		return {
+			...playerEntryParameters,
+			entryingScore,
 		};
 	});
 	return entryingParameters;

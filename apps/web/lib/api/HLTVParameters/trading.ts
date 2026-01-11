@@ -1,5 +1,7 @@
 import { alias, and, db, eq, gte, lte, ne, sql } from "@repo/database";
 import * as s from "@repo/database/schema";
+import { getStatPercentage } from "../../get-stat-percentage";
+import { STATS_MIN_MAX_VALUES } from "../../stats-max-min-values";
 import { getTotalRounds } from "../match";
 import {
 	getTotalAssistedKills,
@@ -47,8 +49,9 @@ const getTradingParameters = async (steamId?: string, date: string = "all") => {
 				? 1
 				: totalKillsRow.totalKills;
 
-		return {
+		const playerTradingParameters = {
 			steamId: trader.steamId,
+			tradingScore: 0,
 			savedTeammatePerRound: saveStatsRow
 				? saveStatsRow.savedAmount / totalRounds
 				: 0,
@@ -64,6 +67,38 @@ const getTradingParameters = async (steamId?: string, date: string = "all") => {
 			damagePerKill: totalDamageRow
 				? totalDamageRow.totalDamage / totalKills
 				: 0,
+		};
+		const tradingScore =
+			(getStatPercentage(
+				playerTradingParameters.savedTeammatePerRound,
+				STATS_MIN_MAX_VALUES.savedTeammatePerRound.min,
+				STATS_MIN_MAX_VALUES.savedTeammatePerRound.max,
+			) +
+				getStatPercentage(
+					playerTradingParameters.tradeKillsPerRound,
+					STATS_MIN_MAX_VALUES.tradeKillsPerRound.min,
+					STATS_MIN_MAX_VALUES.tradeKillsPerRound.max,
+				) +
+				getStatPercentage(
+					playerTradingParameters.tradeKillsPercent,
+					STATS_MIN_MAX_VALUES.tradeKillsPercent.min,
+					STATS_MIN_MAX_VALUES.tradeKillsPercent.max,
+				) +
+				getStatPercentage(
+					playerTradingParameters.assistedKillsPercent,
+					STATS_MIN_MAX_VALUES.assistedKillsPercent.min,
+					STATS_MIN_MAX_VALUES.assistedKillsPercent.max,
+				) +
+				getStatPercentage(
+					playerTradingParameters.damagePerKill,
+					STATS_MIN_MAX_VALUES.damagePerKill.min,
+					STATS_MIN_MAX_VALUES.damagePerKill.max,
+				)) /
+			5;
+
+		return {
+			...playerTradingParameters,
+			tradingScore,
 		};
 	});
 

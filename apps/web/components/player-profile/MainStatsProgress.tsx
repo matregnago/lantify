@@ -4,6 +4,7 @@ import {
 	CollapsibleContent,
 	CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { getStatPercentage } from "@/lib/get-stat-percentage";
 import type { Stat } from "@/lib/ranking";
 import { RankingPosition } from "../ranking/RankingPosition";
 import { ProgressStatus } from "./ProgressStatus";
@@ -12,6 +13,7 @@ type SubCategory = {
 	name: string;
 	value: number;
 	formattedValue: string;
+	min: number;
 	max: number;
 	stat?: Stat;
 	position?: number;
@@ -46,7 +48,7 @@ export function MainStatsProgress({ category }: MainStatsProgressProps) {
 						<div className="text-xs">{isOpen ? "▲" : "▼"}</div>
 					</div>
 				</CollapsibleTrigger>
-				<CollapsibleContent className="px-4">
+				<CollapsibleContent className="p-4">
 					<div className="flex flex-col gap-4">
 						{category.subCategories.map((subCategory) => (
 							<div
@@ -56,9 +58,13 @@ export function MainStatsProgress({ category }: MainStatsProgressProps) {
 								<div className="flex-1">
 									<ProgressStatus
 										statusName={subCategory.name}
-										value={subCategory.value}
+										value={getStatPercentage(
+											subCategory.value,
+											subCategory.min,
+											subCategory.max,
+										)}
 										formattedValue={subCategory.formattedValue}
-										max={subCategory.max}
+										max={100}
 									/>
 								</div>
 
