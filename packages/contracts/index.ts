@@ -73,12 +73,12 @@ export type PlayerStatsDTO = {
 	assistedKillsPercent: number;
 	damagePerKill: number;
 
-	// openingScore: number;
-	// openingKillsPerRound: number;
-	// openingDeathsPerRound: number;
-	// openingAttemptsPercent: number;
-	// openingSuccessPercent: number;
-	// winPercentAfterOpeningKill: number;
+	openingScore: number;
+	openingKillsPerRound: number;
+	openingDeathsPerRound: number;
+	openingAttemptsPercent: number;
+	openingSuccessPercent: number;
+	winPercentAfterOpeningKill: number;
 	// attacksPerRound: number;
 
 	clutchingScore: number;

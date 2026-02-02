@@ -4,7 +4,7 @@ import * as s from "@repo/database/schema";
 import { getStatPercentage } from "../../get-stat-percentage";
 import { STATS_MIN_MAX_VALUES } from "../../stats-max-min-values";
 import { getTotalRounds } from "../match";
-import { getTotalLostRounds, getTotalTimeAliveTicks } from "../player";
+import { getTotalLostAndWonRounds, getTotalTimeAliveTicks } from "../player";
 import { buildStatsWhere, withMatchJoinIfDate } from "../query-helpers";
 
 export const getClutchValue = async (
@@ -22,7 +22,7 @@ const getClutchParameters = async (steamId?: string, date: string = "all") => {
 	const oneOnOneWinPercent = await getOneOnOneWinPercentage(steamId, date);
 	const totalTimeAliveTicks = await getTotalTimeAliveTicks(steamId, date);
 	const totalRoundsMap = await getTotalRounds(steamId, date);
-	const totalLostRoundsMap = await getTotalLostRounds(steamId, date);
+	const totalLostRoundsMap = await getTotalLostAndWonRounds(steamId, date);
 
 	const clutchParameters = totalRoundsMap.map((clutcher) => {
 		const clutchPoints = clutchPointsMap.get(clutcher.steamId);

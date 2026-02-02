@@ -89,124 +89,66 @@ export const STATS_MIN_MAX_VALUES: Record<Stat, { min: number; max: number }> =
 			min: 0,
 			max: 100,
 		},
-		savedByTeammatePerRound: {
-			min: 0,
-			max: 0.2,
-		},
-		tradedDeathsPerRound: {
-			min: 0,
-			max: 0.2,
-		},
-		tradedDeathsPercent: {
-			min: 0,
-			max: 25,
-		},
-		openingDeathsTradedPercent: {
-			min: 0,
-			max: 30,
-		},
-		assistsPerRound: {
-			min: 0,
-			max: 0.2,
-		},
-		supportRoundsPercent: {
-			min: 0,
-			max: 50,
-		},
 		tradingScore: {
 			min: 0,
 			max: 100,
 		},
-		savedTeammatePerRound: {
+		openingScore: {
 			min: 0,
-			max: 0.16,
-		},
-		tradeKillsPerRound: {
-			min: 0,
-			max: 0.2,
-		},
-		tradeKillsPercent: {
-			min: 0,
-			max: 35,
-		},
-		assistedKillsPercent: {
-			min: 0,
-			max: 40,
-		},
-		damagePerKill: {
-			min: 0,
-			max: 200,
+			max: 100,
 		},
 		clutchingScore: {
 			min: 0,
 			max: 100,
 		},
-		clutchPointsPerRound: {
-			min: 0,
-			max: 0.15,
-		},
-		lastAlivePercent: {
-			min: 0,
-			max: 20,
-		},
-		oneVOneWinPercent: {
-			min: 0,
-			max: 70,
-		},
-		timeAlivePerRoundSeconds: {
-			min: 0,
-			max: 120,
-		},
-		savesPerRoundLossPercent: {
-			min: 0,
-			max: 0.12,
-		},
 		snipingScore: {
 			min: 0,
 			max: 100,
-		},
-		sniperKillsPerRound: {
-			min: 0,
-			max: 0.3,
-		},
-		sniperKillsPercent: {
-			min: 0,
-			max: 15,
-		},
-		roundsWithSniperKillsPercent: {
-			min: 0,
-			max: 20,
-		},
-		sniperMultiKillRoundsPerRound: {
-			min: 0,
-			max: 0.05,
-		},
-		sniperOpeningKillsPerRound: {
-			min: 0,
-			max: 0.05,
 		},
 		utilityScore: {
 			min: 0,
 			max: 100,
 		},
-		utilityDamagePerRound: {
-			min: 0,
-			max: 10,
-		},
-		utilityKillsPer100Rounds: {
-			min: 0,
-			max: 1,
-		},
-		flashesThrownPerRound: {
-			min: 0,
-			max: 1,
-		},
-		flashAssistsPerRound: {
-			min: 0,
-			max: 0.08,
-		},
-		timeOpponentsFlashedPerRoundSeconds: {
-			min: 0,
-			max: 6.5,
-		},
+
+		//entrying
+		savedByTeammatePerRound: { min: 0.06, max: 0.16 },
+		tradedDeathsPerRound: { min: 0.08, max: 0.2 },
+		tradedDeathsPercent: { min: 15, max: 26.5 },
+		openingDeathsTradedPercent: { min: 15, max: 35 },
+		assistsPerRound: { min: 0.1, max: 0.35 },
+		supportRoundsPercent: { min: 10, max: 35 },
+
+		//trading
+		savedTeammatePerRound: { min: 0.05, max: 0.16 },
+		tradeKillsPerRound: { min: 0.07, max: 0.2 },
+		tradeKillsPercent: { min: 11, max: 35 },
+		assistedKillsPercent: { min: 10, max: 27 },
+		damagePerKill: { min: 95, max: 115 },
+
+		//opening
+		openingKillsPerRound: { min: 0.05, max: 0.16 },
+		openingDeathsPerRound: { min: 0.06, max: 0.15 },
+		openingAttemptsPercent: { min: 13, max: 26 },
+		openingSuccessPercent: { min: 40, max: 65 },
+		winPercentAfterOpeningKill: { min: 60, max: 80 },
+
+		clutchPointsPerRound: { min: 0.01, max: 0.04 },
+		lastAlivePercent: { min: 5, max: 17 },
+		oneVOneWinPercent: { min: 40, max: 75 },
+		timeAlivePerRoundSeconds: { min: 50, max: 75 },
+		savesPerRoundLossPercent: { min: 0, max: 13 },
+
+		//sniping
+		sniperKillsPerRound: { min: 0, max: 0.5 },
+		sniperKillsPercent: { min: 0, max: 65 },
+		roundsWithSniperKillsPercent: { min: 0, max: 25 },
+		sniperMultiKillRoundsPerRound: { min: 0.0, max: 0.13 },
+		sniperOpeningKillsPerRound: { min: 0.0, max: 0.11 },
+
+		//utility
+		utilityDamagePerRound: { min: 2, max: 6.5 },
+		utilityKillsPer100Rounds: { min: 0, max: 1.2 },
+		flashesThrownPerRound: { min: 0.2, max: 0.9 },
+		flashAssistsPerRound: { min: 0, max: 0.09 },
+		timeOpponentsFlashedPerRoundSeconds: { min: 1.5, max: 2.5 },
 	};

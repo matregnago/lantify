@@ -150,7 +150,7 @@ export const getTradeStats = async (
 		ne(k1.killerSteamId, "0"),
 		ne(k1.victimSteamId, "0"),
 		//t<5s
-		gte(tickDelta, 1),
+		gte(tickDelta, 0),
 		lte(tickDelta, 320),
 	);
 

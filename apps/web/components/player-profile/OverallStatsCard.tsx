@@ -1,6 +1,9 @@
 import type { PlayerProfileDTO, PlayerRankingDTO } from "@repo/contracts";
 import { colorByMaxValue } from "@/lib/color-by-max-value";
 import { getRankingPosByStat, type Stat } from "@/lib/ranking";
+import { STATS_MIN_MAX_VALUES } from "@/lib/stats-max-min-values";
+import type { SubCategoryResolved } from "@/lib/subCategory";
+import { sc } from "@/lib/subCategory";
 import { RankingPosition } from "../ranking/RankingPosition";
 import { Card } from "../ui/card";
 import { CircularChart } from "./CircularChart";
@@ -53,200 +56,200 @@ interface OverallStatsCardProps {
 const categoriesConfig: {
 	name: string;
 	scoreKey: keyof PlayerProfileDTO["stats"];
-	subCategories: {
-		name: string;
-		stat: Stat;
-		min?: number;
-		max: number;
-		format: (val: number) => string;
-		valueTransform?: (val: number) => number;
-	}[];
+	subCategories: SubCategoryResolved[];
 }[] = [
 	{
 		name: "Entry",
 		scoreKey: "entryingScore",
 		subCategories: [
-			{
+			sc({
 				name: "Salvo por teammate por round",
 				stat: "savedByTeammatePerRound",
-				max: 0.2,
 				format: (v) => v.toFixed(3),
-			},
-			{
+			}),
+			sc({
 				name: "Mortes tradadas por round",
 				stat: "tradedDeathsPerRound",
-				max: 0.2,
 				format: (v) => v.toFixed(2),
-			},
-			{
+			}),
+			sc({
 				name: "Mortes tradadas %",
 				stat: "tradedDeathsPercent",
-				max: 25,
 				format: (v) => `${v.toFixed(1)}%`,
-			},
-			{
+			}),
+			sc({
 				name: "Mortes de opening tradadas %",
 				stat: "openingDeathsTradedPercent",
-				max: 30,
 				format: (v) => `${v.toFixed(1)}%`,
-			},
-			{
+			}),
+			sc({
 				name: "Assists por round",
 				stat: "assistsPerRound",
-				max: 0.2,
 				format: (v) => v.toFixed(2),
-			},
-			{
+			}),
+			sc({
 				name: "Rounds suporte %",
 				stat: "supportRoundsPercent",
-				max: 50,
 				format: (v) => v.toFixed(1),
-			},
+			}),
 		],
 	},
 	{
 		name: "Clutching",
 		scoreKey: "clutchingScore",
 		subCategories: [
-			{
+			sc({
 				name: "Pontos de clutch por round",
 				stat: "clutchPointsPerRound",
-				max: 0.15,
 				format: (v) => v.toFixed(3),
-			},
-			{
+			}),
+			sc({
 				name: "Último vivo %",
 				stat: "lastAlivePercent",
-				max: 20,
 				format: (v) => `${v.toFixed(1)}%`,
 				valueTransform: (v) => v * 100,
-			},
-			{
+			}),
+			sc({
 				name: "Winrate 1v1",
 				stat: "oneVOneWinPercent",
-				max: 70,
 				format: (v) => `${v.toFixed(1)}%`,
-			},
-			{
+			}),
+			sc({
 				name: "Tempo vivo por round",
 				stat: "timeAlivePerRoundSeconds",
-				max: 120,
 				format: (v) => `${v.toFixed(1)}s`,
-			},
-			{
+			}),
+			sc({
 				name: "Saves por round perdido %",
 				stat: "savesPerRoundLossPercent",
-				max: 0.12,
 				format: (v) => `${v.toFixed(1)}%`,
-			},
+			}),
 		],
 	},
 	{
 		name: "Trading",
 		scoreKey: "tradingScore",
 		subCategories: [
-			{
+			sc({
 				name: "Teammate salvo por round",
 				stat: "savedTeammatePerRound",
-				max: 0.16,
 				format: (v) => v.toFixed(2),
-			},
-			{
+			}),
+			sc({
 				name: "Trade kills por round",
 				stat: "tradeKillsPerRound",
-				max: 0.2,
 				format: (v) => v.toFixed(2),
-			},
-			{
+			}),
+			sc({
 				name: "Porcentagem de trade kills",
 				stat: "tradeKillsPercent",
-				max: 35,
 				format: (v) => `${v.toFixed(1)}%`,
-			},
-			{
+			}),
+			sc({
 				name: "Kills assistidas %",
 				stat: "assistedKillsPercent",
-				max: 40,
 				format: (v) => v.toFixed(1),
-			},
-			{
+			}),
+			sc({
 				name: "Dano por kill",
 				stat: "damagePerKill",
-				max: 200,
 				format: (v) => v.toFixed(0),
-			},
+			}),
 		],
 	},
+	{
+		name: "Opening",
+		scoreKey: "openingScore",
+		subCategories: [
+			sc({
+				name: "Opening kills por round",
+				stat: "openingKillsPerRound",
+				format: (v: number) => v.toFixed(2),
+			}),
+			sc({
+				name: "Opening deaths por round",
+				stat: "openingDeathsPerRound",
+				invert: true,
+				format: (v: number) => v.toFixed(2),
+			}),
+			sc({
+				name: "Tentativas de opening",
+				stat: "openingAttemptsPercent",
+				format: (v: number) => `${v.toFixed(1)}%`,
+			}),
+			sc({
+				name: "Sucesso na Opening",
+				stat: "openingSuccessPercent",
+				format: (v: number) => `${v.toFixed(1)}%`,
+			}),
+			sc({
+				name: "Win % após opening kill",
+				stat: "winPercentAfterOpeningKill",
+				format: (v: number) => `${v.toFixed(1)}%`,
+			}),
+		],
+	},
+
 	{
 		name: "Sniping",
 		scoreKey: "snipingScore",
 		subCategories: [
-			{
+			sc({
 				name: "Sniper Kills por round",
 				stat: "sniperKillsPerRound",
-				max: 0.3,
 				format: (v) => v.toFixed(2),
-			},
-			{
+			}),
+			sc({
 				name: "Sniper Kills %",
 				stat: "sniperKillsPercent",
-				max: 15,
 				format: (v) => `${v.toFixed(1)}%`,
-			},
-			{
+			}),
+			sc({
 				name: "Rounds com Sniper Kills %",
 				stat: "roundsWithSniperKillsPercent",
-				max: 20,
 				format: (v) => `${v.toFixed(1)}%`,
-			},
-			{
+			}),
+			sc({
 				name: "Sniper Multi-Kill Rounds por round",
 				stat: "sniperMultiKillRoundsPerRound",
-				max: 0.05,
 				format: (v) => v.toFixed(3),
-			},
-			{
+			}),
+			sc({
 				name: "Sniper Opening Kills por round",
 				stat: "sniperOpeningKillsPerRound",
-				max: 0.05,
 				format: (v) => v.toFixed(3),
-			},
+			}),
 		],
 	},
 	{
 		name: "Utilitários",
 		scoreKey: "utilityScore",
 		subCategories: [
-			{
+			sc({
 				name: "Dano de utilitário por round",
 				stat: "utilityDamagePerRound",
-				max: 10,
 				format: (v) => v.toFixed(2),
-			},
-			{
+			}),
+			sc({
 				name: "Kill de utilitário por 100 rounds",
 				stat: "utilityKillsPer100Rounds",
-				max: 1,
 				format: (v) => v.toFixed(2),
-			},
-			{
+			}),
+			sc({
 				name: "Flashes lançadas por round",
 				stat: "flashesThrownPerRound",
-				max: 1,
 				format: (v) => v.toFixed(2),
-			},
-			{
+			}),
+			sc({
 				name: "Flash assists por round",
 				stat: "flashAssistsPerRound",
-				max: 0.08,
 				format: (v) => v.toFixed(3),
-			},
-			{
+			}),
+			sc({
 				name: "Tempo de oponentes cegos por round",
 				stat: "timeOpponentsFlashedPerRoundSeconds",
-				max: 6.5,
 				format: (v) => v.toFixed(2),
-			},
+			}),
 		],
 	},
 ];
@@ -270,18 +273,21 @@ export const OverallStatsCard = ({
 									const value = sub.valueTransform
 										? sub.valueTransform(rawValue)
 										: rawValue;
+
 									return {
 										name: sub.name,
 										value,
 										formattedValue: sub.format(rawValue),
 										min: sub.min ?? 0,
-										max: sub.max,
+										max: sub.max ?? 100,
 										stat: sub.stat,
 										position: getRankingPosByStat(
 											profile.steamId,
 											playersRanking,
 											sub.stat,
+											sub.invert ?? false,
 										),
+										invert: sub.invert,
 									};
 								}),
 							}}

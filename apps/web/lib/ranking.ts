@@ -4,12 +4,12 @@ export type Stat = keyof PlayerStatsDTO;
 export function sortRankingByStat(
 	playersStats: PlayerRankingDTO[],
 	statToSort: Stat,
+	invert?: boolean,
 ) {
 	return playersStats.sort((a, b) => {
 		const statA = a.stats[statToSort] as number;
 		const statB = b.stats[statToSort] as number;
-
-		return statB - statA;
+		return invert ? statA - statB : statB - statA;
 	});
 }
 
@@ -17,8 +17,9 @@ export function getRankingPosByStat(
 	steamId: string,
 	playersStats: PlayerRankingDTO[],
 	statToSort: Stat,
+	invert?: boolean,
 ) {
-	const sortedStats = sortRankingByStat(playersStats, statToSort);
+	const sortedStats = sortRankingByStat(playersStats, statToSort, invert);
 
 	return sortedStats.findIndex((player) => player.steamId === steamId) + 1;
 }

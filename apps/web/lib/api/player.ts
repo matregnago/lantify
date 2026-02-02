@@ -12,6 +12,7 @@ import * as s from "@repo/database/schema";
 import { redis } from "@repo/redis";
 import { getClutchValue } from "./HLTVParameters/clutching";
 import { getEntryingValue } from "./HLTVParameters/entrying";
+import { getOpeningValue } from "./HLTVParameters/opening";
 import { getSnipingValue } from "./HLTVParameters/sniping";
 import { getTradingValue } from "./HLTVParameters/trading";
 import { getUtilityValue } from "./HLTVParameters/utility";
@@ -89,6 +90,7 @@ export async function getAggregatedPlayerStats(
 	const entryValues = await getEntryingValue(steamId, date);
 	const tradingValues = await getTradingValue(steamId, date);
 	const clutchingValues = await getClutchValue(steamId, date);
+	const openingValues = await getOpeningValue(steamId, date);
 
 	const aggregatedPlayerStatsList = playerData.map((playerStats) => {
 		const snipingValue = snipingValues.find(
@@ -106,6 +108,9 @@ export async function getAggregatedPlayerStats(
 		const clutchingValue = clutchingValues.find(
 			(cv) => cv?.steamId === playerStats.steamId,
 		);
+		const openingValue = openingValues.find(
+			(ov) => ov?.steamId === playerStats.steamId,
+		);
 		return {
 			...playerStats,
 			...snipingValue,
@@ -113,6 +118,7 @@ export async function getAggregatedPlayerStats(
 			...entryValue,
 			...tradingValue,
 			...clutchingValue,
+			...openingValue,
 		};
 	});
 	await redis.set(key, JSON.stringify(aggregatedPlayerStatsList), "EX", 43200);
@@ -528,15 +534,16 @@ export const getTotalTimeAliveTicks = async (
 	return await finalQ;
 };
 
-type TotalLostRoundsDTO = {
+type TotalLostAndWonRoundsDTO = {
 	steamId: string;
 	lostRounds: number;
+	wonRounds: number;
 };
 
-export const getTotalLostRounds = async (
+export const getTotalLostAndWonRounds = async (
 	steamId?: string,
 	date: string = "all",
-): Promise<TotalLostRoundsDTO[]> => {
+): Promise<TotalLostAndWonRoundsDTO[]> => {
 	const participants = db
 		.select({
 			steamId: s.players.steamId,
@@ -566,6 +573,16 @@ export const getTotalLostRounds = async (
           END
         )
       `
+				.mapWith(Number)
+				.as("lostRounds"),
+			wonRounds: sql<number>`
+			SUM(
+				CASE
+				WHEN ${s.rounds.winnerName} <> ${participants.teamName}
+				THEN 0 ELSE 1
+				END
+			)
+			`
 				.mapWith(Number)
 				.as("lostRounds"),
 		})

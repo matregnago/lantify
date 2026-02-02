@@ -16,6 +16,7 @@ import { STATS_MIN_MAX_VALUES } from "../../stats-max-min-values";
 import { getTotalRounds } from "../match";
 import { getTotalAssists, getTotalDeaths } from "../player";
 import { buildStatsWhere, withMatchJoinIfDate } from "../query-helpers";
+import { getOpeningAmount } from "./PlayerWeaponStats";
 import { getSaveStats } from "./saved";
 import { getOpeningDeathsTraded, getTradeStats } from "./trading";
 
@@ -38,6 +39,7 @@ const getEntryingParameters = async (
 	const deaths = await getTotalDeaths(steamId, date);
 	const openingDeathsTraded = await getOpeningDeathsTraded(steamId, date);
 	const support = await getSupportRounds(steamId, date);
+	const openingStats = await getOpeningAmount(undefined, steamId, date);
 
 	const entryingParameters = totalRoundsPerPlayer.map((entry) => {
 		const saveRow = savedStats.find(
@@ -50,10 +52,13 @@ const getEntryingParameters = async (
 		const assistRow = assists.find(
 			(player) => player.steamId === entry.steamId,
 		);
-		const openingDeathsRow = openingDeathsTraded.find(
+		const openingDeathsTradedRow = openingDeathsTraded.find(
 			(player) => player.steamId === entry.steamId,
 		);
 		const supportRow = support.find(
+			(player) => player.steamId === entry.steamId,
+		);
+		const openingDeathsRow = openingStats.find(
 			(player) => player.steamId === entry.steamId,
 		);
 
@@ -70,8 +75,10 @@ const getEntryingParameters = async (
 					? (tradeRow.tradeDeaths / deathRow.totalDeaths) * 100
 					: 0,
 			openingDeathsTradedPercent:
-				openingDeathsRow && deathRow
-					? (openingDeathsRow.openingDeathsTraded / deathRow.totalDeaths) * 100
+				openingDeathsTradedRow && openingDeathsRow
+					? (openingDeathsTradedRow.openingDeathsTraded /
+							openingDeathsRow.openingDeaths) *
+						100
 					: 0,
 			assistsPerRound: assistRow ? assistRow.totalAssists / totalRounds : 0,
 			supportRoundsPercent: supportRow

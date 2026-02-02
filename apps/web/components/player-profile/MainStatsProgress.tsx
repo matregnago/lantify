@@ -17,6 +17,7 @@ type SubCategory = {
 	max: number;
 	stat?: Stat;
 	position?: number;
+	invert?: boolean;
 };
 
 type MainCategory = {
@@ -62,6 +63,7 @@ export function MainStatsProgress({ category }: MainStatsProgressProps) {
 											subCategory.value,
 											subCategory.min,
 											subCategory.max,
+											subCategory.invert ?? false,
 										)}
 										formattedValue={subCategory.formattedValue}
 										max={100}
