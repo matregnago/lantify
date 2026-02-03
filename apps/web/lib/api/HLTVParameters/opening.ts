@@ -131,6 +131,7 @@ const getOpeningRoundsWon = async (
 		eq(s.kills.matchId, roundMinTick.matchId),
 		eq(s.kills.roundNumber, roundMinTick.roundNumber),
 		eq(s.kills.tick, roundMinTick.minTick),
+		ne(s.kills.killerTeamName, s.kills.victimTeamName),
 	);
 
 	const roundOpening = db

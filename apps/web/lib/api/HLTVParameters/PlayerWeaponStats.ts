@@ -1,6 +1,6 @@
 "use server";
 import type { WeaponName, WeaponType } from "@repo/contracts/enums";
-import { and, count, db, eq, sql } from "@repo/database";
+import { and, count, db, eq, ne, sql } from "@repo/database";
 import * as s from "@repo/database/schema";
 import { buildStatsWhere, withMatchJoinIfDate } from "../query-helpers";
 
@@ -17,7 +17,11 @@ export const getWeaponTypeStats = async (
 	date: string = "all",
 ): Promise<WeaponTypeStatsDTO[]> => {
 	const extraConditions = [];
-	if (weaponType) extraConditions.push(eq(s.kills.weaponType, weaponType));
+	if (weaponType)
+		extraConditions.push(
+			eq(s.kills.weaponType, weaponType),
+			ne(s.kills.killerTeamName, s.kills.victimTeamName),
+		);
 
 	const whereWeaponType = buildStatsWhere({
 		steamId,
@@ -84,7 +88,11 @@ export const getWeaponNameStats = async (
 	date: string = "all",
 ): Promise<WeaponNameStatsDTO[]> => {
 	const extraConditions = [];
-	if (weaponName) extraConditions.push(eq(s.kills.weaponName, weaponName));
+	if (weaponName)
+		extraConditions.push(
+			eq(s.kills.weaponType, weaponName),
+			ne(s.kills.killerTeamName, s.kills.victimTeamName),
+		);
 
 	const whereWeaponName = buildStatsWhere({
 		steamId,
@@ -158,7 +166,11 @@ export const getOpeningAmount = async (
 	date: string = "all",
 ): Promise<OpeningStatsDTO[]> => {
 	const extraConditions = [];
-	if (weaponType) extraConditions.push(eq(s.kills.weaponType, weaponType));
+	if (weaponType)
+		extraConditions.push(
+			eq(s.kills.weaponType, weaponType),
+			ne(s.kills.killerTeamName, s.kills.victimTeamName),
+		);
 
 	const whereRound = buildStatsWhere({
 		date,
@@ -204,6 +216,7 @@ export const getOpeningAmount = async (
 		eq(s.kills.matchId, roundMinTick.matchId),
 		eq(s.kills.roundNumber, roundMinTick.roundNumber),
 		eq(s.kills.tick, roundMinTick.minTick),
+		ne(s.kills.killerTeamName, s.kills.victimTeamName),
 	);
 
 	const openingKills = db
