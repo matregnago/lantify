@@ -13,6 +13,7 @@ import {
 	isNotNull,
 	lte,
 	ne,
+	or,
 	SQL,
 	sql,
 	sum,
@@ -42,6 +43,7 @@ export {
 	lte,
 	ne,
 	isNotNull,
+	or,
 	SQL,
 	DrizzleQueryError,
 };

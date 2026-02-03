@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { CartesianGrid } from "recharts";
 import {
 	Collapsible,
 	CollapsibleContent,
@@ -24,6 +25,7 @@ type MainCategory = {
 	name: string;
 	value: number;
 	subCategories: SubCategory[];
+	position: number;
 };
 
 interface MainStatsProgressProps {
@@ -36,17 +38,24 @@ export function MainStatsProgress({ category }: MainStatsProgressProps) {
 		<div className="border rounded">
 			<Collapsible open={isOpen} onOpenChange={setIsOpen}>
 				<CollapsibleTrigger className="w-full hover:bg-gray-800 cursor-pointer p-4">
-					<div className="flex flex-row gap-2">
-						<div className="flex-1">
-							<ProgressStatus
-								statusName={category.name}
-								value={category.value}
-								formattedValue={`${category.value.toFixed(0)} / 100`}
-								max={100}
-							/>
-						</div>
+					<div className="flex w-full items-center gap-2">
+						<div className="flex min-w-0 flex-1 items-center gap-3">
+							<div className="min-w-0 flex-1">
+								<ProgressStatus
+									statusName={category.name}
+									value={category.value}
+									formattedValue={`${category.value.toFixed(0)} / 100`}
+									max={100}
+								/>
+							</div>
 
-						<div className="text-xs">{isOpen ? "▲" : "▼"}</div>
+							<div className="w-10 shrink-0">
+								<RankingPosition isSmall position={category.position ?? 100} />
+							</div>
+						</div>
+						<div className="w-4 shrink-0 text-right text-xs">
+							{isOpen ? "▲" : "▼"}
+						</div>
 					</div>
 				</CollapsibleTrigger>
 				<CollapsibleContent className="p-4">

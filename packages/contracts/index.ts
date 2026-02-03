@@ -51,11 +51,12 @@ export type PlayerStatsDTO = {
 	averageDamagePerRound: number;
 	averageDeathPerRound: number;
 
-	// firepowerScore: number;
-	// killsPerRoundWin: number;
-	// damagePerRoundWin: number;
-	// roundsWithAKillPercent: number;
-	// roundsWithAMultiKillPercent: number;
+	firePowerScore: number;
+	killsPerRoundWin: number;
+	damagePerRoundWin: number;
+	roundsWithKillPercent: number;
+	roundsWithMultiKillPercent: number;
+	damagePerRound: number;
 	// pistolRoundRating: number;
 
 	entryingScore: number;

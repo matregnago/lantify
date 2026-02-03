@@ -298,3 +298,10 @@ export const killsRelations = relations(kills, ({ one }) => ({
 		references: [matches.id],
 	}),
 }));
+
+export const roundsRelations = relations(rounds, ({ one }) => ({
+	match: one(matches, {
+		fields: [rounds.matchId],
+		references: [matches.id],
+	}),
+}));

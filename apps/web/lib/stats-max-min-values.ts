@@ -21,14 +21,7 @@ export const STATS_MIN_MAX_VALUES: Record<Stat, { min: number; max: number }> =
 			min: 0,
 			max: 0,
 		},
-		killsPerRound: {
-			min: 0,
-			max: 0,
-		},
-		rating2: {
-			min: 0,
-			max: 0,
-		},
+
 		totalKills: {
 			min: 0,
 			max: 0,
@@ -109,11 +102,24 @@ export const STATS_MIN_MAX_VALUES: Record<Stat, { min: number; max: number }> =
 			min: 0,
 			max: 100,
 		},
+		firepowerScore: {
+			min: 0,
+			max: 100,
+		},
+
+		// firepower (HLTV-ish starting ranges)
+		killsPerRound: { min: 0.55, max: 0.95 },
+		killsPerRoundWin: { min: 0.7, max: 1.25 },
+		damagePerRound: { min: 60, max: 95 },
+		damagePerRoundWin: { min: 70, max: 120 },
+		roundsWithKillPercent: { min: 40, max: 58 },
+		roundsWithMultiKillPercent: { min: 10, max: 25 },
+		rating2: { min: 0.9, max: 1.3 },
 
 		//entrying
 		savedByTeammatePerRound: { min: 0.06, max: 0.16 },
 		tradedDeathsPerRound: { min: 0.08, max: 0.2 },
-		tradedDeathsPercent: { min: 15, max: 26.5 },
+		tradedDeathsPercent: { min: 13, max: 24 },
 		openingDeathsTradedPercent: { min: 15, max: 35 },
 		assistsPerRound: { min: 0.1, max: 0.35 },
 		supportRoundsPercent: { min: 10, max: 35 },

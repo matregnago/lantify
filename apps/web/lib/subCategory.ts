@@ -15,7 +15,7 @@ type SubCategoryConfigBase<S extends Stat = Stat> = {
 	max?: number;
 };
 
-type SubCategoryResolved<S extends Stat = Stat> = Omit<
+export type SubCategoryResolved<S extends Stat = Stat> = Omit<
 	SubCategoryConfigBase<S>,
 	"min" | "max"
 > & {

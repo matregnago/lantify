@@ -12,16 +12,19 @@ type WeaponTypeStatsDTO = {
 };
 
 export const getWeaponTypeStats = async (
-	weaponType: WeaponType,
+	weaponType?: WeaponType,
 	steamId?: string,
 	date: string = "all",
 ): Promise<WeaponTypeStatsDTO[]> => {
+	const extraConditions = [];
+	if (weaponType) extraConditions.push(eq(s.kills.weaponType, weaponType));
+
 	const whereWeaponType = buildStatsWhere({
 		steamId,
 		date,
 		steamIdColumn: s.kills.killerSteamId,
 		dateColumn: date === "all" ? undefined : s.matches.date,
-		extra: [eq(s.kills.weaponType, weaponType)],
+		extra: extraConditions,
 	});
 
 	const mkRoundsBase = db
@@ -76,16 +79,19 @@ type WeaponNameStatsDTO = {
 };
 
 export const getWeaponNameStats = async (
-	weaponName: WeaponName,
+	weaponName?: WeaponName,
 	steamId?: string,
 	date: string = "all",
 ): Promise<WeaponNameStatsDTO[]> => {
+	const extraConditions = [];
+	if (weaponName) extraConditions.push(eq(s.kills.weaponName, weaponName));
+
 	const whereWeaponName = buildStatsWhere({
 		steamId,
 		date,
 		steamIdColumn: s.kills.killerSteamId,
 		dateColumn: date === "all" ? undefined : s.matches.date,
-		extra: [eq(s.kills.weaponName, weaponName)],
+		extra: extraConditions,
 	});
 
 	const mkRoundsBase = db

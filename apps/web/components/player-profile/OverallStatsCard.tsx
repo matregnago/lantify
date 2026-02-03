@@ -59,6 +59,47 @@ const categoriesConfig: {
 	subCategories: SubCategoryResolved[];
 }[] = [
 	{
+		name: "Firepower",
+		scoreKey: "firePowerScore",
+		subCategories: [
+			sc({
+				name: "Kills por round",
+				stat: "killsPerRound",
+				format: (v) => v.toFixed(2),
+			}),
+			sc({
+				name: "Kills por round (vitória)",
+				stat: "killsPerRoundWin",
+				format: (v) => v.toFixed(2),
+			}),
+			sc({
+				name: "Damage por round",
+				stat: "damagePerRound",
+				format: (v) => v.toFixed(1),
+			}),
+			sc({
+				name: "Damage por round (vitória)",
+				stat: "damagePerRoundWin",
+				format: (v) => v.toFixed(1),
+			}),
+			sc({
+				name: "Rounds com kill",
+				stat: "roundsWithKillPercent",
+				format: (v) => `${v.toFixed(1)}%`,
+			}),
+			sc({
+				name: "Rounds com multi-kill",
+				stat: "roundsWithMultiKillPercent",
+				format: (v) => `${v.toFixed(1)}%`,
+			}),
+			sc({
+				name: "Rating 2.0",
+				stat: "rating2",
+				format: (v) => v.toFixed(2),
+			}),
+		],
+	},
+	{
 		name: "Entry",
 		scoreKey: "entryingScore",
 		subCategories: [
@@ -90,7 +131,7 @@ const categoriesConfig: {
 			sc({
 				name: "Rounds suporte %",
 				stat: "supportRoundsPercent",
-				format: (v) => v.toFixed(1),
+				format: (v) => `${v.toFixed(1)}%`,
 			}),
 		],
 	},
@@ -268,6 +309,12 @@ export const OverallStatsCard = ({
 							category={{
 								name: category.name,
 								value: (profile.stats[category.scoreKey] as number) ?? 0,
+								position: getRankingPosByStat(
+									profile.steamId,
+									playersRanking,
+									category.scoreKey,
+									false,
+								),
 								subCategories: category.subCategories.map((sub) => {
 									const rawValue = (profile.stats[sub.stat] as number) ?? 0;
 									const value = sub.valueTransform

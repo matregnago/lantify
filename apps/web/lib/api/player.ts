@@ -12,6 +12,7 @@ import * as s from "@repo/database/schema";
 import { redis } from "@repo/redis";
 import { getClutchValue } from "./HLTVParameters/clutching";
 import { getEntryingValue } from "./HLTVParameters/entrying";
+import { getFirepowerValue } from "./HLTVParameters/firepower";
 import { getOpeningValue } from "./HLTVParameters/opening";
 import { getSnipingValue } from "./HLTVParameters/sniping";
 import { getTradingValue } from "./HLTVParameters/trading";
@@ -45,7 +46,6 @@ export async function getAggregatedPlayerStats(
 			totalMatches: count(s.players.matchId),
 			killsPerMatch: avg(s.players.killCount).mapWith(Number),
 			killsPerRound: avg(s.players.averageKillPerRound).mapWith(Number),
-			rating2: avg(s.players.hltvRating2).mapWith(Number),
 			totalKills: sum(s.players.killCount).mapWith(Number),
 			totalDeaths: sum(s.players.deathCount).mapWith(Number),
 			totalAssists: sum(s.players.assistCount).mapWith(Number),
@@ -91,6 +91,7 @@ export async function getAggregatedPlayerStats(
 	const tradingValues = await getTradingValue(steamId, date);
 	const clutchingValues = await getClutchValue(steamId, date);
 	const openingValues = await getOpeningValue(steamId, date);
+	const firePowerValues = await getFirepowerValue(steamId, date);
 
 	const aggregatedPlayerStatsList = playerData.map((playerStats) => {
 		const snipingValue = snipingValues.find(
@@ -111,6 +112,9 @@ export async function getAggregatedPlayerStats(
 		const openingValue = openingValues.find(
 			(ov) => ov?.steamId === playerStats.steamId,
 		);
+		const firePowerValue = firePowerValues.find(
+			(fpv) => fpv?.steamId === playerStats.steamId,
+		);
 		return {
 			...playerStats,
 			...snipingValue,
@@ -119,6 +123,7 @@ export async function getAggregatedPlayerStats(
 			...tradingValue,
 			...clutchingValue,
 			...openingValue,
+			...firePowerValue,
 		};
 	});
 	await redis.set(key, JSON.stringify(aggregatedPlayerStatsList), "EX", 43200);
@@ -591,4 +596,32 @@ export const getTotalLostAndWonRounds = async (
 		.groupBy(participants.steamId);
 
 	return await withMatchJoinIfDate(base, date, s.rounds.matchId).where(where);
+};
+
+type Rating2DTO = {
+	steamId: string;
+	rating2: number;
+};
+
+export const getRating2 = async (
+	steamId?: string,
+	date: string = "all",
+): Promise<Rating2DTO[]> => {
+	const base = db
+		.select({
+			steamId: s.players.steamId,
+			rating2: avg(s.players.hltvRating2).mapWith(Number),
+		})
+		.from(s.players);
+
+	const q = withMatchJoinIfDate(base, date, s.players.matchId);
+
+	const where = buildStatsWhere({
+		steamId,
+		date,
+		steamIdColumn: s.players.steamId,
+		dateColumn: date === "all" ? undefined : s.matches.date,
+	});
+
+	return (await q.where(where).groupBy(s.players.steamId)) as Rating2DTO[];
 };

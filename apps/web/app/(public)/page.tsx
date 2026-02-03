@@ -16,9 +16,6 @@ export default async function Home() {
 
 	const matchMapByMonth = new Map<string, MatchDTO[]>();
 
-	const openingParameters = await getOpeningValue();
-	console.log("op: ", openingParameters);
-
 	matches.forEach((match) => {
 		const month = new Date(match.date).toLocaleString("en-GB", {
 			month: "short",

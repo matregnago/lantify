@@ -11,7 +11,7 @@ export const getOpeningValue = async (
 	steamId?: string,
 	date: string = "all",
 ) => {
-	const openingParameters = getOpeningParameters(steamId, date);
+	const openingParameters = await getOpeningParameters(steamId, date);
 
 	return openingParameters;
 };
