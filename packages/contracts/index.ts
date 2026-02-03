@@ -57,7 +57,7 @@ export type PlayerStatsDTO = {
 	roundsWithKillPercent: number;
 	roundsWithMultiKillPercent: number;
 	damagePerRound: number;
-	// pistolRoundRating: number;
+	pistolRoundRating2: number;
 
 	entryingScore: number;
 	savedByTeammatePerRound: number;
@@ -80,7 +80,7 @@ export type PlayerStatsDTO = {
 	openingAttemptsPercent: number;
 	openingSuccessPercent: number;
 	winPercentAfterOpeningKill: number;
-	// attacksPerRound: number;
+	attacksPerRound: number;
 
 	clutchingScore: number;
 	clutchPointsPerRound: number;

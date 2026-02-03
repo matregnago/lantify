@@ -3,6 +3,7 @@ import { MatchPreview } from "@/components/match-list/MatchPreview";
 import { getClutchValue } from "@/lib/api/HLTVParameters/clutching";
 import { getEntryingValue } from "@/lib/api/HLTVParameters/entrying";
 import { getOpeningValue } from "@/lib/api/HLTVParameters/opening";
+import { getPistolRating2 } from "@/lib/api/HLTVParameters/pistolRating2";
 import { getSaveStats } from "@/lib/api/HLTVParameters/saved";
 import { getSnipingValue } from "@/lib/api/HLTVParameters/sniping";
 import { getTradingValue } from "@/lib/api/HLTVParameters/trading";
@@ -15,6 +16,9 @@ export default async function Home() {
 	const matches: MatchDTO[] = await listMatches();
 
 	const matchMapByMonth = new Map<string, MatchDTO[]>();
+
+	const entry = await getEntryingValue();
+	console.log(entry);
 
 	matches.forEach((match) => {
 		const month = new Date(match.date).toLocaleString("en-GB", {

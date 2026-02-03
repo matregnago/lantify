@@ -102,7 +102,7 @@ export const STATS_MIN_MAX_VALUES: Record<Stat, { min: number; max: number }> =
 			min: 0,
 			max: 100,
 		},
-		firepowerScore: {
+		firePowerScore: {
 			min: 0,
 			max: 100,
 		},
@@ -115,6 +115,7 @@ export const STATS_MIN_MAX_VALUES: Record<Stat, { min: number; max: number }> =
 		roundsWithKillPercent: { min: 40, max: 58 },
 		roundsWithMultiKillPercent: { min: 10, max: 25 },
 		rating2: { min: 0.9, max: 1.3 },
+		pistolRoundRating2: { min: 0.7, max: 1.5 },
 
 		//entrying
 		savedByTeammatePerRound: { min: 0.06, max: 0.16 },
@@ -129,7 +130,7 @@ export const STATS_MIN_MAX_VALUES: Record<Stat, { min: number; max: number }> =
 		tradeKillsPerRound: { min: 0.07, max: 0.2 },
 		tradeKillsPercent: { min: 11, max: 35 },
 		assistedKillsPercent: { min: 10, max: 27 },
-		damagePerKill: { min: 95, max: 115 },
+		damagePerKill: { min: 95, max: 120 },
 
 		//opening
 		openingKillsPerRound: { min: 0.05, max: 0.16 },
@@ -137,6 +138,7 @@ export const STATS_MIN_MAX_VALUES: Record<Stat, { min: number; max: number }> =
 		openingAttemptsPercent: { min: 13, max: 26 },
 		openingSuccessPercent: { min: 40, max: 65 },
 		winPercentAfterOpeningKill: { min: 60, max: 80 },
+		attacksPerRound: { min: 1.7, max: 3.5 },
 
 		clutchPointsPerRound: { min: 0.01, max: 0.04 },
 		lastAlivePercent: { min: 5, max: 17 },

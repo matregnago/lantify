@@ -1,5 +1,5 @@
 "use server";
-import { alias, and, count, db, eq, gte, lte, ne, sql } from "@repo/database";
+import { alias, and, count, db, eq, gt, lte, ne, sql } from "@repo/database";
 import * as s from "@repo/database/schema";
 import { getStatPercentage } from "@/lib/get-stat-percentage";
 import { STATS_MIN_MAX_VALUES } from "@/lib/stats-max-min-values";
@@ -20,6 +20,7 @@ const getOpeningParameters = async (steamId?: string, date: string = "all") => {
 	const openingStats = await getOpeningAmount(undefined, steamId, date);
 	const openingRoundsWonPerPlayer = await getOpeningRoundsWon(steamId, date);
 	const totalRoundsPerPlayer = await getTotalRounds(steamId, date);
+	const attackStats = await getTotalAttacks(steamId, date);
 
 	const openingParameters = totalRoundsPerPlayer.map((opening) => {
 		const openingStatsRow = openingStats.find(
@@ -28,10 +29,14 @@ const getOpeningParameters = async (steamId?: string, date: string = "all") => {
 		const openingRoundsWonRow = openingRoundsWonPerPlayer.find(
 			(player) => player.steamId === opening.steamId,
 		);
+		const attackRow = attackStats.find(
+			(player) => player.steamId === opening.steamId,
+		);
 		const openingKills = openingStatsRow ? openingStatsRow.openingKills : 0;
 		const openingDeaths = openingStatsRow ? openingStatsRow.openingDeaths : 0;
 		const openingTotal = openingKills + openingDeaths;
 		const totalRounds = opening.totalRounds ? opening.totalRounds : 0;
+		const totalAttacks = attackRow ? attackRow.totalAttacks : 0;
 		const playerOpeningStats = {
 			steamId: opening.steamId,
 			openingKillsPerRound: openingKills / totalRounds,
@@ -41,6 +46,7 @@ const getOpeningParameters = async (steamId?: string, date: string = "all") => {
 			winPercentAfterOpeningKill: openingRoundsWonRow
 				? (openingRoundsWonRow.openingsWon / openingKills) * 100
 				: 0,
+			attacksPerRound: totalAttacks / totalRounds,
 		};
 		const openingScore =
 			(getStatPercentage(
@@ -68,8 +74,13 @@ const getOpeningParameters = async (steamId?: string, date: string = "all") => {
 					playerOpeningStats.winPercentAfterOpeningKill,
 					STATS_MIN_MAX_VALUES.winPercentAfterOpeningKill.min,
 					STATS_MIN_MAX_VALUES.winPercentAfterOpeningKill.max,
+				) +
+				getStatPercentage(
+					playerOpeningStats.attacksPerRound,
+					STATS_MIN_MAX_VALUES.attacksPerRound.min,
+					STATS_MIN_MAX_VALUES.attacksPerRound.max,
 				)) /
-			5;
+			6;
 
 		return {
 			...playerOpeningStats,
@@ -149,4 +160,41 @@ const getOpeningRoundsWon = async (
 		.groupBy(roundOpening.steamId);
 
 	return await roundWon;
+};
+
+type TotalAttacksDTO = {
+	steamId: string;
+	totalAttacks: number;
+};
+
+const getTotalAttacks = async (
+	steamId?: string,
+	date: string = "all",
+): Promise<TotalAttacksDTO[]> => {
+	const extra = [
+		and(
+			ne(s.damages.attackerTeamName, s.damages.victimTeamName),
+			gt(s.damages.healthDamage, 0),
+		),
+	];
+	const where = buildStatsWhere({
+		steamId,
+		date,
+		steamIdColumn: s.damages.attackerSteamId,
+		dateColumn: s.matches.date,
+		extra,
+	});
+
+	const attacksBase = db
+		.select({
+			steamId: s.damages.attackerSteamId,
+			totalAttacks: count().mapWith(Number).as("attacks"),
+		})
+		.from(s.damages);
+
+	const attacksQ = withMatchJoinIfDate(attacksBase, date, s.damages.matchId)
+		.where(where)
+		.groupBy(s.damages.attackerSteamId);
+
+	return (await attacksQ) as TotalAttacksDTO[];
 };

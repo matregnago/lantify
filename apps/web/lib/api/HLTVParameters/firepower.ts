@@ -7,6 +7,7 @@ import { getTotalRounds } from "../match";
 import { getRating2, getTotalDamage, getTotalKills } from "../player";
 import { buildStatsWhere, withMatchJoinIfDate } from "../query-helpers";
 import { getWeaponTypeStats } from "./PlayerWeaponStats";
+import { getPistolRating2 } from "./pistolRating2";
 
 export const getFirepowerValue = async (
 	steamId?: string,
@@ -25,6 +26,7 @@ const getFirePowerParameters = async (
 	const killStats = await getWeaponTypeStats(undefined, steamId, date);
 	const totalRoundsPerPlayer = await getTotalRounds(steamId, date);
 	const rating2PerPlayer = await getRating2(steamId, date);
+	const pistolRating2PerPlayer = await getPistolRating2(steamId, date);
 
 	const firepowerParameters = totalRoundsPerPlayer.map((firepower) => {
 		const totalDamageRow = totalDamagePerPlayer.find(
@@ -39,6 +41,9 @@ const getFirePowerParameters = async (
 		const rating2Row = rating2PerPlayer.find(
 			(player) => player.steamId === firepower.steamId,
 		);
+		const pistolRating2Row = pistolRating2PerPlayer.find(
+			(player) => player.steamId === firepower.steamId,
+		);
 		const totalDamage = totalDamageRow ? totalDamageRow.totalDamage : 0;
 		const killsInWonRounds = wonRoundRow ? wonRoundRow.killsInWonRounds : 0;
 		const damageInWonRounds = wonRoundRow ? wonRoundRow.damageInWonRounds : 0;
@@ -48,6 +53,7 @@ const getFirePowerParameters = async (
 		const totalRoundsWithMultiKills = killRow
 			? killRow.totalRoundsWithMultiKills
 			: 0;
+		const pistolRoundRating2 = pistolRating2Row ? pistolRating2Row.rating2 : 0;
 
 		const firePowerStats = {
 			steamId: firepower.steamId,
@@ -60,6 +66,7 @@ const getFirePowerParameters = async (
 			rating2: rating2Row ? rating2Row.rating2 : 0,
 			roundsWithMultiKillPercent:
 				(totalRoundsWithMultiKills / firepower.totalRounds) * 100,
+			pistolRoundRating2,
 		};
 		const firePowerScore =
 			(getStatPercentage(
@@ -96,8 +103,13 @@ const getFirePowerParameters = async (
 					firePowerStats.rating2,
 					STATS_MIN_MAX_VALUES.rating2.min,
 					STATS_MIN_MAX_VALUES.rating2.max,
+				) +
+				getStatPercentage(
+					firePowerStats.pistolRoundRating2,
+					STATS_MIN_MAX_VALUES.pistolRoundRating2.min,
+					STATS_MIN_MAX_VALUES.pistolRoundRating2.max,
 				)) /
-			7;
+			8;
 		return {
 			...firePowerStats,
 			firePowerScore,

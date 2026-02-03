@@ -97,6 +97,11 @@ const categoriesConfig: {
 				stat: "rating2",
 				format: (v) => v.toFixed(2),
 			}),
+			sc({
+				name: "Pistol Round Rating 2.0",
+				stat: "pistolRoundRating2",
+				format: (v) => v.toFixed(2),
+			}),
 		],
 	},
 	{
@@ -227,6 +232,11 @@ const categoriesConfig: {
 				name: "Win % após opening kill",
 				stat: "winPercentAfterOpeningKill",
 				format: (v: number) => `${v.toFixed(1)}%`,
+			}),
+			sc({
+				name: "Ataques Por Round",
+				stat: "attacksPerRound",
+				format: (v) => v.toFixed(2),
 			}),
 		],
 	},

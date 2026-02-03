@@ -149,6 +149,9 @@ export const getTradeStats = async (
 		ne(k2.victimSteamId, "0"),
 		ne(k1.killerSteamId, "0"),
 		ne(k1.victimSteamId, "0"),
+		//sem tk
+		ne(k2.killerTeamName, k2.victimTeamName),
+		ne(k1.killerTeamName, k1.victimTeamName),
 		//t<5s
 		gte(tickDelta, 0),
 		lte(tickDelta, 320),
@@ -279,8 +282,11 @@ export const getOpeningDeathsTraded = async (
 		ne(k1.killerSteamId, "0"),
 		ne(k1.victimSteamId, "0"),
 
+		ne(k2.killerTeamName, k2.victimTeamName),
+		ne(k1.killerTeamName, k1.victimTeamName),
+
 		// em até 5 segundos
-		gte(tickDelta, 1),
+		gte(tickDelta, 0),
 		lte(tickDelta, 320),
 	);
 

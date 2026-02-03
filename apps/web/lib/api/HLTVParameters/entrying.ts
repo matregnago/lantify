@@ -1,10 +1,11 @@
 import {
 	alias,
 	and,
+	count,
 	db,
 	eq,
+	gt,
 	gte,
-	isNotNull,
 	lte,
 	ne,
 	sql,
@@ -149,8 +150,6 @@ export const getSupportRounds = async (
 		})
 		.from(s.rounds)
 		.innerJoin(s.players, eq(s.players.matchId, s.rounds.matchId))
-		// Optional: if your players table has non-playing entries (bots/spectators), filter here.
-		// .where(eq(s.players.isBot, false))
 		.as("pr");
 
 	/**
@@ -177,7 +176,10 @@ export const getSupportRounds = async (
 		ne(k1.killerSteamId, "0"),
 		ne(k1.victimSteamId, "0"),
 
-		gte(tickDelta, 1),
+		ne(k2.killerTeamName, k2.victimTeamName),
+		ne(k1.killerTeamName, k1.victimTeamName),
+
+		gte(tickDelta, 0),
 		lte(tickDelta, 320),
 	);
 
