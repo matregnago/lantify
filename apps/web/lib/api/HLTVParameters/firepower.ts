@@ -8,19 +8,36 @@ import { getRating2, getTotalDamage, getTotalKills } from "../player";
 import { buildStatsWhere, withMatchJoinIfDate } from "../query-helpers";
 import { getWeaponTypeStats } from "./PlayerWeaponStats";
 import { getPistolRating2 } from "./pistolRating2";
+import { calculateScore } from "./scoreCalculator";
 
 export const getFirepowerValue = async (
 	steamId?: string,
 	date: string = "all",
 ) => {
 	const firepowerParameters = await getFirePowerParameters(steamId, date);
-	return firepowerParameters;
+	const firepowerValue = firepowerParameters.map((firepowerStats) => {
+		const firePowerScore = calculateScore(firepowerStats, "firepower");
+		return { ...firepowerStats, firePowerScore };
+	});
+	return firepowerValue;
+};
+
+type FirepowerStatsDTO = {
+	steamId: string;
+	killsPerRound: number;
+	killsPerRoundWin: number;
+	damagePerRound: number;
+	damagePerRoundWin: number;
+	roundsWithKillPercent: number;
+	rating2: number;
+	roundsWithMultiKillPercent: number;
+	pistolRoundRating2: number;
 };
 
 const getFirePowerParameters = async (
 	steamId?: string,
 	date: string = "all",
-) => {
+): Promise<FirepowerStatsDTO[]> => {
 	const totalDamagePerPlayer = await getTotalDamage(steamId, date);
 	const wonRoundsStats = await getWonRoundStats(steamId, date);
 	const killStats = await getWeaponTypeStats(undefined, steamId, date);
@@ -68,52 +85,7 @@ const getFirePowerParameters = async (
 				(totalRoundsWithMultiKills / firepower.totalRounds) * 100,
 			pistolRoundRating2,
 		};
-		const firePowerScore =
-			(getStatPercentage(
-				firePowerStats.killsPerRound,
-				STATS_MIN_MAX_VALUES.killsPerRound.min,
-				STATS_MIN_MAX_VALUES.killsPerRound.max,
-			) +
-				getStatPercentage(
-					firePowerStats.killsPerRoundWin,
-					STATS_MIN_MAX_VALUES.killsPerRoundWin.min,
-					STATS_MIN_MAX_VALUES.killsPerRoundWin.max,
-				) +
-				getStatPercentage(
-					firePowerStats.damagePerRound,
-					STATS_MIN_MAX_VALUES.damagePerRound.min,
-					STATS_MIN_MAX_VALUES.damagePerRound.max,
-				) +
-				getStatPercentage(
-					firePowerStats.damagePerRoundWin,
-					STATS_MIN_MAX_VALUES.damagePerRoundWin.min,
-					STATS_MIN_MAX_VALUES.damagePerRoundWin.max,
-				) +
-				getStatPercentage(
-					firePowerStats.roundsWithKillPercent,
-					STATS_MIN_MAX_VALUES.roundsWithKillPercent.min,
-					STATS_MIN_MAX_VALUES.roundsWithKillPercent.max,
-				) +
-				getStatPercentage(
-					firePowerStats.roundsWithMultiKillPercent,
-					STATS_MIN_MAX_VALUES.roundsWithMultiKillPercent.min,
-					STATS_MIN_MAX_VALUES.roundsWithMultiKillPercent.max,
-				) +
-				getStatPercentage(
-					firePowerStats.rating2,
-					STATS_MIN_MAX_VALUES.rating2.min,
-					STATS_MIN_MAX_VALUES.rating2.max,
-				) +
-				getStatPercentage(
-					firePowerStats.pistolRoundRating2,
-					STATS_MIN_MAX_VALUES.pistolRoundRating2.min,
-					STATS_MIN_MAX_VALUES.pistolRoundRating2.max,
-				)) /
-			8;
-		return {
-			...firePowerStats,
-			firePowerScore,
-		};
+		return firePowerStats;
 	});
 
 	return firepowerParameters;

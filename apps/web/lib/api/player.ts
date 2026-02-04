@@ -7,7 +7,17 @@ import type {
 	PlayerRankingDTO,
 	PlayerStatsDTO,
 } from "@repo/contracts";
-import { and, avg, count, db, eq, ne, sql, sum } from "@repo/database";
+import {
+	and,
+	avg,
+	count,
+	countDistinct,
+	db,
+	eq,
+	ne,
+	sql,
+	sum,
+} from "@repo/database";
 import * as s from "@repo/database/schema";
 import { redis } from "@repo/redis";
 import { getClutchValue } from "./HLTVParameters/clutching";
@@ -624,4 +634,26 @@ export const getRating2 = async (
 	});
 
 	return (await q.where(where).groupBy(s.players.steamId)) as Rating2DTO[];
+};
+
+export const getPlayerAmount = async (
+	date: string = "all",
+): Promise<number> => {
+	const whereMatch = buildStatsWhere({
+		date,
+		steamIdColumn: s.players.steamId,
+		dateColumn: date === "all" ? undefined : s.matches.date,
+	});
+
+	const res = await db
+		.select({
+			playerAmount: countDistinct(s.players.steamId)
+				.mapWith(Number)
+				.as("player_amount"),
+		})
+		.from(s.players)
+		.innerJoin(s.matches, eq(s.players.matchId, s.matches.id))
+		.where(whereMatch);
+
+	return res[0]?.playerAmount ?? 0;
 };

@@ -10,16 +10,33 @@ import {
 } from "../player";
 import { buildStatsWhere, withMatchJoinIfDate } from "../query-helpers";
 import { getSaveStats } from "./saved";
+import { calculateScore } from "./scoreCalculator";
 
 export const getTradingValue = async (
 	steamId?: string,
 	date: string = "all",
 ) => {
 	const tradingParameters = await getTradingParameters(steamId, date);
-	return tradingParameters;
+	const tradingValue = tradingParameters.map((tradingStats) => {
+		const tradingScore = calculateScore(tradingStats, "trading");
+		return { ...tradingStats, tradingScore };
+	});
+	return tradingValue;
 };
 
-const getTradingParameters = async (steamId?: string, date: string = "all") => {
+type TradingStatsDTO = {
+	steamId: string;
+	savedTeammatePerRound: number;
+	tradeKillsPerRound: number;
+	tradeKillsPercent: number;
+	assistedKillsPercent: number;
+	damagePerKill: number;
+};
+
+const getTradingParameters = async (
+	steamId?: string,
+	date: string = "all",
+): Promise<TradingStatsDTO[]> => {
 	const tradeStats = await getTradeStats(steamId, date);
 	const saveStats = await getSaveStats(steamId, date);
 	const totalRoundsPerPlayer = await getTotalRounds(steamId, date);
@@ -68,38 +85,7 @@ const getTradingParameters = async (steamId?: string, date: string = "all") => {
 				? totalDamageRow.totalDamage / totalKills
 				: 0,
 		};
-		const tradingScore =
-			(getStatPercentage(
-				playerTradingParameters.savedTeammatePerRound,
-				STATS_MIN_MAX_VALUES.savedTeammatePerRound.min,
-				STATS_MIN_MAX_VALUES.savedTeammatePerRound.max,
-			) +
-				getStatPercentage(
-					playerTradingParameters.tradeKillsPerRound,
-					STATS_MIN_MAX_VALUES.tradeKillsPerRound.min,
-					STATS_MIN_MAX_VALUES.tradeKillsPerRound.max,
-				) +
-				getStatPercentage(
-					playerTradingParameters.tradeKillsPercent,
-					STATS_MIN_MAX_VALUES.tradeKillsPercent.min,
-					STATS_MIN_MAX_VALUES.tradeKillsPercent.max,
-				) +
-				getStatPercentage(
-					playerTradingParameters.assistedKillsPercent,
-					STATS_MIN_MAX_VALUES.assistedKillsPercent.min,
-					STATS_MIN_MAX_VALUES.assistedKillsPercent.max,
-				) +
-				getStatPercentage(
-					playerTradingParameters.damagePerKill,
-					STATS_MIN_MAX_VALUES.damagePerKill.min,
-					STATS_MIN_MAX_VALUES.damagePerKill.max,
-				)) /
-			5;
-
-		return {
-			...playerTradingParameters,
-			tradingScore,
-		};
+		return playerTradingParameters;
 	});
 
 	return tradingParameters;
@@ -282,6 +268,7 @@ export const getOpeningDeathsTraded = async (
 		ne(k1.killerSteamId, "0"),
 		ne(k1.victimSteamId, "0"),
 
+		//sem tk
 		ne(k2.killerTeamName, k2.victimTeamName),
 		ne(k1.killerTeamName, k1.victimTeamName),
 

@@ -26,6 +26,7 @@ type MainCategory = {
 	value: number;
 	subCategories: SubCategory[];
 	position: number;
+	playerAmount: number;
 };
 
 interface MainStatsProgressProps {
@@ -34,6 +35,7 @@ interface MainStatsProgressProps {
 
 export function MainStatsProgress({ category }: MainStatsProgressProps) {
 	const [isOpen, setIsOpen] = useState(false);
+	console.log("test4", category.playerAmount);
 	return (
 		<div className="border rounded">
 			<Collapsible open={isOpen} onOpenChange={setIsOpen}>
@@ -50,7 +52,11 @@ export function MainStatsProgress({ category }: MainStatsProgressProps) {
 							</div>
 
 							<div className="w-10 shrink-0">
-								<RankingPosition isSmall position={category.position ?? 100} />
+								<RankingPosition
+									playerAmount={category.playerAmount}
+									isSmall
+									position={category.position ?? 100}
+								/>
 							</div>
 						</div>
 						<div className="w-4 shrink-0 text-right text-xs">
@@ -80,6 +86,7 @@ export function MainStatsProgress({ category }: MainStatsProgressProps) {
 								</div>
 
 								<RankingPosition
+									playerAmount={category.playerAmount}
 									isSmall
 									position={subCategory.position ? subCategory.position : 100}
 								/>

@@ -14,8 +14,10 @@ import { RankingPosition } from "./RankingPosition";
 
 export const PlayersRankingTable = ({
 	players,
+	playerAmount,
 }: {
 	players: PlayerRankingDTO[];
+	playerAmount: number;
 }) => {
 	const router = useRouter();
 
@@ -44,7 +46,10 @@ export const PlayersRankingTable = ({
 							onClick={() => router.push(`/profile/${player.steamId}`)}
 						>
 							<TableCell className="text-center tabular-nums">
-								<RankingPosition position={idx + 1} />
+								<RankingPosition
+									position={idx + 1}
+									playerAmount={playerAmount}
+								/>
 							</TableCell>
 							<TableCell>
 								<div className="flex flex-row gap-5 items-center w-fit py-2">

@@ -1,7 +1,6 @@
 import type { PlayerProfileDTO, PlayerRankingDTO } from "@repo/contracts";
 import { colorByMaxValue } from "@/lib/color-by-max-value";
 import { getRankingPosByStat, type Stat } from "@/lib/ranking";
-import { STATS_MIN_MAX_VALUES } from "@/lib/stats-max-min-values";
 import type { SubCategoryResolved } from "@/lib/subCategory";
 import { sc } from "@/lib/subCategory";
 import { RankingPosition } from "../ranking/RankingPosition";
@@ -19,6 +18,7 @@ interface ProgressStatusRowProps {
 	stat: Stat;
 	steamId: string;
 	playersRanking: PlayerRankingDTO[];
+	playerAmount: number;
 }
 
 export const ProgressStatusRow = ({
@@ -29,6 +29,7 @@ export const ProgressStatusRow = ({
 	stat,
 	playersRanking,
 	steamId,
+	playerAmount,
 }: ProgressStatusRowProps) => {
 	const rankingPosition = getRankingPosByStat(steamId, playersRanking, stat);
 
@@ -43,7 +44,11 @@ export const ProgressStatusRow = ({
 				/>
 			</div>
 
-			<RankingPosition isSmall position={rankingPosition} />
+			<RankingPosition
+				isSmall
+				position={rankingPosition}
+				playerAmount={playerAmount}
+			/>
 		</div>
 	);
 };
@@ -51,6 +56,7 @@ export const ProgressStatusRow = ({
 interface OverallStatsCardProps {
 	profile: PlayerProfileDTO;
 	playersRanking: PlayerRankingDTO[];
+	playerAmount: number;
 }
 
 const categoriesConfig: {
@@ -308,7 +314,9 @@ const categoriesConfig: {
 export const OverallStatsCard = ({
 	profile,
 	playersRanking,
+	playerAmount,
 }: OverallStatsCardProps) => {
+	console.log("test3:", playerAmount);
 	return (
 		<Field title="Estatísticas Gerais">
 			<div className="flex flex-col lg:flex-row gap-6">
@@ -319,6 +327,7 @@ export const OverallStatsCard = ({
 							category={{
 								name: category.name,
 								value: (profile.stats[category.scoreKey] as number) ?? 0,
+								playerAmount,
 								position: getRankingPosByStat(
 									profile.steamId,
 									playersRanking,

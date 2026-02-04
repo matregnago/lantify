@@ -6,16 +6,33 @@ import { STATS_MIN_MAX_VALUES } from "../../stats-max-min-values";
 import { getTotalRounds } from "../match";
 import { getTotalLostAndWonRounds, getTotalTimeAliveTicks } from "../player";
 import { buildStatsWhere, withMatchJoinIfDate } from "../query-helpers";
+import { calculateScore } from "./scoreCalculator";
 
 export const getClutchValue = async (
 	steamId?: string,
 	date: string = "all",
 ) => {
 	const clutchParameters = await getClutchParameters(steamId, date);
-	return clutchParameters;
+	const clutchValue = clutchParameters.map((clutchStats) => {
+		const clutchingScore = calculateScore(clutchStats, "clutch");
+		return { ...clutchStats, clutchingScore };
+	});
+	return clutchValue;
 };
 
-const getClutchParameters = async (steamId?: string, date: string = "all") => {
+type ClutchStatsDTO = {
+	steamId: string;
+	clutchPointsPerRound: number;
+	lastAlivePercent: number;
+	oneVOneWinPercent: number;
+	timeAlivePerRoundSeconds: number;
+	savesPerRoundLossPercent: number;
+};
+
+const getClutchParameters = async (
+	steamId?: string,
+	date: string = "all",
+): Promise<ClutchStatsDTO[]> => {
 	const clutchPointsMap = await getClutchPoints(steamId, date);
 	const saveRounds = await getSaveRounds(steamId, date);
 	const lastAliveRounds = await getLastAliveRounds(steamId, date);
@@ -62,38 +79,7 @@ const getClutchParameters = async (steamId?: string, date: string = "all") => {
 					: 0,
 		};
 
-		const clutchingScore =
-			(getStatPercentage(
-				playerClutchStats.clutchPointsPerRound,
-				STATS_MIN_MAX_VALUES.clutchPointsPerRound.min,
-				STATS_MIN_MAX_VALUES.clutchPointsPerRound.max,
-			) +
-				getStatPercentage(
-					playerClutchStats.lastAlivePercent,
-					STATS_MIN_MAX_VALUES.lastAlivePercent.min,
-					STATS_MIN_MAX_VALUES.lastAlivePercent.max,
-				) +
-				getStatPercentage(
-					playerClutchStats.oneVOneWinPercent,
-					STATS_MIN_MAX_VALUES.oneVOneWinPercent.min,
-					STATS_MIN_MAX_VALUES.oneVOneWinPercent.max,
-				) +
-				getStatPercentage(
-					playerClutchStats.timeAlivePerRoundSeconds,
-					STATS_MIN_MAX_VALUES.timeAlivePerRoundSeconds.min,
-					STATS_MIN_MAX_VALUES.timeAlivePerRoundSeconds.max,
-				) +
-				getStatPercentage(
-					playerClutchStats.savesPerRoundLossPercent,
-					STATS_MIN_MAX_VALUES.savesPerRoundLossPercent.min,
-					STATS_MIN_MAX_VALUES.savesPerRoundLossPercent.max,
-				)) /
-			5;
-
-		return {
-			...playerClutchStats,
-			clutchingScore,
-		};
+		return playerClutchStats;
 	});
 
 	return clutchParameters;

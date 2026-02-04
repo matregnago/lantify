@@ -6,16 +6,33 @@ import { STATS_MIN_MAX_VALUES } from "../../stats-max-min-values";
 import { getTotalRounds } from "../match";
 import { buildStatsWhere, withMatchJoinIfDate } from "../query-helpers";
 import { getWeaponTypeStats } from "./PlayerWeaponStats";
+import { calculateScore } from "./scoreCalculator";
 
 export const getUtilityValue = async (
 	steamId?: string,
 	date: string = "all",
 ) => {
 	const utilityParameters = await getUtilityParameters(steamId, date);
-	return utilityParameters;
+	const utilityValue = utilityParameters.map((utilityStats) => {
+		const utilityScore = calculateScore(utilityStats, "utility");
+		return { ...utilityStats, utilityScore };
+	});
+	return utilityValue;
 };
 
-const getUtilityParameters = async (steamId?: string, date: string = "all") => {
+type UtilityParametersDTO = {
+	steamId: string;
+	utilityDamagePerRound: number;
+	utilityKillsPer100Rounds: number;
+	flashesThrownPerRound: number;
+	flashAssistsPerRound: number;
+	timeOpponentsFlashedPerRoundSeconds: number;
+};
+
+const getUtilityParameters = async (
+	steamId?: string,
+	date: string = "all",
+): Promise<UtilityParametersDTO[]> => {
 	const utilityStats = await getUtilityStats(steamId, date);
 	const utilityKills = await getWeaponTypeStats(
 		WeaponType.Grenade,
@@ -47,38 +64,7 @@ const getUtilityParameters = async (steamId?: string, date: string = "all") => {
 			timeOpponentsFlashedPerRoundSeconds:
 				grenader.timeOpponentsFlashed / totalRounds,
 		};
-		const utilityScore =
-			(getStatPercentage(
-				playerUtilityParameters.utilityDamagePerRound,
-				STATS_MIN_MAX_VALUES.utilityDamagePerRound.min,
-				STATS_MIN_MAX_VALUES.utilityDamagePerRound.max,
-			) +
-				getStatPercentage(
-					playerUtilityParameters.utilityKillsPer100Rounds,
-					STATS_MIN_MAX_VALUES.utilityKillsPer100Rounds.min,
-					STATS_MIN_MAX_VALUES.utilityKillsPer100Rounds.max,
-				) +
-				getStatPercentage(
-					playerUtilityParameters.flashesThrownPerRound,
-					STATS_MIN_MAX_VALUES.flashesThrownPerRound.min,
-					STATS_MIN_MAX_VALUES.flashesThrownPerRound.max,
-				) +
-				getStatPercentage(
-					playerUtilityParameters.flashAssistsPerRound,
-					STATS_MIN_MAX_VALUES.flashAssistsPerRound.min,
-					STATS_MIN_MAX_VALUES.flashAssistsPerRound.max,
-				) +
-				getStatPercentage(
-					playerUtilityParameters.timeOpponentsFlashedPerRoundSeconds,
-					STATS_MIN_MAX_VALUES.timeOpponentsFlashedPerRoundSeconds.min,
-					STATS_MIN_MAX_VALUES.timeOpponentsFlashedPerRoundSeconds.max,
-				)) /
-			5;
-
-		return {
-			...playerUtilityParameters,
-			utilityScore,
-		};
+		return playerUtilityParameters;
 	});
 
 	return utilityParameters.filter((param) => param !== null);

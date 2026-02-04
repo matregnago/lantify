@@ -19,6 +19,7 @@ import { getTotalAssists, getTotalDeaths } from "../player";
 import { buildStatsWhere, withMatchJoinIfDate } from "../query-helpers";
 import { getOpeningAmount } from "./PlayerWeaponStats";
 import { getSaveStats } from "./saved";
+import { calculateScore } from "./scoreCalculator";
 import { getOpeningDeathsTraded, getTradeStats } from "./trading";
 
 export const getEntryingValue = async (
@@ -26,13 +27,27 @@ export const getEntryingValue = async (
 	date: string = "all",
 ) => {
 	const entryingParameters = await getEntryingParameters(steamId, date);
-	return entryingParameters;
+	const entryingValue = entryingParameters.map((entryStats) => {
+		const entryingScore = calculateScore(entryStats, "entrying");
+		return { ...entryStats, entryingScore };
+	});
+	return entryingValue;
+};
+
+type EntryingStatsDTO = {
+	steamId: string;
+	savedByTeammatePerRound: number;
+	tradedDeathsPerRound: number;
+	tradedDeathsPercent: number;
+	openingDeathsTradedPercent: number;
+	assistsPerRound: number;
+	supportRoundsPercent: number;
 };
 
 const getEntryingParameters = async (
 	steamId?: string,
 	date: string = "all",
-) => {
+): Promise<EntryingStatsDTO[]> => {
 	const savedStats = await getSaveStats(steamId, date);
 	const tradeStats = await getTradeStats(steamId, date);
 	const totalRoundsPerPlayer = await getTotalRounds(steamId, date);
@@ -86,43 +101,7 @@ const getEntryingParameters = async (
 				? (supportRow.supportRounds / totalRounds) * 100
 				: 0,
 		};
-		const entryingScore =
-			(getStatPercentage(
-				playerEntryParameters.savedByTeammatePerRound,
-				STATS_MIN_MAX_VALUES.savedByTeammatePerRound.min,
-				STATS_MIN_MAX_VALUES.savedByTeammatePerRound.max,
-			) +
-				getStatPercentage(
-					playerEntryParameters.tradedDeathsPerRound,
-					STATS_MIN_MAX_VALUES.tradedDeathsPerRound.min,
-					STATS_MIN_MAX_VALUES.tradedDeathsPerRound.max,
-				) +
-				getStatPercentage(
-					playerEntryParameters.tradedDeathsPercent,
-					STATS_MIN_MAX_VALUES.tradedDeathsPercent.min,
-					STATS_MIN_MAX_VALUES.tradedDeathsPercent.max,
-				) +
-				getStatPercentage(
-					playerEntryParameters.openingDeathsTradedPercent,
-					STATS_MIN_MAX_VALUES.openingDeathsTradedPercent.min,
-					STATS_MIN_MAX_VALUES.openingDeathsTradedPercent.max,
-				) +
-				getStatPercentage(
-					playerEntryParameters.assistsPerRound,
-					STATS_MIN_MAX_VALUES.assistsPerRound.min,
-					STATS_MIN_MAX_VALUES.assistsPerRound.max,
-				) +
-				getStatPercentage(
-					playerEntryParameters.supportRoundsPercent,
-					STATS_MIN_MAX_VALUES.supportRoundsPercent.min,
-					STATS_MIN_MAX_VALUES.supportRoundsPercent.max,
-				)) /
-			6;
-
-		return {
-			...playerEntryParameters,
-			entryingScore,
-		};
+		return playerEntryParameters;
 	});
 	return entryingParameters;
 };

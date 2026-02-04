@@ -9,11 +9,13 @@ import { PlayerHeader } from "./PlayerHeader";
 interface PlayerProfileProps {
 	profile: PlayerProfileDTO;
 	playersRanking: PlayerRankingDTO[];
+	playerAmount: number;
 }
 
 export const PlayerProfile = ({
 	profile,
 	playersRanking,
+	playerAmount,
 }: PlayerProfileProps) => {
 	return (
 		<div className="max-w-370 mx-auto">
@@ -22,9 +24,14 @@ export const PlayerProfile = ({
 				nickName={profile.nickName}
 				playersRanking={playersRanking}
 				steamId={profile.steamId}
+				playerAmount={playerAmount}
 			/>
 			<div className="flex flex-col gap-8">
-				<OverallStatsCard profile={profile} playersRanking={playersRanking} />
+				<OverallStatsCard
+					profile={profile}
+					playersRanking={playersRanking}
+					playerAmount={playerAmount}
+				/>
 				<CompleteStats profile={profile} />
 				<ClutchesStats profile={profile} />
 				<MatchHistoryStats profile={profile} />

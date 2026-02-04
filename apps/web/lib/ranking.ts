@@ -47,15 +47,20 @@ export function getRankingPosByStat(
 	return 0;
 }
 
-export function getRankingPositionColor(position: number) {
-	switch (position) {
-		case 1:
-			return "#ffd336";
-		case 2:
-			return "#def5ff";
-		case 3:
-			return "#ff7236";
-		default:
-			return "transparent";
-	}
+export function getRankingPositionColor(
+	position: number,
+	playerAmount: number,
+) {
+	if (position === 1) return "#f5c542"; // muted gold
+	if (position === 2) return "#cbd5e1"; // steel silver
+	if (position === 3) return "#d97745"; // soft bronze
+
+	const p = position / playerAmount;
+
+	if (p <= 0.35) return "#22a06b"; // deep green
+	if (p <= 0.5) return "#3b82f6"; // calm blue
+	if (p <= 0.75) return "#6366f1"; // indigo
+	if (p <= 0.9) return "#64748b"; // slate
+
+	return "#334155"; // near-invisible
 }

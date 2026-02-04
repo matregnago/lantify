@@ -6,16 +6,33 @@ import { STATS_MIN_MAX_VALUES } from "../../stats-max-min-values";
 import { getTotalRounds } from "../match";
 import { getTotalKills } from "../player";
 import { getOpeningAmount, getWeaponTypeStats } from "./PlayerWeaponStats";
+import { calculateScore } from "./scoreCalculator";
 
 export const getSnipingValue = async (
 	steamId?: string,
 	date: string = "all",
 ) => {
 	const sniperParameters = await getSniperParameters(steamId, date);
-	return sniperParameters;
+	const sniperValue = sniperParameters.map((sniperStats) => {
+		const snipingScore = calculateScore(sniperStats, "sniping");
+		return { ...sniperStats, snipingScore };
+	});
+	return sniperValue;
 };
 
-const getSniperParameters = async (steamId?: string, date: string = "all") => {
+type SnipingStatsDTO = {
+	steamId: string;
+	sniperKillsPerRound: number;
+	sniperKillsPercent: number;
+	roundsWithSniperKillsPercent: number;
+	sniperMultiKillRoundsPerRound: number;
+	sniperOpeningKillsPerRound: number;
+};
+
+const getSniperParameters = async (
+	steamId?: string,
+	date: string = "all",
+): Promise<SnipingStatsDTO[]> => {
 	const totalKillsPerPlayer = await getTotalKills(steamId, date);
 	const sniperOpeningTotal = await getOpeningAmount(
 		WeaponType.Sniper,
@@ -58,38 +75,7 @@ const getSniperParameters = async (steamId?: string, date: string = "all") => {
 				? opkTotal.openingKills / totalRounds
 				: 0,
 		};
-		const snipingScore =
-			(getStatPercentage(
-				playerSnipingStats.sniperKillsPerRound,
-				STATS_MIN_MAX_VALUES.sniperKillsPerRound.min,
-				STATS_MIN_MAX_VALUES.sniperKillsPerRound.max,
-			) +
-				getStatPercentage(
-					playerSnipingStats.sniperKillsPercent,
-					STATS_MIN_MAX_VALUES.sniperKillsPercent.min,
-					STATS_MIN_MAX_VALUES.sniperKillsPercent.max,
-				) +
-				getStatPercentage(
-					playerSnipingStats.roundsWithSniperKillsPercent,
-					STATS_MIN_MAX_VALUES.roundsWithSniperKillsPercent.min,
-					STATS_MIN_MAX_VALUES.roundsWithSniperKillsPercent.max,
-				) +
-				getStatPercentage(
-					playerSnipingStats.sniperMultiKillRoundsPerRound,
-					STATS_MIN_MAX_VALUES.sniperMultiKillRoundsPerRound.min,
-					STATS_MIN_MAX_VALUES.sniperMultiKillRoundsPerRound.max,
-				) +
-				getStatPercentage(
-					playerSnipingStats.sniperOpeningKillsPerRound,
-					STATS_MIN_MAX_VALUES.sniperOpeningKillsPerRound.min,
-					STATS_MIN_MAX_VALUES.sniperOpeningKillsPerRound.max,
-				)) /
-			5;
-
-		return {
-			...playerSnipingStats,
-			snipingScore,
-		};
+		return playerSnipingStats;
 	});
 
 	return sniperParameters.filter((param) => param !== null);

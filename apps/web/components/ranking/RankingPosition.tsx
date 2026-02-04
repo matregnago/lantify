@@ -3,14 +3,16 @@ import { cn } from "@/lib/utils";
 
 interface RankingPositionProps {
 	position: number;
+	playerAmount: number;
 	isSmall?: boolean;
 }
 
 export function RankingPosition({
 	position,
+	playerAmount,
 	isSmall = false,
 }: RankingPositionProps) {
-	const color = getRankingPositionColor(position);
+	const color = getRankingPositionColor(position, playerAmount);
 	const isPodium = position <= 3;
 
 	return (
@@ -23,7 +25,9 @@ export function RankingPosition({
 
 						isPodium ? "text-black" : "text-muted-foreground",
 					)}
-					style={isPodium ? { backgroundColor: color } : undefined}
+					style={{
+						backgroundColor: isPodium ? color : `${color}44`,
+					}}
 				>
 					#{position}
 				</span>

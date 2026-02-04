@@ -6,17 +6,34 @@ import { STATS_MIN_MAX_VALUES } from "@/lib/stats-max-min-values";
 import { getTotalRounds } from "../match";
 import { buildStatsWhere, withMatchJoinIfDate } from "../query-helpers";
 import { getOpeningAmount } from "./PlayerWeaponStats";
+import { calculateScore } from "./scoreCalculator";
 
 export const getOpeningValue = async (
 	steamId?: string,
 	date: string = "all",
 ) => {
 	const openingParameters = await getOpeningParameters(steamId, date);
-
-	return openingParameters;
+	const openingValue = openingParameters.map((openingStats) => {
+		const openingScore = calculateScore(openingStats, "opening");
+		return { ...openingStats, openingScore };
+	});
+	return openingValue;
 };
 
-const getOpeningParameters = async (steamId?: string, date: string = "all") => {
+type OpeningStatsDTO = {
+	steamId: string;
+	openingKillsPerRound: number;
+	openingDeathsPerRound: number;
+	openingAttemptsPercent: number;
+	openingSuccessPercent: number;
+	winPercentAfterOpeningKill: number;
+	attacksPerRound: number;
+};
+
+const getOpeningParameters = async (
+	steamId?: string,
+	date: string = "all",
+): Promise<OpeningStatsDTO[]> => {
 	const openingStats = await getOpeningAmount(undefined, steamId, date);
 	const openingRoundsWonPerPlayer = await getOpeningRoundsWon(steamId, date);
 	const totalRoundsPerPlayer = await getTotalRounds(steamId, date);
@@ -48,44 +65,7 @@ const getOpeningParameters = async (steamId?: string, date: string = "all") => {
 				: 0,
 			attacksPerRound: totalAttacks / totalRounds,
 		};
-		const openingScore =
-			(getStatPercentage(
-				playerOpeningStats.openingKillsPerRound,
-				STATS_MIN_MAX_VALUES.openingKillsPerRound.min,
-				STATS_MIN_MAX_VALUES.openingKillsPerRound.max,
-			) +
-				getStatPercentage(
-					playerOpeningStats.openingDeathsPerRound,
-					STATS_MIN_MAX_VALUES.openingDeathsPerRound.min,
-					STATS_MIN_MAX_VALUES.openingDeathsPerRound.max,
-					true,
-				) +
-				getStatPercentage(
-					playerOpeningStats.openingAttemptsPercent,
-					STATS_MIN_MAX_VALUES.openingAttemptsPercent.min,
-					STATS_MIN_MAX_VALUES.openingAttemptsPercent.max,
-				) +
-				getStatPercentage(
-					playerOpeningStats.openingSuccessPercent,
-					STATS_MIN_MAX_VALUES.openingSuccessPercent.min,
-					STATS_MIN_MAX_VALUES.openingSuccessPercent.max,
-				) +
-				getStatPercentage(
-					playerOpeningStats.winPercentAfterOpeningKill,
-					STATS_MIN_MAX_VALUES.winPercentAfterOpeningKill.min,
-					STATS_MIN_MAX_VALUES.winPercentAfterOpeningKill.max,
-				) +
-				getStatPercentage(
-					playerOpeningStats.attacksPerRound,
-					STATS_MIN_MAX_VALUES.attacksPerRound.min,
-					STATS_MIN_MAX_VALUES.attacksPerRound.max,
-				)) /
-			6;
-
-		return {
-			...playerOpeningStats,
-			openingScore,
-		};
+		return playerOpeningStats;
 	});
 	return openingParameters;
 };
