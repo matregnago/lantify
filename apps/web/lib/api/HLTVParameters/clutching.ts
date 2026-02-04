@@ -65,7 +65,7 @@ const getClutchParameters = async (
 			clutchingScore: 0,
 			clutchPointsPerRound: clutchPoints ? clutchPoints / totalRounds : 0,
 			lastAlivePercent: lastAliveRoundsRow
-				? lastAliveRoundsRow.totalLastAliveRounds / totalRounds
+				? (lastAliveRoundsRow.totalLastAliveRounds / totalRounds) * 100
 				: 0,
 			oneVOneWinPercent: oneOnOneWinPercentRow
 				? oneOnOneWinPercentRow.winPCT * 100

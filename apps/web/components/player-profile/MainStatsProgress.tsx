@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { CartesianGrid } from "recharts";
 import {
 	Collapsible,
 	CollapsibleContent,
@@ -35,7 +34,6 @@ interface MainStatsProgressProps {
 
 export function MainStatsProgress({ category }: MainStatsProgressProps) {
 	const [isOpen, setIsOpen] = useState(false);
-	console.log("test4", category.playerAmount);
 	return (
 		<div className="border rounded">
 			<Collapsible open={isOpen} onOpenChange={setIsOpen}>

@@ -159,7 +159,6 @@ const categoriesConfig: {
 				name: "Último vivo %",
 				stat: "lastAlivePercent",
 				format: (v) => `${v.toFixed(1)}%`,
-				valueTransform: (v) => v * 100,
 			}),
 			sc({
 				name: "Winrate 1v1",
@@ -316,7 +315,6 @@ export const OverallStatsCard = ({
 	playersRanking,
 	playerAmount,
 }: OverallStatsCardProps) => {
-	console.log("test3:", playerAmount);
 	return (
 		<Field title="Estatísticas Gerais">
 			<div className="flex flex-col lg:flex-row gap-6">

@@ -129,7 +129,7 @@ export const STATS_MIN_MAX_VALUES: Record<Stat, { min: number; max: number }> =
 		savedTeammatePerRound: { min: 0.05, max: 0.16 },
 		tradeKillsPerRound: { min: 0.07, max: 0.2 },
 		tradeKillsPercent: { min: 11, max: 35 },
-		assistedKillsPercent: { min: 10, max: 27 },
+		assistedKillsPercent: { min: 20, max: 40 },
 		damagePerKill: { min: 95, max: 120 },
 
 		//opening
@@ -143,7 +143,7 @@ export const STATS_MIN_MAX_VALUES: Record<Stat, { min: number; max: number }> =
 		clutchPointsPerRound: { min: 0.01, max: 0.04 },
 		lastAlivePercent: { min: 5, max: 17 },
 		oneVOneWinPercent: { min: 40, max: 75 },
-		timeAlivePerRoundSeconds: { min: 50, max: 75 },
+		timeAlivePerRoundSeconds: { min: 60, max: 80 },
 		savesPerRoundLossPercent: { min: 0, max: 13 },
 
 		//sniping
@@ -158,5 +158,5 @@ export const STATS_MIN_MAX_VALUES: Record<Stat, { min: number; max: number }> =
 		utilityKillsPer100Rounds: { min: 0, max: 1.2 },
 		flashesThrownPerRound: { min: 0.2, max: 0.9 },
 		flashAssistsPerRound: { min: 0, max: 0.09 },
-		timeOpponentsFlashedPerRoundSeconds: { min: 1.5, max: 2.5 },
+		timeOpponentsFlashedPerRoundSeconds: { min: 1, max: 2 },
 	};
