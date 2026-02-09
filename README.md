@@ -29,7 +29,7 @@ docker compose up -d
 
 ```bash
 cd packages/database
-bun run db:push
+bun run db:migrate
 ```
 
 5. Popular o banco com os dados de demos

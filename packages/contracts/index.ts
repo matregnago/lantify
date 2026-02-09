@@ -1,13 +1,16 @@
+import type { WeaponName, WeaponType } from "@akiver/cs-demo-analyzer";
 import type * as s from "@repo/database/schema";
 
 export type PlayerMatchHistoryDTO = typeof s.players.$inferInsert & {
 	team: typeof s.teams.$inferSelect | null;
 	match:
-	| (typeof s.matches.$inferSelect & {
-		teams: (typeof s.teams.$inferSelect)[];
-	})
-	| null;
+		| (typeof s.matches.$inferSelect & {
+				teams: (typeof s.teams.$inferSelect)[];
+		  })
+		| null;
 };
+
+export type { WeaponName, WeaponType };
 
 export type PlayerRankingDTO = {
 	steamId: string;
@@ -47,6 +50,58 @@ export type PlayerStatsDTO = {
 
 	averageDamagePerRound: number;
 	averageDeathPerRound: number;
+
+	firePowerScore: number;
+	killsPerRoundWin: number;
+	damagePerRoundWin: number;
+	roundsWithKillPercent: number;
+	roundsWithMultiKillPercent: number;
+	damagePerRound: number;
+	pistolRoundRating2: number;
+
+	entryingScore: number;
+	savedByTeammatePerRound: number;
+	tradedDeathsPerRound: number;
+	tradedDeathsPercent: number;
+	openingDeathsTradedPercent: number;
+	assistsPerRound: number;
+	supportRoundsPercent: number;
+
+	tradingScore: number;
+	savedTeammatePerRound: number;
+	tradeKillsPerRound: number;
+	tradeKillsPercent: number;
+	assistedKillsPercent: number;
+	damagePerKill: number;
+
+	openingScore: number;
+	openingKillsPerRound: number;
+	openingDeathsPerRound: number;
+	openingAttemptsPercent: number;
+	openingSuccessPercent: number;
+	winPercentAfterOpeningKill: number;
+	attacksPerRound: number;
+
+	clutchingScore: number;
+	clutchPointsPerRound: number;
+	lastAlivePercent: number;
+	oneVOneWinPercent: number;
+	timeAlivePerRoundSeconds: number;
+	savesPerRoundLossPercent: number;
+
+	snipingScore: number;
+	sniperKillsPerRound: number;
+	sniperKillsPercent: number;
+	roundsWithSniperKillsPercent: number;
+	sniperMultiKillRoundsPerRound: number;
+	sniperOpeningKillsPerRound: number;
+
+	utilityScore: number;
+	utilityDamagePerRound: number;
+	utilityKillsPer100Rounds: number;
+	flashesThrownPerRound: number;
+	flashAssistsPerRound: number;
+	timeOpponentsFlashedPerRoundSeconds: number;
 };
 
 export type PlayerProfileDTO = {

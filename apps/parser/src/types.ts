@@ -6,6 +6,9 @@ export type NewTeam = typeof schema.teams.$inferInsert;
 export type NewPlayer = typeof schema.players.$inferInsert;
 export type NewDuel = typeof schema.playerDuels.$inferInsert;
 export type NewClutch = typeof schema.clutches.$inferInsert;
+export type NewKill = typeof schema.kills.$inferInsert;
+export type NewRound = typeof schema.rounds.$inferInsert;
+export type NewDamage = typeof schema.damages.$inferInsert;
 
 export type DemoFile = {
 	checksum: string;
@@ -21,6 +24,7 @@ export type DemoFile = {
 	shots: DemoShot[];
 	damages: DemoDamage[];
 	clutches: DemoClutch[];
+	rounds: DemoRound[];
 };
 
 export type DemoTeam = {
@@ -77,6 +81,32 @@ export interface DemoKill {
 	distance: number;
 }
 
+export interface DemoRound {
+	number: number;
+	startTick: number;
+	freezeTimeEndTick: number;
+	endTick: number;
+	endOfficiallyTick: number;
+	overtimeNumber: number;
+	teamAName: string;
+	teamBName: string;
+	teamAScore: number;
+	teamBScore: number;
+	teamASide: number;
+	teamBSide: number;
+	teamAEquipmentValue: number;
+	teamBEquipmentValue: number;
+	teamAMoneySpent: number;
+	teamBmoneySpent: number;
+	teamAEconomyType: string;
+	teamBEconomyType: string;
+	duration: number;
+	endReason: number;
+	winnerName: string;
+	winnerSide: number;
+	teamAStartMoney: number;
+	teamBStartMoney: number;
+}
 export type DemoClutch = {
 	frame: number;
 	tick: number;

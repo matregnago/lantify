@@ -2,7 +2,11 @@
 
 import { notFound } from "next/navigation";
 import { PlayerProfile } from "@/components/player-profile/PlayerProfile";
-import { getPlayerProfileData, getPlayersRankingData } from "@/lib/api/player";
+import {
+	getPlayerAmount,
+	getPlayerProfileData,
+	getPlayersRankingData,
+} from "@/lib/api/player";
 
 export default async function ProfilePage({
 	params,
@@ -11,6 +15,8 @@ export default async function ProfilePage({
 }) {
 	const { id } = await params;
 	const profileData = await getPlayerProfileData(id);
+	const playerAmount = await getPlayerAmount("all");
+	console.log("test:", playerAmount);
 	const playersRanking = await getPlayersRankingData();
 
 	if (!profileData) {
@@ -19,7 +25,11 @@ export default async function ProfilePage({
 
 	return (
 		<div className="py-12 mx-4">
-			<PlayerProfile profile={profileData} playersRanking={playersRanking} />
+			<PlayerProfile
+				profile={profileData}
+				playersRanking={playersRanking}
+				playerAmount={playerAmount}
+			/>
 		</div>
 	);
 }

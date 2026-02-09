@@ -1,7 +1,8 @@
 import type { MatchDataDTO, PlayerDTO } from "@repo/contracts";
-import { db, desc, eq } from "@repo/database";
+import { count, db, desc, eq, sql } from "@repo/database";
 import * as s from "@repo/database/schema";
 import { redis } from "@repo/redis";
+import { buildStatsWhere, withMatchJoinIfDate } from "./query-helpers";
 import { fetchSteamProfiles, getSteamIdentity } from "./steam";
 
 export async function getMatchData(matchId: string) {
@@ -116,3 +117,46 @@ export async function listMatchesWithPlayers() {
 	});
 	return matchesData;
 }
+
+type TotalRoundsDTO = {
+	steamId: string;
+	totalRounds: number;
+};
+
+export const getTotalRounds = async (
+	steamId?: string,
+	date: string = "all",
+): Promise<TotalRoundsDTO[]> => {
+	const participants = db
+		.select({
+			steamId: s.players.steamId,
+			matchId: s.players.matchId,
+		})
+		.from(s.players)
+		.groupBy(s.players.steamId, s.players.matchId)
+		.as("p");
+
+	const where = buildStatsWhere({
+		steamId,
+		date,
+		steamIdColumn: participants.steamId,
+		dateColumn: s.matches.date,
+	});
+
+	const base = db
+		.select({
+			steamId: participants.steamId,
+			totalRounds: count(),
+		})
+		.from(s.rounds)
+		.innerJoin(participants, eq(participants.matchId, s.rounds.matchId))
+		.groupBy(participants.steamId);
+
+	const totalRounds = await withMatchJoinIfDate(
+		base,
+		date,
+		s.rounds.matchId,
+	).where(where);
+
+	return totalRounds;
+};

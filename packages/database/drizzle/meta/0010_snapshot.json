@@ -1,6 +1,6 @@
 {
-	"id": "af0e35aa-2297-4a6d-b51d-203b914f557d",
-	"prevId": "69c76897-0abf-4b9d-a5ce-6b328bfada53",
+	"id": "97a460c9-edcc-4818-b5eb-6d939a48e840",
+	"prevId": "15d4df15-1f05-4e20-9e77-035cd1e673e1",
 	"version": "7",
 	"dialect": "postgresql",
 	"tables": {
@@ -73,6 +73,389 @@
 				"clutch_matchId_match_id_fk": {
 					"name": "clutch_matchId_match_id_fk",
 					"tableFrom": "clutch",
+					"tableTo": "match",
+					"columnsFrom": ["matchId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.kill": {
+			"name": "kill",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "integer",
+					"primaryKey": true,
+					"notNull": true,
+					"identity": {
+						"type": "always",
+						"name": "kill_id_seq",
+						"schema": "public",
+						"increment": "1",
+						"startWith": "1",
+						"minValue": "1",
+						"maxValue": "2147483647",
+						"cache": "1",
+						"cycle": false
+					}
+				},
+				"matchId": {
+					"name": "matchId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"roundNumber": {
+					"name": "roundNumber",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"tick": {
+					"name": "tick",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"weaponType": {
+					"name": "weaponType",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"weaponName": {
+					"name": "weaponName",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"killerSteamId": {
+					"name": "killerSteamId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"killerName": {
+					"name": "killerName",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"killerSide": {
+					"name": "killerSide",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"killerTeamName": {
+					"name": "killerTeamName",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"killerX": {
+					"name": "killerX",
+					"type": "double precision",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"killerY": {
+					"name": "killerY",
+					"type": "double precision",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"killerZ": {
+					"name": "killerZ",
+					"type": "double precision",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"isKillerAirborne": {
+					"name": "isKillerAirborne",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"isKillerBlinded": {
+					"name": "isKillerBlinded",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"isKillerControllingBot": {
+					"name": "isKillerControllingBot",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"victimSteamId": {
+					"name": "victimSteamId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"victimName": {
+					"name": "victimName",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"victimSide": {
+					"name": "victimSide",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"victimTeamName": {
+					"name": "victimTeamName",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"victimX": {
+					"name": "victimX",
+					"type": "double precision",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"victimY": {
+					"name": "victimY",
+					"type": "double precision",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"victimZ": {
+					"name": "victimZ",
+					"type": "double precision",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"isVictimAirborne": {
+					"name": "isVictimAirborne",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"isVictimBlinded": {
+					"name": "isVictimBlinded",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"isVictimControllingBot": {
+					"name": "isVictimControllingBot",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"isVictimInspectingWeapon": {
+					"name": "isVictimInspectingWeapon",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"assisterSteamId": {
+					"name": "assisterSteamId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"assisterName": {
+					"name": "assisterName",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"assisterSide": {
+					"name": "assisterSide",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"assisterTeamName": {
+					"name": "assisterTeamName",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"assisterX": {
+					"name": "assisterX",
+					"type": "double precision",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"assisterY": {
+					"name": "assisterY",
+					"type": "double precision",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"assisterZ": {
+					"name": "assisterZ",
+					"type": "double precision",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"isAssisterControllingBot": {
+					"name": "isAssisterControllingBot",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"isAssistedFlash": {
+					"name": "isAssistedFlash",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"isHeadshot": {
+					"name": "isHeadshot",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"penetratedObjects": {
+					"name": "penetratedObjects",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"isThroughSmoke": {
+					"name": "isThroughSmoke",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"isNoScope": {
+					"name": "isNoScope",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"isTradeKill": {
+					"name": "isTradeKill",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"isTradeDeath": {
+					"name": "isTradeDeath",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"distance": {
+					"name": "distance",
+					"type": "double precision",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {
+				"kill_match_round_tick_idx": {
+					"name": "kill_match_round_tick_idx",
+					"columns": [
+						{
+							"expression": "matchId",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						},
+						{
+							"expression": "roundNumber",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						},
+						{
+							"expression": "tick",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				},
+				"kill_match_killer_idx": {
+					"name": "kill_match_killer_idx",
+					"columns": [
+						{
+							"expression": "matchId",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						},
+						{
+							"expression": "killerSteamId",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				},
+				"kill_match_victim_idx": {
+					"name": "kill_match_victim_idx",
+					"columns": [
+						{
+							"expression": "matchId",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						},
+						{
+							"expression": "victimSteamId",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				},
+				"kill_match_weapon_idx": {
+					"name": "kill_match_weapon_idx",
+					"columns": [
+						{
+							"expression": "matchId",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						},
+						{
+							"expression": "weaponName",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				}
+			},
+			"foreignKeys": {
+				"kill_matchId_match_id_fk": {
+					"name": "kill_matchId_match_id_fk",
+					"tableFrom": "kill",
 					"tableTo": "match",
 					"columnsFrom": ["matchId"],
 					"columnsTo": ["id"],
@@ -553,6 +936,218 @@
 					"tableFrom": "player",
 					"tableTo": "team",
 					"columnsFrom": ["teamId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.round": {
+			"name": "round",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "integer",
+					"primaryKey": true,
+					"notNull": true,
+					"identity": {
+						"type": "always",
+						"name": "round_id_seq",
+						"schema": "public",
+						"increment": "1",
+						"startWith": "1",
+						"minValue": "1",
+						"maxValue": "2147483647",
+						"cache": "1",
+						"cycle": false
+					}
+				},
+				"matchId": {
+					"name": "matchId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"number": {
+					"name": "number",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"startTick": {
+					"name": "startTick",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"freezeTimeEndTick": {
+					"name": "freezeTimeEndTick",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"endTick": {
+					"name": "endTick",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"endOfficiallyTick": {
+					"name": "endOfficiallyTick",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"overtimeNumber": {
+					"name": "overtimeNumber",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"teamAName": {
+					"name": "teamAName",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"teamBName": {
+					"name": "teamBName",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"teamAScore": {
+					"name": "teamAScore",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"teamBScore": {
+					"name": "teamBScore",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"teamASide": {
+					"name": "teamASide",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"teamBSide": {
+					"name": "teamBSide",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"teamAEquipmentValue": {
+					"name": "teamAEquipmentValue",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"teamBEquipmentValue": {
+					"name": "teamBEquipmentValue",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"teamAMoneySpent": {
+					"name": "teamAMoneySpent",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"teamBMoneySpent": {
+					"name": "teamBMoneySpent",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"teamAEconomyType": {
+					"name": "teamAEconomyType",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"teamBEconomyType": {
+					"name": "teamBEconomyType",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"duration": {
+					"name": "duration",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"endReason": {
+					"name": "endReason",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"winnerName": {
+					"name": "winnerName",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"winnerSide": {
+					"name": "winnerSide",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"teamAStartMoney": {
+					"name": "teamAStartMoney",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"teamBStartMoney": {
+					"name": "teamBStartMoney",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {
+				"round_match_number_unique": {
+					"name": "round_match_number_unique",
+					"columns": [
+						{
+							"expression": "matchId",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						},
+						{
+							"expression": "number",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						}
+					],
+					"isUnique": true,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				}
+			},
+			"foreignKeys": {
+				"round_matchId_match_id_fk": {
+					"name": "round_matchId_match_id_fk",
+					"tableFrom": "round",
+					"tableTo": "match",
+					"columnsFrom": ["matchId"],
 					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "no action"

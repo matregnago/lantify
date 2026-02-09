@@ -8,6 +8,7 @@ interface PlayerHeaderProps {
 	nickName?: string | null;
 	steamId: string;
 	playersRanking: PlayerRankingDTO[];
+	playerAmount: number;
 }
 
 export const PlayerHeader = ({
@@ -15,6 +16,7 @@ export const PlayerHeader = ({
 	nickName,
 	steamId,
 	playersRanking,
+	playerAmount,
 }: PlayerHeaderProps) => {
 	const ratingRankPosition = getRankingPosByStat(
 		steamId,
@@ -40,7 +42,10 @@ export const PlayerHeader = ({
 					alt={`${nickName} avatar pfp`}
 				/>
 				<p className="text-base font-semibold">{nickName}</p>
-				<RankingPosition position={ratingRankPosition} />
+				<RankingPosition
+					position={ratingRankPosition}
+					playerAmount={playerAmount}
+				/>
 			</div>
 		</div>
 	);
