@@ -1,19 +1,54 @@
 "use client";
-import type { MatchDTO } from "@repo/contracts";
+import type { MatchDTO, PlayerDTO, TeamDTO } from "@repo/contracts";
 import { Calendar } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { isStrongMatch, overlapCount } from "@/lib/api/series";
 import { formatDate } from "@/lib/format-date";
 import { MapIcons } from "@/lib/map-icons";
 import { MapName } from "@/lib/map-name";
 import { Card } from "../ui/card";
 
-export const MatchPreview = ({ match }: { match: MatchDTO }) => {
+export const MatchPreview = ({
+	match,
+	teamA0,
+	teamB0,
+}: {
+	match: MatchDTO;
+	teamA0: PlayerDTO[];
+	teamB0: PlayerDTO[];
+}) => {
 	const router = useRouter();
-	const teamA = match.teams[0];
-	const teamB = match.teams[1];
+	const firstTeam = match.teams[0];
+	const secondTeam = match.teams[1];
 
-	if (!teamA || !teamB) return <></>;
+	if (!firstTeam || !secondTeam) return null;
+
+	const p1 = firstTeam.players ?? [];
+	const p2 = secondTeam.players ?? [];
+
+	const t1A = overlapCount(p1, teamA0);
+	const t1B = overlapCount(p1, teamB0);
+	const t2A = overlapCount(p2, teamA0);
+	const t2B = overlapCount(p2, teamB0);
+
+	const t1StrongA = isStrongMatch(t1A, p1.length);
+	const t1StrongB = isStrongMatch(t1B, p1.length);
+	const t2StrongA = isStrongMatch(t2A, p2.length);
+	const t2StrongB = isStrongMatch(t2B, p2.length);
+
+	let teamA: TeamDTO | undefined;
+	let teamB: TeamDTO | undefined;
+
+	if (t1StrongA && t2StrongB) {
+		teamA = match.teams[0];
+		teamB = match.teams[1];
+	} else if (t1StrongB && t2StrongA) {
+		teamB = match.teams[0];
+		teamA = match.teams[1];
+	} else return null;
+
+	if (!teamA || !teamB) return null;
 
 	return (
 		<div>
