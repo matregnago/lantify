@@ -25,22 +25,24 @@ export function getSteamIdentity(
 }
 
 export async function fetchSteamProfiles(steamIds: string[]) {
-	const keys = steamIds.map((id) => `steam:profile:${id}`);
-	const cachedData = await redis.mget(...keys);
-	const cachedProfiles: SteamPlayer[] = await Promise.all(
-		cachedData
-			.filter((profile) => profile != null)
-			.map((profile) => JSON.parse(profile)),
-	);
+	const ids = steamIds.filter((id) => typeof id === "string" && id.length > 0);
 
-	const notCachedProfiles = steamIds.filter(
+	if (ids.length === 0) return [];
+
+	const keys = ids.map((id) => `steam:profile:${id}`);
+	const cachedData = await redis.mget(...keys);
+
+	const cachedProfiles: SteamPlayer[] = cachedData
+		.filter((profile): profile is string => profile != null && profile !== "")
+		.map((profile) => JSON.parse(profile));
+
+	const notCachedProfiles = ids.filter(
 		(id) => !cachedProfiles.some((a) => a.steamid === id),
 	);
 
-	if (notCachedProfiles.length === 0) {
-		return cachedProfiles;
-	}
-	const steamIdsToFetch = notCachedProfiles.filter(Boolean).join(",");
+	if (notCachedProfiles.length === 0) return cachedProfiles;
+
+	const steamIdsToFetch = notCachedProfiles.join(",");
 
 	const apiKey = process.env.STEAM_API_KEY;
 	const url = `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${apiKey}&steamids=${steamIdsToFetch}`;

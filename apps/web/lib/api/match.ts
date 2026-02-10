@@ -1,5 +1,5 @@
 import type { MatchDataDTO, PlayerDTO } from "@repo/contracts";
-import { count, db, desc, eq, sql } from "@repo/database";
+import { count, db, desc, eq } from "@repo/database";
 import * as s from "@repo/database/schema";
 import { redis } from "@repo/redis";
 import { buildStatsWhere, withMatchJoinIfDate } from "./query-helpers";
@@ -140,7 +140,7 @@ export const getTotalRounds = async (
 		steamId,
 		date,
 		steamIdColumn: participants.steamId,
-		dateColumn: s.matches.date,
+		dateColumn: date === "all" ? undefined : s.matches.date,
 	});
 
 	const base = db

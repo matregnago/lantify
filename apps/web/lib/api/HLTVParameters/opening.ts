@@ -1,8 +1,6 @@
 "use server";
-import { alias, and, count, db, eq, gt, lte, ne, sql } from "@repo/database";
+import { and, count, db, eq, gt, ne, sql } from "@repo/database";
 import * as s from "@repo/database/schema";
-import { getStatPercentage } from "@/lib/get-stat-percentage";
-import { STATS_MIN_MAX_VALUES } from "@/lib/stats-max-min-values";
 import { getTotalRounds } from "../match";
 import { buildStatsWhere, withMatchJoinIfDate } from "../query-helpers";
 import { getOpeningAmount } from "./PlayerWeaponStats";
@@ -79,17 +77,6 @@ const getOpeningRoundsWon = async (
 	steamId?: string,
 	date: string = "all",
 ): Promise<OpeningRoundsWonDTO[]> => {
-	const whereRound = buildStatsWhere({
-		date,
-		steamIdColumn: s.kills.killerSteamId,
-		dateColumn: date === "all" ? undefined : s.matches.date,
-	});
-
-	const roundJoin = and(
-		eq(s.kills.roundNumber, s.rounds.number),
-		eq(s.kills.matchId, s.rounds.matchId),
-	);
-
 	const roundMinTickBase = db
 		.select({
 			matchId: s.kills.matchId,
@@ -103,7 +90,6 @@ const getOpeningRoundsWon = async (
 		date,
 		s.kills.matchId,
 	)
-		.where(whereRound)
 		.groupBy(s.kills.matchId, s.kills.roundNumber)
 		.as("round_min_tick");
 
@@ -131,6 +117,11 @@ const getOpeningRoundsWon = async (
 		eq(roundOpening.killerTeam, s.rounds.winnerName),
 	);
 
+	const where = buildStatsWhere({
+		steamId,
+		steamIdColumn: roundOpening.steamId,
+	});
+
 	const roundWon = db
 		.select({
 			steamId: roundOpening.steamId,
@@ -138,6 +129,7 @@ const getOpeningRoundsWon = async (
 		})
 		.from(roundOpening)
 		.innerJoin(s.rounds, roundWonConditions)
+		.where(where)
 		.groupBy(roundOpening.steamId);
 
 	return await roundWon;
@@ -162,7 +154,7 @@ const getTotalAttacks = async (
 		steamId,
 		date,
 		steamIdColumn: s.damages.attackerSteamId,
-		dateColumn: s.matches.date,
+		dateColumn: date === "all" ? undefined : s.matches.date,
 		extra,
 	});
 

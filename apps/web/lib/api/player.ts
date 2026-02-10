@@ -34,6 +34,8 @@ export async function getAggregatedPlayerStats(
 	steamId?: string,
 	date: string = "all",
 ): Promise<PlayerStatsDTO[]> {
+	date = (date ?? "all").trim();
+	if (date === "") date = "all";
 	const key = `aggregated-stats:${steamId ?? "all"}:${date}`;
 	const cachedAggregatedStats = await redis.get(key);
 
@@ -226,8 +228,10 @@ export async function getPlayerProfileData(
 	return playerProfile;
 }
 
-export async function getPlayersRankingData(): Promise<PlayerRankingDTO[]> {
-	const playersStats = await getAggregatedPlayerStats();
+export async function getPlayersRankingData(
+	date: string = "all",
+): Promise<PlayerRankingDTO[]> {
+	const playersStats = await getAggregatedPlayerStats(undefined, date);
 	const steamIds = playersStats
 		.map((player) => player.steamId)
 		.filter((p) => p != null);
@@ -522,17 +526,22 @@ export const getTotalTimeAliveTicks = async (
 		.groupBy(pr.matchId, pr.steamId);
 
 	// Apply your standard filters (steamId + optional month filter via matches join)
-	const aliveWithDateJoin = withMatchJoinIfDate(
+	const aliveFiltered = withMatchJoinIfDate(
 		alivePerRoundBase,
 		date,
 		pr.matchId,
+	);
+	const aliveWithDateJoin = (
+		date === "all"
+			? aliveFiltered
+			: (aliveFiltered as any).where(
+					sql`to_char(${s.matches.date}::timestamp, 'Mon YYYY') = ${date}`,
+				)
 	).as("alive_with_date");
 
 	const where = buildStatsWhere({
 		steamId,
-		date,
 		steamIdColumn: aliveWithDateJoin.steamId,
-		dateColumn: date === "all" ? undefined : s.matches.date,
 	});
 
 	const finalQ = db
@@ -574,7 +583,7 @@ export const getTotalLostAndWonRounds = async (
 		steamId,
 		date,
 		steamIdColumn: participants.steamId,
-		dateColumn: s.matches.date,
+		dateColumn: date === "all" ? undefined : s.matches.date,
 	});
 
 	const base = db

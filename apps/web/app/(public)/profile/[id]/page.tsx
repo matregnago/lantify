@@ -16,7 +16,6 @@ export default async function ProfilePage({
 	const { id } = await params;
 	const profileData = await getPlayerProfileData(id);
 	const playerAmount = await getPlayerAmount("all");
-	console.log("test:", playerAmount);
 	const playersRanking = await getPlayersRankingData();
 
 	if (!profileData) {

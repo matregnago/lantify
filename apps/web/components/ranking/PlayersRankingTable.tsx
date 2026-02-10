@@ -15,9 +15,11 @@ import { RankingPosition } from "./RankingPosition";
 export const PlayersRankingTable = ({
 	players,
 	playerAmount,
+	date,
 }: {
 	players: PlayerRankingDTO[];
 	playerAmount: number;
+	date?: string;
 }) => {
 	const router = useRouter();
 

@@ -1,19 +1,5 @@
-import {
-	alias,
-	and,
-	count,
-	db,
-	eq,
-	gt,
-	gte,
-	lte,
-	ne,
-	sql,
-	unionAll,
-} from "@repo/database";
+import { alias, and, db, eq, gte, lte, ne, sql } from "@repo/database";
 import * as s from "@repo/database/schema";
-import { getStatPercentage } from "../../get-stat-percentage";
-import { STATS_MIN_MAX_VALUES } from "../../stats-max-min-values";
 import { getTotalRounds } from "../match";
 import { getTotalAssists, getTotalDeaths } from "../player";
 import { buildStatsWhere, withMatchJoinIfDate } from "../query-helpers";
@@ -227,13 +213,18 @@ export const getSupportRounds = async (
 		.groupBy(pr.matchId, pr.roundNumber, pr.steamId);
 
 	// Date filter requires matches join (same pattern you already use)
-	const flagsQ = withMatchJoinIfDate(flagsBase, date, pr.matchId).as("flags");
+	const flagsFiltered = withMatchJoinIfDate(flagsBase, date, pr.matchId);
+	const flagsQ = (
+		date === "all"
+			? flagsFiltered
+			: (flagsFiltered as any).where(
+					sql`to_char(${s.matches.date}::timestamp, 'Mon YYYY') = ${date}`,
+				)
+	).as("flags");
 
 	const where = buildStatsWhere({
 		steamId,
-		date,
 		steamIdColumn: flagsQ.steamId,
-		dateColumn: date === "all" ? undefined : s.matches.date,
 	});
 
 	/**

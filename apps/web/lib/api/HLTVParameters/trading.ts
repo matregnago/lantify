@@ -1,7 +1,5 @@
 import { alias, and, db, eq, gte, lte, ne, sql } from "@repo/database";
 import * as s from "@repo/database/schema";
-import { getStatPercentage } from "../../get-stat-percentage";
-import { STATS_MIN_MAX_VALUES } from "../../stats-max-min-values";
 import { getTotalRounds } from "../match";
 import {
 	getTotalAssistedKills,
@@ -221,13 +219,6 @@ export const getOpeningDeathsTraded = async (
 	const k2 = alias(s.kills, "k2"); // opening kill
 	const k1 = alias(s.kills, "k1"); // trade kill
 
-	// opening kill
-	const whereRound = buildStatsWhere({
-		date,
-		steamIdColumn: k2.killerSteamId,
-		dateColumn: date === "all" ? undefined : s.matches.date,
-	});
-
 	const roundMinTickBase = db
 		.select({
 			matchId: k2.matchId,
@@ -237,7 +228,6 @@ export const getOpeningDeathsTraded = async (
 		.from(k2);
 
 	const roundMinTick = withMatchJoinIfDate(roundMinTickBase, date, k2.matchId)
-		.where(whereRound)
 		.groupBy(k2.matchId, k2.roundNumber)
 		.as("round_min_tick");
 
