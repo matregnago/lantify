@@ -7,8 +7,18 @@ export function sortRankingByStat(
 	invert?: boolean,
 ) {
 	return [...playersStats].sort((a, b) => {
-		const statA = a.stats[statToSort] as number;
-		const statB = b.stats[statToSort] as number;
+		const rawA = a.stats[statToSort] as number;
+		const rawB = b.stats[statToSort] as number;
+		const statA = Number.isFinite(rawA)
+			? rawA
+			: invert
+				? Number.POSITIVE_INFINITY
+				: Number.NEGATIVE_INFINITY;
+		const statB = Number.isFinite(rawB)
+			? rawB
+			: invert
+				? Number.POSITIVE_INFINITY
+				: Number.NEGATIVE_INFINITY;
 
 		const diff = invert ? statA - statB : statB - statA;
 		if (diff !== 0) return diff;
@@ -32,7 +42,8 @@ export function getRankingPosByStat(
 	let i = 0;
 
 	for (const player of sorted) {
-		const value = player.stats[statToSort] as number;
+		const raw = player.stats[statToSort] as number;
+		const value = Number.isFinite(raw) ? raw : null;
 
 		if (prevValue !== null && value !== prevValue) {
 			rank = i + 1;
