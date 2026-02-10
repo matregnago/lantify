@@ -31,6 +31,7 @@ export default async function ProfilePage({
 				profile={profileData}
 				playersRanking={playersRanking}
 				playerAmount={playerAmount}
+				date={date}
 			/>
 		</div>
 	);

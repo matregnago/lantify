@@ -33,6 +33,11 @@ export function SeriesMatchup({
 	"
 			onClick={() => router.push(`/series/${encodeURIComponent(date)}`)}
 		>
+			<div className="flex justify-end pr-4 pt-1">
+				<span className="text-xs text-muted-foreground">
+					Ver ranking da lan →
+				</span>
+			</div>
 			<div className={className}>
 				<div className="rounded-lg p-2">
 					<div className="grid grid-cols-[1fr_auto_1fr] items-center">

@@ -224,10 +224,33 @@ export async function getPlayerProfileData(
 		.flatMap((p) => p.match?.teams ?? [])
 		.reduce((acc, team) => acc + (team?.score ?? 0), 0);
 
-	const clutches = await db
-		.select()
-		.from(s.clutches)
-		.where(eq(s.clutches.clutcherSteamId, steamId));
+	const clutchesBase = db
+		.select({
+			id: s.clutches.id,
+			matchId: s.clutches.matchId,
+			roundNumber: s.clutches.roundNumber,
+			opponentCount: s.clutches.opponentCount,
+			hasWon: s.clutches.hasWon,
+			clutcherSteamId: s.clutches.clutcherSteamId,
+			clutcherSurvived: s.clutches.clutcherSurvived,
+			clutcherKillCount: s.clutches.clutcherKillCount,
+		})
+		.from(s.clutches);
+
+	const clutchesQuery = withMatchJoinIfDate(
+		clutchesBase,
+		date,
+		s.clutches.matchId,
+	);
+
+	const clutchesWhere = buildStatsWhere({
+		steamId,
+		date,
+		steamIdColumn: s.clutches.clutcherSteamId,
+		dateColumn: date === "all" ? undefined : s.matches.date,
+	});
+
+	const clutches = await clutchesQuery.where(clutchesWhere);
 
 	const playerProfile: PlayerProfileDTO = {
 		steamId,
