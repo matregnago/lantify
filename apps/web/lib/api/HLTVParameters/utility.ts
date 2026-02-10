@@ -1,8 +1,6 @@
 import { WeaponType } from "@repo/contracts/enums";
 import { db, sum } from "@repo/database";
 import * as s from "@repo/database/schema";
-import { getStatPercentage } from "../../get-stat-percentage";
-import { STATS_MIN_MAX_VALUES } from "../../stats-max-min-values";
 import { getTotalRounds } from "../match";
 import { buildStatsWhere, withMatchJoinIfDate } from "../query-helpers";
 import { getWeaponTypeStats } from "./PlayerWeaponStats";

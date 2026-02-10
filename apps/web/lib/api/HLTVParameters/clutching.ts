@@ -1,8 +1,6 @@
 import type { ClutchDTO } from "@repo/contracts";
 import { count, db, eq, sql } from "@repo/database";
 import * as s from "@repo/database/schema";
-import { getStatPercentage } from "../../get-stat-percentage";
-import { STATS_MIN_MAX_VALUES } from "../../stats-max-min-values";
 import { getTotalRounds } from "../match";
 import { getTotalLostAndWonRounds, getTotalTimeAliveTicks } from "../player";
 import { buildStatsWhere, withMatchJoinIfDate } from "../query-helpers";
@@ -96,7 +94,12 @@ const getClutchPoints = async (steamId?: string, date: string = "all") => {
 		extra: extraConditions,
 	});
 
-	const base = db.select().from(s.clutches);
+	const base = db
+		.select({
+			clutcherSteamId: s.clutches.clutcherSteamId,
+			opponentCount: s.clutches.opponentCount,
+		})
+		.from(s.clutches);
 
 	const wonClutches = (await withMatchJoinIfDate(
 		base,

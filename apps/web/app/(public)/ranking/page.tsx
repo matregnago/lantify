@@ -14,10 +14,17 @@ export default async function MainRankingPage() {
 
 	rankingData = sortRankingByStat(rankingData, "rating2");
 	const playerAmount = await getPlayerAmount();
+	const totalMatches = Math.max(
+		...rankingData.map((p) => p.stats.totalMatches ?? 0),
+	);
 
 	return (
 		<div className="max-w-7xl mx-auto my-12">
 			<h1 className="text-4xl font-bold text-center md:text-left">Ranking</h1>
+			<p className="text-sm text-muted-foreground text-center md:text-left">
+				{playerAmount} jogadores · {totalMatches}{" "}
+				{totalMatches === 1 ? "partida" : "partidas"}
+			</p>
 
 			<div className="flex flex-col w-full mt-8">
 				<PlayersRankingTable

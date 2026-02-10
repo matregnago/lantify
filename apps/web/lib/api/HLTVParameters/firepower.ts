@@ -1,10 +1,8 @@
 "use server";
 import { and, count, db, eq, ne, sql } from "@repo/database";
 import * as s from "@repo/database/schema";
-import { getStatPercentage } from "@/lib/get-stat-percentage";
-import { STATS_MIN_MAX_VALUES } from "@/lib/stats-max-min-values";
 import { getTotalRounds } from "../match";
-import { getRating2, getTotalDamage, getTotalKills } from "../player";
+import { getRating2, getTotalDamage } from "../player";
 import { buildStatsWhere, withMatchJoinIfDate } from "../query-helpers";
 import { getWeaponTypeStats } from "./PlayerWeaponStats";
 import { getPistolRating2 } from "./pistolRating2";

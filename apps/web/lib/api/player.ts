@@ -34,6 +34,8 @@ export async function getAggregatedPlayerStats(
 	steamId?: string,
 	date: string = "all",
 ): Promise<PlayerStatsDTO[]> {
+	date = (date ?? "all").trim();
+	if (date === "") date = "all";
 	const key = `aggregated-stats:${steamId ?? "all"}:${date}`;
 	const cachedAggregatedStats = await redis.get(key);
 
@@ -136,13 +138,16 @@ export async function getAggregatedPlayerStats(
 			...firePowerValue,
 		};
 	});
-	await redis.set(key, JSON.stringify(aggregatedPlayerStatsList), "EX", 43200);
+	await redis.set(key, JSON.stringify(aggregatedPlayerStatsList), "EX", 259200);
 
 	return aggregatedPlayerStatsList;
 }
 
-export async function getPlayerMatchHistory(steamId: string) {
-	const key = `match-history:${steamId}`;
+export async function getPlayerMatchHistory(
+	steamId: string,
+	date: string = "all",
+) {
+	const key = `match-history:${steamId}:${date}`;
 	const cachedMatchHistory = await redis.get(key);
 
 	if (cachedMatchHistory && cachedMatchHistory !== "") {
@@ -162,27 +167,41 @@ export async function getPlayerMatchHistory(steamId: string) {
 			where: eq(s.players.steamId, steamId),
 		})) || [];
 
-	const result = playerMatchHistory.sort(
+	const sorted = playerMatchHistory.sort(
 		(a, b) =>
 			new Date(b.match?.date || 0).getTime() -
 			new Date(a.match?.date || 0).getTime(),
 	);
 
-	await redis.set(key, JSON.stringify(result), "EX", 43200); // 12 hours
+	const result =
+		date === "all"
+			? sorted
+			: sorted.filter((pm) => {
+					if (!pm.match?.date) return false;
+					const d = new Date(pm.match.date);
+					const formatted = d.toLocaleString("en-US", {
+						month: "short",
+						year: "numeric",
+					});
+					return formatted === date;
+				});
+
+	await redis.set(key, JSON.stringify(result), "EX", 259200);
 
 	return result;
 }
 
 export async function getPlayerProfileData(
 	steamId: string,
+	date: string = "all",
 ): Promise<PlayerProfileDTO | null> {
-	const key = `player-profile:${steamId}`;
+	const key = `player-profile:${steamId}:${date}`;
 	const cachedProfile = await redis.get(key);
 	if (cachedProfile && cachedProfile !== "") {
 		return JSON.parse(cachedProfile) as PlayerProfileDTO;
 	}
 
-	const [stats] = await getAggregatedPlayerStats(steamId);
+	const [stats] = await getAggregatedPlayerStats(steamId, date);
 	const steamData = await fetchSteamProfiles([steamId]);
 
 	const steamIdentity = getSteamIdentity(steamId, steamData);
@@ -191,7 +210,7 @@ export async function getPlayerProfileData(
 		return null;
 	}
 
-	const playerMatchHistory = await getPlayerMatchHistory(steamId);
+	const playerMatchHistory = await getPlayerMatchHistory(steamId, date);
 
 	const winRate =
 		(playerMatchHistory.reduce(
@@ -205,10 +224,33 @@ export async function getPlayerProfileData(
 		.flatMap((p) => p.match?.teams ?? [])
 		.reduce((acc, team) => acc + (team?.score ?? 0), 0);
 
-	const clutches = await db
-		.select()
-		.from(s.clutches)
-		.where(eq(s.clutches.clutcherSteamId, steamId));
+	const clutchesBase = db
+		.select({
+			id: s.clutches.id,
+			matchId: s.clutches.matchId,
+			roundNumber: s.clutches.roundNumber,
+			opponentCount: s.clutches.opponentCount,
+			hasWon: s.clutches.hasWon,
+			clutcherSteamId: s.clutches.clutcherSteamId,
+			clutcherSurvived: s.clutches.clutcherSurvived,
+			clutcherKillCount: s.clutches.clutcherKillCount,
+		})
+		.from(s.clutches);
+
+	const clutchesQuery = withMatchJoinIfDate(
+		clutchesBase,
+		date,
+		s.clutches.matchId,
+	);
+
+	const clutchesWhere = buildStatsWhere({
+		steamId,
+		date,
+		steamIdColumn: s.clutches.clutcherSteamId,
+		dateColumn: date === "all" ? undefined : s.matches.date,
+	});
+
+	const clutches = await clutchesQuery.where(clutchesWhere);
 
 	const playerProfile: PlayerProfileDTO = {
 		steamId,
@@ -221,13 +263,15 @@ export async function getPlayerProfileData(
 		nickName: steamIdentity.nickName,
 	};
 
-	await redis.set(key, JSON.stringify(playerProfile), "EX", 43200); // 12 hours
+	await redis.set(key, JSON.stringify(playerProfile), "EX", 259200);
 
 	return playerProfile;
 }
 
-export async function getPlayersRankingData(): Promise<PlayerRankingDTO[]> {
-	const playersStats = await getAggregatedPlayerStats();
+export async function getPlayersRankingData(
+	date: string = "all",
+): Promise<PlayerRankingDTO[]> {
+	const playersStats = await getAggregatedPlayerStats(undefined, date);
 	const steamIds = playersStats
 		.map((player) => player.steamId)
 		.filter((p) => p != null);
@@ -270,7 +314,7 @@ export const getPlayerDuelsByMonth = async (steamId: string, month: string) => {
 
 	const result = await query;
 
-	await redis.set(key, JSON.stringify(result), "EX", 43200); // 12 hours
+	await redis.set(key, JSON.stringify(result), "EX", 259200);
 	return result;
 };
 
@@ -522,17 +566,22 @@ export const getTotalTimeAliveTicks = async (
 		.groupBy(pr.matchId, pr.steamId);
 
 	// Apply your standard filters (steamId + optional month filter via matches join)
-	const aliveWithDateJoin = withMatchJoinIfDate(
+	const aliveFiltered = withMatchJoinIfDate(
 		alivePerRoundBase,
 		date,
 		pr.matchId,
+	);
+	const aliveWithDateJoin = (
+		date === "all"
+			? aliveFiltered
+			: (aliveFiltered as any).where(
+					sql`to_char(${s.matches.date}::timestamp, 'Mon YYYY') = ${date}`,
+				)
 	).as("alive_with_date");
 
 	const where = buildStatsWhere({
 		steamId,
-		date,
 		steamIdColumn: aliveWithDateJoin.steamId,
-		dateColumn: date === "all" ? undefined : s.matches.date,
 	});
 
 	const finalQ = db
@@ -574,7 +623,7 @@ export const getTotalLostAndWonRounds = async (
 		steamId,
 		date,
 		steamIdColumn: participants.steamId,
-		dateColumn: s.matches.date,
+		dateColumn: date === "all" ? undefined : s.matches.date,
 	});
 
 	const base = db

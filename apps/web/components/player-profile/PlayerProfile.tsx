@@ -10,12 +10,14 @@ interface PlayerProfileProps {
 	profile: PlayerProfileDTO;
 	playersRanking: PlayerRankingDTO[];
 	playerAmount: number;
+	date?: string;
 }
 
 export const PlayerProfile = ({
 	profile,
 	playersRanking,
 	playerAmount,
+	date,
 }: PlayerProfileProps) => {
 	return (
 		<div className="max-w-370 mx-auto">
@@ -25,6 +27,8 @@ export const PlayerProfile = ({
 				playersRanking={playersRanking}
 				steamId={profile.steamId}
 				playerAmount={playerAmount}
+				date={date}
+				totalMatches={profile.stats.totalMatches}
 			/>
 			<div className="flex flex-col gap-8">
 				<OverallStatsCard

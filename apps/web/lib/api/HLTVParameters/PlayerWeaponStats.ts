@@ -219,12 +219,16 @@ export const getOpeningAmount = async (
 		ne(s.kills.killerTeamName, s.kills.victimTeamName),
 	);
 
-	const openingKills = db
-		.select({
-			steamId: s.kills.killerSteamId,
-		})
+	const openingKillsBase = db
+		.select({ steamId: s.kills.killerSteamId })
 		.from(s.kills)
-		.innerJoin(roundMinTick, openingConditions)
+		.innerJoin(roundMinTick, openingConditions);
+
+	const openingKills = withMatchJoinIfDate(
+		openingKillsBase,
+		date,
+		s.kills.matchId,
+	)
 		.where(whereKills)
 		.as("opening_kills");
 
@@ -236,12 +240,16 @@ export const getOpeningAmount = async (
 		.from(openingKills)
 		.groupBy(openingKills.steamId);
 
-	const openingDeaths = db
-		.select({
-			steamId: s.kills.victimSteamId,
-		})
+	const openingDeathsBase = db
+		.select({ steamId: s.kills.victimSteamId })
 		.from(s.kills)
-		.innerJoin(roundMinTick, openingConditions)
+		.innerJoin(roundMinTick, openingConditions);
+
+	const openingDeaths = withMatchJoinIfDate(
+		openingDeathsBase,
+		date,
+		s.kills.matchId,
+	)
 		.where(whereDeaths)
 		.as("opening_deaths");
 

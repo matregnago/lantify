@@ -1,5 +1,5 @@
 import type { MatchDataDTO, PlayerDTO } from "@repo/contracts";
-import { count, db, desc, eq, sql } from "@repo/database";
+import { count, db, desc, eq } from "@repo/database";
 import * as s from "@repo/database/schema";
 import { redis } from "@repo/redis";
 import { buildStatsWhere, withMatchJoinIfDate } from "./query-helpers";
@@ -60,7 +60,7 @@ export async function getMatchData(matchId: string) {
 		}),
 	};
 
-	await redis.set(key, JSON.stringify(completeMatchData), "EX", 43200); // 12 hours
+	await redis.set(key, JSON.stringify(completeMatchData), "EX", 259200); // 3 days
 
 	return completeMatchData;
 }
@@ -140,7 +140,7 @@ export const getTotalRounds = async (
 		steamId,
 		date,
 		steamIdColumn: participants.steamId,
-		dateColumn: s.matches.date,
+		dateColumn: date === "all" ? undefined : s.matches.date,
 	});
 
 	const base = db
