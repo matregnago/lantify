@@ -45,7 +45,12 @@ export const PlayersRankingTable = ({
 						<TableRow
 							key={player.steamId}
 							className="cursor-pointer"
-							onClick={() => router.push(`/profile/${player.steamId}`)}
+							onClick={() => {
+								const url = date
+									? `/profile/${player.steamId}?date=${encodeURIComponent(date)}`
+									: `/profile/${player.steamId}`;
+								router.push(url);
+							}}
 						>
 							<TableCell className="text-center tabular-nums">
 								<RankingPosition

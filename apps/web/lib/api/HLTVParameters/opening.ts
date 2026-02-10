@@ -85,11 +85,18 @@ const getOpeningRoundsWon = async (
 		})
 		.from(s.kills);
 
+	const whereRound = buildStatsWhere({
+		date,
+		steamIdColumn: s.kills.killerSteamId,
+		dateColumn: s.matches.date,
+	});
+
 	const roundMinTick = withMatchJoinIfDate(
 		roundMinTickBase,
 		date,
 		s.kills.matchId,
 	)
+		.where(whereRound)
 		.groupBy(s.kills.matchId, s.kills.roundNumber)
 		.as("round_min_tick");
 

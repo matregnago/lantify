@@ -33,6 +33,7 @@ export default async function SeriesRankingPage({
 				<PlayersRankingTable
 					players={rankingData}
 					playerAmount={playerAmount}
+					date={date}
 				/>
 			</div>
 		</div>

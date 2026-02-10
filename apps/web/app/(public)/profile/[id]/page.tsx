@@ -10,13 +10,16 @@ import {
 
 export default async function ProfilePage({
 	params,
+	searchParams,
 }: {
 	params: Promise<{ id: string }>;
+	searchParams: Promise<{ date?: string }>;
 }) {
 	const { id } = await params;
-	const profileData = await getPlayerProfileData(id);
-	const playerAmount = await getPlayerAmount("all");
-	const playersRanking = await getPlayersRankingData();
+	const { date } = await searchParams;
+	const profileData = await getPlayerProfileData(id, date);
+	const playerAmount = await getPlayerAmount(date ?? "all");
+	const playersRanking = await getPlayersRankingData(date);
 
 	if (!profileData) {
 		notFound();

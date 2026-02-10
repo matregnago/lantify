@@ -143,8 +143,11 @@ export async function getAggregatedPlayerStats(
 	return aggregatedPlayerStatsList;
 }
 
-export async function getPlayerMatchHistory(steamId: string) {
-	const key = `match-history:${steamId}`;
+export async function getPlayerMatchHistory(
+	steamId: string,
+	date: string = "all",
+) {
+	const key = `match-history:${steamId}:${date}`;
 	const cachedMatchHistory = await redis.get(key);
 
 	if (cachedMatchHistory && cachedMatchHistory !== "") {
@@ -164,11 +167,24 @@ export async function getPlayerMatchHistory(steamId: string) {
 			where: eq(s.players.steamId, steamId),
 		})) || [];
 
-	const result = playerMatchHistory.sort(
+	const sorted = playerMatchHistory.sort(
 		(a, b) =>
 			new Date(b.match?.date || 0).getTime() -
 			new Date(a.match?.date || 0).getTime(),
 	);
+
+	const result =
+		date === "all"
+			? sorted
+			: sorted.filter((pm) => {
+					if (!pm.match?.date) return false;
+					const d = new Date(pm.match.date);
+					const formatted = d.toLocaleString("en-US", {
+						month: "short",
+						year: "numeric",
+					});
+					return formatted === date;
+				});
 
 	await redis.set(key, JSON.stringify(result), "EX", 43200); // 12 hours
 
@@ -177,14 +193,15 @@ export async function getPlayerMatchHistory(steamId: string) {
 
 export async function getPlayerProfileData(
 	steamId: string,
+	date: string = "all",
 ): Promise<PlayerProfileDTO | null> {
-	const key = `player-profile:${steamId}`;
+	const key = `player-profile:${steamId}:${date}`;
 	const cachedProfile = await redis.get(key);
 	if (cachedProfile && cachedProfile !== "") {
 		return JSON.parse(cachedProfile) as PlayerProfileDTO;
 	}
 
-	const [stats] = await getAggregatedPlayerStats(steamId);
+	const [stats] = await getAggregatedPlayerStats(steamId, date);
 	const steamData = await fetchSteamProfiles([steamId]);
 
 	const steamIdentity = getSteamIdentity(steamId, steamData);
@@ -193,7 +210,7 @@ export async function getPlayerProfileData(
 		return null;
 	}
 
-	const playerMatchHistory = await getPlayerMatchHistory(steamId);
+	const playerMatchHistory = await getPlayerMatchHistory(steamId, date);
 
 	const winRate =
 		(playerMatchHistory.reduce(
