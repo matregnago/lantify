@@ -138,7 +138,7 @@ export async function getAggregatedPlayerStats(
 			...firePowerValue,
 		};
 	});
-	await redis.set(key, JSON.stringify(aggregatedPlayerStatsList), "EX", 43200);
+	await redis.set(key, JSON.stringify(aggregatedPlayerStatsList), "EX", 259200);
 
 	return aggregatedPlayerStatsList;
 }
@@ -186,7 +186,7 @@ export async function getPlayerMatchHistory(
 					return formatted === date;
 				});
 
-	await redis.set(key, JSON.stringify(result), "EX", 43200); // 12 hours
+	await redis.set(key, JSON.stringify(result), "EX", 259200);
 
 	return result;
 }
@@ -263,7 +263,7 @@ export async function getPlayerProfileData(
 		nickName: steamIdentity.nickName,
 	};
 
-	await redis.set(key, JSON.stringify(playerProfile), "EX", 43200); // 12 hours
+	await redis.set(key, JSON.stringify(playerProfile), "EX", 259200);
 
 	return playerProfile;
 }
@@ -314,7 +314,7 @@ export const getPlayerDuelsByMonth = async (steamId: string, month: string) => {
 
 	const result = await query;
 
-	await redis.set(key, JSON.stringify(result), "EX", 43200); // 12 hours
+	await redis.set(key, JSON.stringify(result), "EX", 259200);
 	return result;
 };
 

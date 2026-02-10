@@ -60,7 +60,7 @@ export async function getMatchData(matchId: string) {
 		}),
 	};
 
-	await redis.set(key, JSON.stringify(completeMatchData), "EX", 43200); // 12 hours
+	await redis.set(key, JSON.stringify(completeMatchData), "EX", 259200); // 3 days
 
 	return completeMatchData;
 }
