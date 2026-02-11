@@ -80,7 +80,8 @@ export const PlayerHeader = ({
 				<>
 					<div className="flex-1" />
 					<Link
-						href="/"
+						href="/ranking
+						"
 						className="z-10 flex flex-col items-end gap-2 hover:opacity-80 transition-opacity shrink-0"
 					>
 						<span className="text-2xl text-muted-foreground flex items-center gap-1">
