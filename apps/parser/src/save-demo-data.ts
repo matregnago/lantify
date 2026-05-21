@@ -45,28 +45,24 @@ export const saveDemoData = async (fileName: string) => {
 					...calculated,
 				};
 			});
-			await tx.insert(schema.players).values(playersData);
 
 			const duels = createDuels(data, matchData.id);
-
-			await tx.insert(schema.playerDuels).values(duels);
-
 			const clutches = createClutches(data, matchData.id);
-
-			await tx.insert(schema.clutches).values(clutches);
-
 			const kills = createKills(data, matchData.id);
-
-			await tx.insert(schema.kills).values(kills);
-
 			const rounds = createRounds(data, matchData.id);
-
-			await tx.insert(schema.rounds).values(rounds);
-
 			const damages = createDamages(data, matchData.id);
 
-			await tx.insert(schema.damages).values(damages);
+			const insertPromises = [
+				tx.insert(schema.players).values(playersData),
+				tx.insert(schema.playerDuels).values(duels),
+				tx.insert(schema.clutches).values(clutches),
+				tx.insert(schema.kills).values(kills),
+				tx.insert(schema.rounds).values(rounds),
+				tx.insert(schema.damages).values(damages),
+			];
+			await Promise.all(insertPromises);
 		});
+
 		console.log(
 			`Dados da demo ${data.demoFileName} salvos com sucesso no banco.`,
 		);
